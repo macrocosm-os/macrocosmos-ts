@@ -3,13 +3,13 @@
 // TypeScript interfaces generated from protobuf definitions
 export interface IChatCompletionRequest {
   uids?: number[];
-  messages?: any[];
+  messages?: IChatMessage[];
   seed?: number;
   task?: string;
   model?: string;
   testTimeInference?: boolean;
   mixture?: boolean;
-  samplingParameters?: any;
+  samplingParameters?: ISamplingParameters;
   inferenceMode?: string;
   jsonFormat?: boolean;
   stream?: boolean;
@@ -25,30 +25,30 @@ export interface ISamplingParameters {
 
 export interface IChatCompletionResponse {
   id?: string;
-  choices?: any[];
+  choices?: IChoice[];
   created?: number;
   model?: string;
   object?: string;
   serviceTier?: string;
   systemFingerprint?: string;
-  usage?: any;
+  usage?: ICompletionUsage;
 }
 
 export interface IChoice {
   finishReason?: string;
   index?: number;
-  logprobs?: any;
-  message?: any;
+  logprobs?: IChoiceLogprobs;
+  message?: IChatCompletionMessage;
 }
 
 export interface IChatCompletionMessage {
   content?: string;
   refusal?: string;
   role?: string;
-  annotations?: any[];
-  audio?: any;
-  functionCall?: any;
-  toolCalls?: any[];
+  annotations?: IAnnotation[];
+  audio?: IChatCompletionAudio;
+  functionCall?: IFunctionCall;
+  toolCalls?: IChatCompletionMessageToolCall[];
 }
 
 export interface IAnnotation {
@@ -70,7 +70,7 @@ export interface IFunctionCall {
 
 export interface IChatCompletionMessageToolCall {
   id?: string;
-  function?: any;
+  function?: IFunction;
   type?: string;
 }
 
@@ -81,13 +81,13 @@ export interface IFunction {
 
 export interface IChatCompletionChunkResponse {
   id?: string;
-  choices?: any[];
+  choices?: IChunkChoice[];
   created?: number;
   model?: string;
   object?: string;
   serviceTier?: string;
   systemFingerprint?: string;
-  usage?: any;
+  usage?: ICompletionUsage;
 }
 
 export interface IChatMessage {
@@ -96,23 +96,23 @@ export interface IChatMessage {
 }
 
 export interface IChunkChoice {
-  delta?: any;
+  delta?: IChoiceDelta;
   finishReason?: string;
   index?: number;
-  logprobs?: any;
+  logprobs?: IChoiceLogprobs;
 }
 
 export interface IChoiceLogprobs {
-  content?: any[];
-  refusal?: any[];
+  content?: IChatCompletionTokenLogprob[];
+  refusal?: IChatCompletionTokenLogprob[];
 }
 
 export interface IChoiceDelta {
   content?: string;
-  functionCall?: any;
+  functionCall?: IChoiceDeltaFunctionCall;
   refusal?: string;
   role?: string;
-  toolCalls?: any[];
+  toolCalls?: IChoiceDeltaToolCall[];
 }
 
 export interface IChoiceDeltaFunctionCall {
@@ -123,7 +123,7 @@ export interface IChoiceDeltaFunctionCall {
 export interface IChoiceDeltaToolCall {
   index?: number;
   id?: string;
-  function?: any;
+  function?: IChoiceDeltaToolCallFunction;
   type?: string;
 }
 
@@ -136,7 +136,7 @@ export interface IChatCompletionTokenLogprob {
   token?: string;
   bytes?: number[];
   logprob?: number;
-  topLogprobs?: any[];
+  topLogprobs?: ITopLogprob[];
 }
 
 export interface ITopLogprob {
@@ -149,8 +149,8 @@ export interface ICompletionUsage {
   completionTokens?: number;
   promptTokens?: number;
   totalTokens?: number;
-  completionTokensDetails?: any;
-  promptTokensDetails?: any;
+  completionTokensDetails?: ICompletionTokensDetails;
+  promptTokensDetails?: IPromptTokensDetails;
 }
 
 export interface ICompletionTokensDetails {
@@ -170,7 +170,7 @@ export interface IWebRetrievalRequest {
   searchQuery?: string;
   nMiners?: number;
   nResults?: number;
-  maxResponseTime?: number;
+  maxResponseTime?: Date;
 }
 
 export interface IWebSearchResult {
@@ -180,7 +180,14 @@ export interface IWebSearchResult {
 }
 
 export interface IWebRetrievalResponse {
-  results?: any[];
+  results?: IWebSearchResult[];
+}
+
+
+export interface IApexServiceClient {
+  ChatCompletion(request: IChatCompletionRequest): Promise<IChatCompletionResponse>;
+  ChatCompletionStream(request: IChatCompletionRequest): Promise<AsyncIterable<IChatCompletionChunkResponse>>;
+  WebRetrieval(request: IWebRetrievalRequest): Promise<IWebRetrievalResponse>;
 }
 
 // Original protobuf JSON schema

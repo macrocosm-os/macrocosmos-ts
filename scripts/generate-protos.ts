@@ -27,30 +27,176 @@ function findProtoFiles(dir: string): string[] {
   return files;
 }
 
-// Generate TypeScript interface for a protobuf message type
-function generateInterface(type: protobuf.Type, packageName: string, typeMap: Map<string, string> = new Map()): string {
-  const properties = type.fieldsArray.map(field => {
-    const optional = !field.required ? '?' : '';
-    const isRepeated = field.repeated;
-    const propertyName = field.name;
-    let propertyType: string;
+// Find all proto files
+const protoFiles = findProtoFiles(PROTO_DIR);
 
-    if (field.resolvedType) {
-      // Reference to another message type
-      if (field.resolvedType instanceof protobuf.Type) {
-        const typeName = field.resolvedType.name;
-        propertyType = `I${typeName}`;
-        
-        // Store in the type map for validation
-        typeMap.set(field.resolvedType.fullName, propertyType);
-      } else if (field.resolvedType instanceof protobuf.Enum) {
-        // Enum type
-        propertyType = field.resolvedType.name;
-      } else {
-        propertyType = 'any';
+// Process each proto file
+for (const protoFile of protoFiles) {
+  console.log(`Processing ${protoFile}...`);
+  
+  try {
+    const relativePath = path.relative(PROTO_DIR, protoFile);
+    
+    // Load the proto file with resolving references
+    const root = new protobuf.Root();
+    root.resolvePath = (origin, target) => {
+      // Handle well-known Google protobuf imports
+      if (target.startsWith('google/protobuf/')) {
+        // These will be resolved to native types, so we don't need to load them
+        return target;
       }
-    } else {
-      // Convert protobuf types to TypeScript types
+      
+      // Make resolvePath work correctly with imported proto files
+      if (path.isAbsolute(target)) {
+        return target;
+      }
+      
+      // Handle relative imports
+      if (origin) {
+        return path.join(path.dirname(origin), target);
+      }
+      
+      // Default to looking in the proto directory
+      return path.join(PROTO_DIR, target);
+    };
+    
+    // Load and resolve the proto file
+    const loaded = root.loadSync(protoFile);
+    loaded.resolveAll();
+    
+    const outputPath = path.join(
+      OUTPUT_DIR,
+      path.dirname(relativePath),
+      `${path.basename(relativePath, '.proto')}.ts`
+    );
+
+    // Ensure output directory exists
+    fs.mkdirSync(path.dirname(outputPath), { recursive: true });
+
+    // Map to handle well-known protobuf types
+    const wellKnownTypes = new Map<string, string>([
+      ['google.protobuf.Timestamp', 'Date'],
+      ['Timestamp', 'Date'],
+      ['google.protobuf.Duration', 'number'],
+      ['google.protobuf.Any', 'any'],
+      ['google.protobuf.Empty', '{}'],
+      ['google.protobuf.FieldMask', 'string[]']
+    ]);
+
+    // Set of types that should be skipped (not generated as interfaces)
+    const skipTypes = new Set<string>([
+      'google.protobuf.Timestamp',
+      'Timestamp',
+      'google.protobuf.Duration',
+      'google.protobuf.Any',
+      'google.protobuf.Empty',
+      'google.protobuf.FieldMask'
+    ]);
+
+    // Build a registry of all protobuf types
+    const messageTypeRegistry = new Map<string, protobuf.Type>();
+    const enumTypeRegistry = new Map<string, protobuf.Enum>();
+    
+    // Gather all types from the root namespace
+    function collectTypes(ns: protobuf.NamespaceBase) {
+      for (const key in ns.nested) {
+        const nested = ns.nested[key];
+        
+        if (nested instanceof protobuf.Type) {
+          // Skip specific well-known types
+          if (!skipTypes.has(nested.fullName) && !skipTypes.has(nested.name)) {
+            messageTypeRegistry.set(nested.fullName, nested);
+          }
+          
+          // Process nested types inside this message
+          if (nested.nested) {
+            collectTypes(nested);
+          }
+        } else if (nested instanceof protobuf.Enum) {
+          enumTypeRegistry.set(nested.fullName, nested);
+        } else if (nested instanceof protobuf.Namespace) {
+          collectTypes(nested);
+        }
+      }
+    }
+    
+    // Function to collect services from a namespace
+    function collectServices(ns: protobuf.NamespaceBase) {
+      const services: protobuf.Service[] = [];
+      
+      for (const key in ns.nested) {
+        const nested = ns.nested[key];
+        
+        if (nested instanceof protobuf.Service) {
+          services.push(nested);
+        } else if (nested instanceof protobuf.Namespace) {
+          services.push(...collectServices(nested));
+        }
+      }
+      
+      return services;
+    }
+    
+    // Start collecting from the root
+    collectTypes(root);
+    const servicesList = collectServices(root);
+    
+    // Generate type definitions
+    const interfaces: string[] = [];
+    const enums: string[] = [];
+    const services: string[] = [];
+    
+    // Set to track processed types to avoid duplicates
+    const processedTypes = new Set<string>();
+    
+    // Helper function to check if type is already processed
+    function isProcessed(name: string): boolean {
+      return processedTypes.has(name);
+    }
+    
+    // Helper to determine if a field might be a timestamp based on name or type
+    function isTimestampField(field: protobuf.Field): boolean {
+      // Check if the type name matches
+      if (field.type === 'Timestamp' || 
+          field.resolvedType?.name === 'Timestamp' || 
+          field.resolvedType?.fullName === 'google.protobuf.Timestamp') {
+        return true;
+      }
+      
+      // Check field naming patterns that suggest it's a timestamp
+      const name = field.name.toLowerCase();
+      if (name.endsWith('time') || name.endsWith('date') || name === 'timestamp') {
+        return true;
+      }
+      
+      return false;
+    }
+    
+    // Helper to map a protobuf field to TypeScript type
+    function mapFieldType(field: protobuf.Field): string {
+      // Special case for timestamps
+      if (isTimestampField(field)) {
+        return 'Date';
+      }
+      
+      // Check if this field has a resolved type
+      if (field.resolvedType) {
+        const fullTypeName = field.resolvedType.fullName;
+        
+        // Handle well-known types
+        if (wellKnownTypes.has(fullTypeName)) {
+          return wellKnownTypes.get(fullTypeName)!;
+        }
+        
+        // Handle custom message types
+        if (field.resolvedType instanceof protobuf.Type) {
+          return `I${field.resolvedType.name}`;
+        } else if (field.resolvedType instanceof protobuf.Enum) {
+          return field.resolvedType.name;
+        }
+      }
+      
+      // If there's no resolved type, map primitive types
       switch (field.type) {
         case 'double':
         case 'float':
@@ -64,83 +210,122 @@ function generateInterface(type: protobuf.Type, packageName: string, typeMap: Ma
         case 'sint64':
         case 'fixed64':
         case 'sfixed64':
-          propertyType = 'number';
-          break;
+          return 'number';
         case 'bool':
-          propertyType = 'boolean';
-          break;
+          return 'boolean';
         case 'string':
-          propertyType = 'string';
-          break;
+          return 'string';
         case 'bytes':
-          propertyType = 'Uint8Array';
-          break;
+          return 'Uint8Array';
         default:
-          propertyType = 'any';
+          // For custom message types that couldn't be resolved directly
+          if (field.type) {
+            // Try to look up the type in our registry
+            const packageName = field.parent?.fullName.split('.').slice(0, -1).join('.');
+            if (packageName) {
+              const possibleFullName = `${packageName}.${field.type}`;
+              if (messageTypeRegistry.has(possibleFullName)) {
+                return `I${field.type}`;
+              }
+              if (enumTypeRegistry.has(possibleFullName)) {
+                return field.type;
+              }
+            }
+            
+            // Look for exact type name in the registry
+            for (const [fullName, type] of messageTypeRegistry.entries()) {
+              if (fullName.endsWith(`.${field.type}`)) {
+                return `I${type.name}`;
+              }
+            }
+            
+            for (const [fullName, enumType] of enumTypeRegistry.entries()) {
+              if (fullName.endsWith(`.${field.type}`)) {
+                return enumType.name;
+              }
+            }
+            
+            // Extra check for Timestamp
+            if (field.type === 'Timestamp' || field.type.endsWith('.Timestamp')) {
+              return 'Date';
+            }
+          }
+          
+          console.warn(`Unknown field type: ${field.type} for field ${field.name}`);
+          return 'any';
       }
     }
-
-    if (isRepeated) {
-      propertyType = `${propertyType}[]`;
-    }
-
-    return `  ${propertyName}${optional}: ${propertyType};`;
-  });
-
-  return `export interface I${type.name} {
-${properties.join('\n')}
-}`;
-}
-
-// Generate TypeScript for all types in a protobuf namespace
-function generateNamespaceTypings(
-  namespace: protobuf.Namespace,
-  packageName: string,
-  interfaces: Set<string> = new Set(),
-  parentNamespace: string = '',
-  typeMap: Map<string, string> = new Map()
-): string[] {
-  const results: string[] = [];
-  const currentNamespace = parentNamespace 
-    ? `${parentNamespace}.${namespace.name}`
-    : namespace.name;
-
-  // Process nested namespaces
-  for (const nestedName in namespace.nested) {
-    const nested = namespace.nested[nestedName];
     
-    if (nested instanceof protobuf.Type) {
-      // Message type
-      const messageInterface = generateInterface(nested, packageName, typeMap);
-      if (!interfaces.has(nested.name)) {
-        results.push(messageInterface);
-        interfaces.add(nested.name);
+    // Generate TypeScript interfaces for message types
+    for (const [fullName, messageType] of messageTypeRegistry.entries()) {
+      // Skip types that should be skipped
+      if (skipTypes.has(fullName) || skipTypes.has(messageType.name)) {
+        continue;
       }
-
-      // Process nested types inside this message
-      if (nested.nested) {
-        results.push(...generateNamespaceTypings(nested, packageName, interfaces, currentNamespace, typeMap));
+      
+      // Skip duplicates
+      if (isProcessed(messageType.name)) {
+        continue;
       }
-    } else if (nested instanceof protobuf.Namespace) {
-      // Nested namespace
-      results.push(...generateNamespaceTypings(nested, packageName, interfaces, currentNamespace, typeMap));
-    } else if (nested instanceof protobuf.Enum) {
-      // Enum type
-      const enumValues = Object.entries(nested.values).map(([name, value]) => `  ${name} = ${value},`);
-      results.push(`export enum ${nested.name} {
+      
+      // Skip the Timestamp interface entirely
+      if (messageType.name === 'Timestamp') {
+        continue;
+      }
+      
+      processedTypes.add(messageType.name);
+      
+      const fields = messageType.fieldsArray.map(field => {
+        let fieldType = mapFieldType(field);
+        
+        // For array fields
+        if (field.repeated) {
+          fieldType = `${fieldType}[]`;
+        } else if (field.map) {
+          // Handle map fields
+          fieldType = `{[key: string]: ${fieldType}}`;
+        }
+        
+        // All fields are optional by default in TypeScript interfaces
+        return `  ${field.name}?: ${fieldType};`;
+      });
+      
+      interfaces.push(`export interface I${messageType.name} {
+${fields.join('\n')}
+}`);
+    }
+    
+    // Generate TypeScript enums
+    for (const [_, enumType] of enumTypeRegistry.entries()) {
+      // Skip duplicates
+      if (isProcessed(enumType.name)) {
+        continue;
+      }
+      
+      processedTypes.add(enumType.name);
+      
+      const enumValues = Object.entries(enumType.values)
+        .map(([name, value]) => `  ${name} = ${value},`);
+      
+      enums.push(`export enum ${enumType.name} {
 ${enumValues.join('\n')}
 }`);
-    } else if (nested instanceof protobuf.Service) {
-      // Service definition
-      const serviceMethods = nested.methodsArray.map(method => {
-        const requestType = method.resolvedRequestType 
-          ? `I${method.resolvedRequestType.name}` 
-          : 'any';
-        const responseType = method.resolvedResponseType 
-          ? `I${method.resolvedResponseType.name}` 
-          : 'any';
+    }
+    
+    // Generate service interfaces
+    for (const service of servicesList) {
+      const methods = service.methodsArray.map(method => {
+        let requestType = 'any';
+        let responseType = 'any';
         
-        // Use generic AsyncIterable for streaming
+        if (method.resolvedRequestType) {
+          requestType = `I${method.resolvedRequestType.name}`;
+        }
+        
+        if (method.resolvedResponseType) {
+          responseType = `I${method.resolvedResponseType.name}`;
+        }
+        
         if (method.responseStream) {
           return `  ${method.name}(request: ${requestType}): Promise<AsyncIterable<${responseType}>>;`;
         } else {
@@ -148,84 +333,27 @@ ${enumValues.join('\n')}
         }
       });
       
-      results.push(`export interface I${nested.name}Client {
-${serviceMethods.join('\n')}
+      services.push(`export interface I${service.name}Client {
+${methods.join('\n')}
 }`);
     }
-  }
-
-  return results;
-}
-
-// Find all proto files
-const protoFiles = findProtoFiles(PROTO_DIR);
-
-// Process each proto file
-for (const protoFile of protoFiles) {
-  console.log(`Processing ${protoFile}...`);
-  
-  try {
-    const root = protobuf.loadSync(protoFile);
-    const relativePath = path.relative(PROTO_DIR, protoFile);
-    const outputPath = path.join(
-      OUTPUT_DIR,
-      path.dirname(relativePath),
-      `${path.basename(relativePath, '.proto')}.ts`
-    );
-
-    // Ensure output directory exists
-    fs.mkdirSync(path.dirname(outputPath), { recursive: true });
-
-    // Extract package name from relative path (e.g. "apex/v1/apex.proto" -> "apex.v1")
-    const packageName = path.dirname(relativePath).replace(/\//g, '.');
     
-    // First pass: gather all message types
-    const typeMap = new Map<string, string>();
-
-    // Generate TypeScript interfaces
-    const interfaces: string[] = [];
-    
-    // Process all namespaces in the root
-    for (const namespaceName in root.nested) {
-      const namespace = root.nested[namespaceName];
-      if (namespace instanceof protobuf.Namespace) {
-        interfaces.push(...generateNamespaceTypings(namespace, packageName, new Set(), '', typeMap));
-      }
-    }
-
-    // Second pass: fix references
-    const fixedInterfaces = interfaces.map(interfaceStr => {
-      // Fix type references from any to proper interface types
-      return interfaceStr.replace(/: any(\[\])?;/g, (match, isArray) => {
-        const propertyLine = match.split(':')[0].trim();
-        const propertyName = propertyLine.replace('?', '');
-        
-        // Check if we have a matching type for this property name
-        for (const [fullName, typeName] of typeMap.entries()) {
-          // Try to match property name with type name (camelCase to PascalCase)
-          const pascalCaseName = propertyName.charAt(0).toUpperCase() + propertyName.slice(1);
-          if (fullName.endsWith(pascalCaseName)) {
-            return `: ${typeName}${isArray || ''};`;
-          }
-        }
-        
-        return match; // Keep as any if no match found
-      });
-    });
-
-    // Generate the full TypeScript code
+    // Generate the output TypeScript file
     const ts = root.toJSON();
     const content = `// Generated from ${relativePath}
 
 // TypeScript interfaces generated from protobuf definitions
-${fixedInterfaces.join('\n\n')}
+${interfaces.join('\n\n')}
+
+${enums.length > 0 ? enums.join('\n\n') + '\n\n' : ''}
+${services.length > 0 ? services.join('\n\n') : ''}
 
 // Original protobuf JSON schema
 export const ${path.basename(relativePath, '.proto')} = ${JSON.stringify(ts, null, 2)};
 `;
 
     fs.writeFileSync(outputPath, content);
-    console.log(`Generated ${outputPath}`);
+    console.log(`Generated ${outputPath} with ${interfaces.length} interfaces, ${enums.length} enums, and ${services.length} services`);
   } catch (error) {
     console.error(`Error processing ${protoFile}:`, error);
   }

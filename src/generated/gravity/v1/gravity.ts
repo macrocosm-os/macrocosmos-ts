@@ -3,18 +3,18 @@
 // TypeScript interfaces generated from protobuf definitions
 export interface ICrawler {
   crawlerId?: string;
-  criteria?: any;
-  startTime?: any;
-  deregistrationTime?: any;
-  archiveTime?: any;
-  state?: any;
+  criteria?: ICrawlerCriteria;
+  startTime?: Date;
+  deregistrationTime?: Date;
+  archiveTime?: Date;
+  state?: ICrawlerState;
   datasetWorkflows?: string[];
 }
 
 export interface ICrawlerCriteria {
   platform?: string;
   topic?: string;
-  notification?: any;
+  notification?: ICrawlerNotification;
   mock?: boolean;
 }
 
@@ -26,23 +26,23 @@ export interface ICrawlerNotification {
 export interface IHfRepo {
   repoName?: string;
   rowCount?: number;
-  lastUpdate?: string;
+  lastUpdate?: Date;
 }
 
 export interface ICrawlerState {
   status?: string;
   bytesCollected?: number;
   recordsCollected?: number;
-  repos?: any[];
+  repos?: IHfRepo[];
 }
 
 export interface IGravityTaskState {
   gravityTaskId?: string;
   name?: string;
   status?: string;
-  startTime?: any;
+  startTime?: Date;
   crawlerIds?: string[];
-  crawlerWorkflows?: any[];
+  crawlerWorkflows?: ICrawler[];
 }
 
 export interface IGetGravityTasksRequest {
@@ -51,7 +51,7 @@ export interface IGetGravityTasksRequest {
 }
 
 export interface IGetGravityTasksResponse {
-  gravityTaskStates?: any[];
+  gravityTaskStates?: IGravityTaskState[];
 }
 
 export interface IGravityTask {
@@ -70,13 +70,13 @@ export interface IGetCrawlerRequest {
 }
 
 export interface IGetCrawlerResponse {
-  crawler?: any;
+  crawler?: ICrawler;
 }
 
 export interface ICreateGravityTaskRequest {
-  gravityTasks?: any[];
+  gravityTasks?: IGravityTask[];
   name?: string;
-  notificationRequests?: any[];
+  notificationRequests?: INotificationRequest[];
   gravityTaskId?: string;
 }
 
@@ -86,29 +86,29 @@ export interface ICreateGravityTaskResponse {
 
 export interface IBuildDatasetRequest {
   crawlerId?: string;
-  notificationRequests?: any[];
+  notificationRequests?: INotificationRequest[];
 }
 
 export interface IBuildDatasetResponse {
   datasetId?: string;
-  dataset?: any;
+  dataset?: IDataset;
 }
 
 export interface IDataset {
   crawlerWorkflowId?: string;
-  createDate?: any;
-  expireDate?: any;
-  files?: any[];
+  createDate?: Date;
+  expireDate?: Date;
+  files?: IDatasetFile[];
   status?: string;
   statusMessage?: string;
-  steps?: any[];
+  steps?: IDatasetStep[];
   totalSteps?: number;
 }
 
 export interface IDatasetFile {
   fileName?: string;
   fileSizeBytes?: number;
-  lastModified?: any;
+  lastModified?: Date;
   numRows?: number;
   s3Key?: string;
   url?: string;
@@ -125,7 +125,7 @@ export interface IGetDatasetRequest {
 }
 
 export interface IGetDatasetResponse {
-  dataset?: any;
+  dataset?: IDataset;
 }
 
 export interface ICancelGravityTaskRequest {
@@ -144,9 +144,15 @@ export interface ICancelDatasetResponse {
   message?: string;
 }
 
-export interface ITimestamp {
-  seconds?: number;
-  nanos?: number;
+
+export interface IGravityServiceClient {
+  GetGravityTasks(request: IGetGravityTasksRequest): Promise<IGetGravityTasksResponse>;
+  GetCrawler(request: IGetCrawlerRequest): Promise<IGetCrawlerResponse>;
+  CreateGravityTask(request: ICreateGravityTaskRequest): Promise<ICreateGravityTaskResponse>;
+  BuildDataset(request: IBuildDatasetRequest): Promise<IBuildDatasetResponse>;
+  GetDataset(request: IGetDatasetRequest): Promise<IGetDatasetResponse>;
+  CancelGravityTask(request: ICancelGravityTaskRequest): Promise<ICancelGravityTaskResponse>;
+  CancelDataset(request: ICancelDatasetRequest): Promise<ICancelDatasetResponse>;
 }
 
 // Original protobuf JSON schema
