@@ -24,6 +24,8 @@ jobs:
 
       - name: Run tests
         run: npm test
+        env:
+          MACROCOSMOS_API_KEY: ${{ secrets.MACROCOSMOS_API_KEY }}
 
       - name: Publish to npm
         run: npm publish
