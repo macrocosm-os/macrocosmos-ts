@@ -9,6 +9,7 @@ import {
   IChatCompletionChunkResponse,
   IWebRetrievalRequest,
   IWebRetrievalResponse,
+  IApexServiceClient,
 } from "../../generated/apex/v1/apex";
 import { CLIENT_NAME, VERSION, BASE_URL, APEX_API_KEY } from "../../constants";
 import { ApexStream } from "./Stream";
@@ -29,6 +30,16 @@ export type ChatCompletionChunkResponse = IChatCompletionChunkResponse;
 export type WebRetrievalRequest = IWebRetrievalRequest;
 export type WebRetrievalResponse = IWebRetrievalResponse;
 
+interface ApexService
+  extends grpc.ServiceClientConstructor,
+    IApexServiceClient {}
+
+interface ApexProtoClient {
+  ApexService: {
+    new (address: string, credentials: grpc.ChannelCredentials): ApexService;
+  };
+}
+
 /**
  * Client for interacting with the Apex API
  * Provides OpenAI-compatible interface over gRPC
@@ -37,7 +48,7 @@ export class ApexClient {
   public apiKey: string;
   private baseURL: string;
   private appName: string;
-  private protoClient: any;
+  private protoClient: ApexProtoClient;
 
   constructor(options: ApexClientOptions) {
     this.apiKey = options.apiKey || APEX_API_KEY || "";
@@ -72,11 +83,16 @@ export class ApexClient {
     // Get the ApexService definition
     const protoDescriptor = grpc.loadPackageDefinition(
       packageDefinition,
-    ) as any;
+    ) as unknown as {
+      apex: {
+        v1: ApexProtoClient;
+      };
+    };
+
     return protoDescriptor.apex.v1;
   }
 
-  private createGrpcClient() {
+  private createGrpcClient(): ApexService {
     // Create gRPC credentials with API key
     const callCreds = grpc.credentials.createFromMetadataGenerator(
       (_params, callback) => {
@@ -107,7 +123,7 @@ export class ApexClient {
     completions: {
       create: async (
         params: ChatCompletionRequest,
-        options?: any,
+        _options?: unknown,
       ): Promise<
         ChatCompletionResponse | ApexStream<ChatCompletionChunkResponse>
       > => {
@@ -116,7 +132,13 @@ export class ApexClient {
         // Handle streaming vs non-streaming
         if (params.stream) {
           // Create a streaming call
-          const stream = client.ChatCompletionStream(params);
+          const stream = (await client.ChatCompletionStream(
+            params,
+          )) as unknown as {
+            on: (event: string, listener: (...args: unknown[]) => void) => void;
+            cancel: () => void;
+            removeAllListeners: (event: string) => void;
+          };
 
           // Create controller for abort capability
           const controller = new AbortController();
@@ -129,7 +151,7 @@ export class ApexClient {
         } else {
           // For non-streaming, return a promise that resolves with the completion
           return new Promise<ChatCompletionResponse>((resolve, reject) => {
-            client.ChatCompletion(
+            void client.ChatCompletion(
               params,
               (error: Error | null, response: ChatCompletionResponse) => {
                 if (error) {
@@ -155,7 +177,7 @@ export class ApexClient {
     const client = this.createGrpcClient();
 
     return new Promise<WebRetrievalResponse>((resolve, reject) => {
-      client.WebRetrieval(
+      void client.WebRetrieval(
         params,
         (error: Error | null, response: WebRetrievalResponse) => {
           if (error) {
