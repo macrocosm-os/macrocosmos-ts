@@ -144,467 +144,493 @@ export interface ICancelDatasetResponse {
   message?: string;
 }
 
-
 export interface IGravityServiceClient {
-  GetGravityTasks(request: IGetGravityTasksRequest): Promise<IGetGravityTasksResponse>;
-  GetCrawler(request: IGetCrawlerRequest): Promise<IGetCrawlerResponse>;
-  CreateGravityTask(request: ICreateGravityTaskRequest): Promise<ICreateGravityTaskResponse>;
-  BuildDataset(request: IBuildDatasetRequest): Promise<IBuildDatasetResponse>;
-  GetDataset(request: IGetDatasetRequest): Promise<IGetDatasetResponse>;
-  CancelGravityTask(request: ICancelGravityTaskRequest): Promise<ICancelGravityTaskResponse>;
-  CancelDataset(request: ICancelDatasetRequest): Promise<ICancelDatasetResponse>;
+  GetGravityTasks(
+    request: IGetGravityTasksRequest,
+    callback: (error: Error | null, response: IGetGravityTasksResponse) => void,
+  ): Promise<IGetGravityTasksResponse>;
+  GetCrawler(
+    request: IGetCrawlerRequest,
+    callback: (error: Error | null, response: IGetCrawlerResponse) => void,
+  ): Promise<IGetCrawlerResponse>;
+  CreateGravityTask(
+    request: ICreateGravityTaskRequest,
+    callback: (
+      error: Error | null,
+      response: ICreateGravityTaskResponse,
+    ) => void,
+  ): Promise<ICreateGravityTaskResponse>;
+  BuildDataset(
+    request: IBuildDatasetRequest,
+    callback: (error: Error | null, response: IBuildDatasetResponse) => void,
+  ): Promise<IBuildDatasetResponse>;
+  GetDataset(
+    request: IGetDatasetRequest,
+    callback: (error: Error | null, response: IGetDatasetResponse) => void,
+  ): Promise<IGetDatasetResponse>;
+  CancelGravityTask(
+    request: ICancelGravityTaskRequest,
+    callback: (
+      error: Error | null,
+      response: ICancelGravityTaskResponse,
+    ) => void,
+  ): Promise<ICancelGravityTaskResponse>;
+  CancelDataset(
+    request: ICancelDatasetRequest,
+    callback: (error: Error | null, response: ICancelDatasetResponse) => void,
+  ): Promise<ICancelDatasetResponse>;
 }
 
 // Original protobuf JSON schema
 export const gravity = {
-  "options": {
-    "syntax": "proto3"
+  options: {
+    syntax: "proto3",
   },
-  "nested": {
-    "gravity": {
-      "nested": {
-        "v1": {
-          "options": {
-            "go_package": "macrocosm-os/rift/constellation_api/gen/gravity/v1"
+  nested: {
+    gravity: {
+      nested: {
+        v1: {
+          options: {
+            go_package: "macrocosm-os/rift/constellation_api/gen/gravity/v1",
           },
-          "nested": {
-            "GravityService": {
-              "methods": {
-                "GetGravityTasks": {
-                  "requestType": "GetGravityTasksRequest",
-                  "responseType": "GetGravityTasksResponse"
+          nested: {
+            GravityService: {
+              methods: {
+                GetGravityTasks: {
+                  requestType: "GetGravityTasksRequest",
+                  responseType: "GetGravityTasksResponse",
                 },
-                "GetCrawler": {
-                  "requestType": "GetCrawlerRequest",
-                  "responseType": "GetCrawlerResponse"
+                GetCrawler: {
+                  requestType: "GetCrawlerRequest",
+                  responseType: "GetCrawlerResponse",
                 },
-                "CreateGravityTask": {
-                  "requestType": "CreateGravityTaskRequest",
-                  "responseType": "CreateGravityTaskResponse"
+                CreateGravityTask: {
+                  requestType: "CreateGravityTaskRequest",
+                  responseType: "CreateGravityTaskResponse",
                 },
-                "BuildDataset": {
-                  "requestType": "BuildDatasetRequest",
-                  "responseType": "BuildDatasetResponse"
+                BuildDataset: {
+                  requestType: "BuildDatasetRequest",
+                  responseType: "BuildDatasetResponse",
                 },
-                "GetDataset": {
-                  "requestType": "GetDatasetRequest",
-                  "responseType": "GetDatasetResponse"
+                GetDataset: {
+                  requestType: "GetDatasetRequest",
+                  responseType: "GetDatasetResponse",
                 },
-                "CancelGravityTask": {
-                  "requestType": "CancelGravityTaskRequest",
-                  "responseType": "CancelGravityTaskResponse"
+                CancelGravityTask: {
+                  requestType: "CancelGravityTaskRequest",
+                  responseType: "CancelGravityTaskResponse",
                 },
-                "CancelDataset": {
-                  "requestType": "CancelDatasetRequest",
-                  "responseType": "CancelDatasetResponse"
-                }
-              }
+                CancelDataset: {
+                  requestType: "CancelDatasetRequest",
+                  responseType: "CancelDatasetResponse",
+                },
+              },
             },
-            "Crawler": {
-              "fields": {
-                "crawlerId": {
-                  "type": "string",
-                  "id": 1
+            Crawler: {
+              fields: {
+                crawlerId: {
+                  type: "string",
+                  id: 1,
                 },
-                "criteria": {
-                  "type": "CrawlerCriteria",
-                  "id": 2
+                criteria: {
+                  type: "CrawlerCriteria",
+                  id: 2,
                 },
-                "startTime": {
-                  "type": "google.protobuf.Timestamp",
-                  "id": 3
+                startTime: {
+                  type: "google.protobuf.Timestamp",
+                  id: 3,
                 },
-                "deregistrationTime": {
-                  "type": "google.protobuf.Timestamp",
-                  "id": 4
+                deregistrationTime: {
+                  type: "google.protobuf.Timestamp",
+                  id: 4,
                 },
-                "archiveTime": {
-                  "type": "google.protobuf.Timestamp",
-                  "id": 5
+                archiveTime: {
+                  type: "google.protobuf.Timestamp",
+                  id: 5,
                 },
-                "state": {
-                  "type": "CrawlerState",
-                  "id": 6
+                state: {
+                  type: "CrawlerState",
+                  id: 6,
                 },
-                "datasetWorkflows": {
-                  "rule": "repeated",
-                  "type": "string",
-                  "id": 7
-                }
-              }
+                datasetWorkflows: {
+                  rule: "repeated",
+                  type: "string",
+                  id: 7,
+                },
+              },
             },
-            "CrawlerCriteria": {
-              "fields": {
-                "platform": {
-                  "type": "string",
-                  "id": 1
+            CrawlerCriteria: {
+              fields: {
+                platform: {
+                  type: "string",
+                  id: 1,
                 },
-                "topic": {
-                  "type": "string",
-                  "id": 2
+                topic: {
+                  type: "string",
+                  id: 2,
                 },
-                "notification": {
-                  "type": "CrawlerNotification",
-                  "id": 3
+                notification: {
+                  type: "CrawlerNotification",
+                  id: 3,
                 },
-                "mock": {
-                  "type": "bool",
-                  "id": 4
-                }
-              }
+                mock: {
+                  type: "bool",
+                  id: 4,
+                },
+              },
             },
-            "CrawlerNotification": {
-              "fields": {
-                "to": {
-                  "type": "string",
-                  "id": 1
+            CrawlerNotification: {
+              fields: {
+                to: {
+                  type: "string",
+                  id: 1,
                 },
-                "link": {
-                  "type": "string",
-                  "id": 2
-                }
-              }
+                link: {
+                  type: "string",
+                  id: 2,
+                },
+              },
             },
-            "HfRepo": {
-              "fields": {
-                "repoName": {
-                  "type": "string",
-                  "id": 1
+            HfRepo: {
+              fields: {
+                repoName: {
+                  type: "string",
+                  id: 1,
                 },
-                "rowCount": {
-                  "type": "uint64",
-                  "id": 2
+                rowCount: {
+                  type: "uint64",
+                  id: 2,
                 },
-                "lastUpdate": {
-                  "type": "string",
-                  "id": 3
-                }
-              }
+                lastUpdate: {
+                  type: "string",
+                  id: 3,
+                },
+              },
             },
-            "CrawlerState": {
-              "fields": {
-                "status": {
-                  "type": "string",
-                  "id": 1
+            CrawlerState: {
+              fields: {
+                status: {
+                  type: "string",
+                  id: 1,
                 },
-                "bytesCollected": {
-                  "type": "uint64",
-                  "id": 2
+                bytesCollected: {
+                  type: "uint64",
+                  id: 2,
                 },
-                "recordsCollected": {
-                  "type": "uint64",
-                  "id": 3
+                recordsCollected: {
+                  type: "uint64",
+                  id: 3,
                 },
-                "repos": {
-                  "rule": "repeated",
-                  "type": "HfRepo",
-                  "id": 4
-                }
-              }
+                repos: {
+                  rule: "repeated",
+                  type: "HfRepo",
+                  id: 4,
+                },
+              },
             },
-            "GravityTaskState": {
-              "fields": {
-                "gravityTaskId": {
-                  "type": "string",
-                  "id": 1
+            GravityTaskState: {
+              fields: {
+                gravityTaskId: {
+                  type: "string",
+                  id: 1,
                 },
-                "name": {
-                  "type": "string",
-                  "id": 2
+                name: {
+                  type: "string",
+                  id: 2,
                 },
-                "status": {
-                  "type": "string",
-                  "id": 3
+                status: {
+                  type: "string",
+                  id: 3,
                 },
-                "startTime": {
-                  "type": "google.protobuf.Timestamp",
-                  "id": 4
+                startTime: {
+                  type: "google.protobuf.Timestamp",
+                  id: 4,
                 },
-                "crawlerIds": {
-                  "rule": "repeated",
-                  "type": "string",
-                  "id": 5
+                crawlerIds: {
+                  rule: "repeated",
+                  type: "string",
+                  id: 5,
                 },
-                "crawlerWorkflows": {
-                  "rule": "repeated",
-                  "type": "Crawler",
-                  "id": 6
-                }
-              }
+                crawlerWorkflows: {
+                  rule: "repeated",
+                  type: "Crawler",
+                  id: 6,
+                },
+              },
             },
-            "GetGravityTasksRequest": {
-              "fields": {
-                "gravityTaskId": {
-                  "type": "string",
-                  "id": 1
+            GetGravityTasksRequest: {
+              fields: {
+                gravityTaskId: {
+                  type: "string",
+                  id: 1,
                 },
-                "includeCrawlers": {
-                  "type": "bool",
-                  "id": 2
-                }
-              }
+                includeCrawlers: {
+                  type: "bool",
+                  id: 2,
+                },
+              },
             },
-            "GetGravityTasksResponse": {
-              "fields": {
-                "gravityTaskStates": {
-                  "rule": "repeated",
-                  "type": "GravityTaskState",
-                  "id": 1
-                }
-              }
+            GetGravityTasksResponse: {
+              fields: {
+                gravityTaskStates: {
+                  rule: "repeated",
+                  type: "GravityTaskState",
+                  id: 1,
+                },
+              },
             },
-            "GravityTask": {
-              "fields": {
-                "topic": {
-                  "type": "string",
-                  "id": 1
+            GravityTask: {
+              fields: {
+                topic: {
+                  type: "string",
+                  id: 1,
                 },
-                "platform": {
-                  "type": "string",
-                  "id": 2
-                }
-              }
+                platform: {
+                  type: "string",
+                  id: 2,
+                },
+              },
             },
-            "NotificationRequest": {
-              "fields": {
-                "type": {
-                  "type": "string",
-                  "id": 1
+            NotificationRequest: {
+              fields: {
+                type: {
+                  type: "string",
+                  id: 1,
                 },
-                "address": {
-                  "type": "string",
-                  "id": 2
+                address: {
+                  type: "string",
+                  id: 2,
                 },
-                "redirectUrl": {
-                  "type": "string",
-                  "id": 3
-                }
-              }
+                redirectUrl: {
+                  type: "string",
+                  id: 3,
+                },
+              },
             },
-            "GetCrawlerRequest": {
-              "fields": {
-                "crawlerId": {
-                  "type": "string",
-                  "id": 1
-                }
-              }
+            GetCrawlerRequest: {
+              fields: {
+                crawlerId: {
+                  type: "string",
+                  id: 1,
+                },
+              },
             },
-            "GetCrawlerResponse": {
-              "fields": {
-                "crawler": {
-                  "type": "Crawler",
-                  "id": 1
-                }
-              }
+            GetCrawlerResponse: {
+              fields: {
+                crawler: {
+                  type: "Crawler",
+                  id: 1,
+                },
+              },
             },
-            "CreateGravityTaskRequest": {
-              "fields": {
-                "gravityTasks": {
-                  "rule": "repeated",
-                  "type": "GravityTask",
-                  "id": 1
+            CreateGravityTaskRequest: {
+              fields: {
+                gravityTasks: {
+                  rule: "repeated",
+                  type: "GravityTask",
+                  id: 1,
                 },
-                "name": {
-                  "type": "string",
-                  "id": 2
+                name: {
+                  type: "string",
+                  id: 2,
                 },
-                "notificationRequests": {
-                  "rule": "repeated",
-                  "type": "NotificationRequest",
-                  "id": 3
+                notificationRequests: {
+                  rule: "repeated",
+                  type: "NotificationRequest",
+                  id: 3,
                 },
-                "gravityTaskId": {
-                  "type": "string",
-                  "id": 4
-                }
-              }
+                gravityTaskId: {
+                  type: "string",
+                  id: 4,
+                },
+              },
             },
-            "CreateGravityTaskResponse": {
-              "fields": {
-                "gravityTaskId": {
-                  "type": "string",
-                  "id": 1
-                }
-              }
+            CreateGravityTaskResponse: {
+              fields: {
+                gravityTaskId: {
+                  type: "string",
+                  id: 1,
+                },
+              },
             },
-            "BuildDatasetRequest": {
-              "fields": {
-                "crawlerId": {
-                  "type": "string",
-                  "id": 1
+            BuildDatasetRequest: {
+              fields: {
+                crawlerId: {
+                  type: "string",
+                  id: 1,
                 },
-                "notificationRequests": {
-                  "rule": "repeated",
-                  "type": "NotificationRequest",
-                  "id": 2
-                }
-              }
+                notificationRequests: {
+                  rule: "repeated",
+                  type: "NotificationRequest",
+                  id: 2,
+                },
+              },
             },
-            "BuildDatasetResponse": {
-              "fields": {
-                "datasetId": {
-                  "type": "string",
-                  "id": 1
+            BuildDatasetResponse: {
+              fields: {
+                datasetId: {
+                  type: "string",
+                  id: 1,
                 },
-                "dataset": {
-                  "type": "Dataset",
-                  "id": 2
-                }
-              }
+                dataset: {
+                  type: "Dataset",
+                  id: 2,
+                },
+              },
             },
-            "Dataset": {
-              "fields": {
-                "crawlerWorkflowId": {
-                  "type": "string",
-                  "id": 1
+            Dataset: {
+              fields: {
+                crawlerWorkflowId: {
+                  type: "string",
+                  id: 1,
                 },
-                "createDate": {
-                  "type": "google.protobuf.Timestamp",
-                  "id": 2
+                createDate: {
+                  type: "google.protobuf.Timestamp",
+                  id: 2,
                 },
-                "expireDate": {
-                  "type": "google.protobuf.Timestamp",
-                  "id": 3
+                expireDate: {
+                  type: "google.protobuf.Timestamp",
+                  id: 3,
                 },
-                "files": {
-                  "rule": "repeated",
-                  "type": "DatasetFile",
-                  "id": 4
+                files: {
+                  rule: "repeated",
+                  type: "DatasetFile",
+                  id: 4,
                 },
-                "status": {
-                  "type": "string",
-                  "id": 5
+                status: {
+                  type: "string",
+                  id: 5,
                 },
-                "statusMessage": {
-                  "type": "string",
-                  "id": 6
+                statusMessage: {
+                  type: "string",
+                  id: 6,
                 },
-                "steps": {
-                  "rule": "repeated",
-                  "type": "DatasetStep",
-                  "id": 7
+                steps: {
+                  rule: "repeated",
+                  type: "DatasetStep",
+                  id: 7,
                 },
-                "totalSteps": {
-                  "type": "int64",
-                  "id": 8
-                }
-              }
+                totalSteps: {
+                  type: "int64",
+                  id: 8,
+                },
+              },
             },
-            "DatasetFile": {
-              "fields": {
-                "fileName": {
-                  "type": "string",
-                  "id": 1
+            DatasetFile: {
+              fields: {
+                fileName: {
+                  type: "string",
+                  id: 1,
                 },
-                "fileSizeBytes": {
-                  "type": "uint64",
-                  "id": 2
+                fileSizeBytes: {
+                  type: "uint64",
+                  id: 2,
                 },
-                "lastModified": {
-                  "type": "google.protobuf.Timestamp",
-                  "id": 3
+                lastModified: {
+                  type: "google.protobuf.Timestamp",
+                  id: 3,
                 },
-                "numRows": {
-                  "type": "uint64",
-                  "id": 4
+                numRows: {
+                  type: "uint64",
+                  id: 4,
                 },
-                "s3Key": {
-                  "type": "string",
-                  "id": 5
+                s3Key: {
+                  type: "string",
+                  id: 5,
                 },
-                "url": {
-                  "type": "string",
-                  "id": 6
-                }
-              }
-            },
-            "DatasetStep": {
-              "fields": {
-                "progress": {
-                  "type": "double",
-                  "id": 1
+                url: {
+                  type: "string",
+                  id: 6,
                 },
-                "step": {
-                  "type": "int64",
-                  "id": 2
+              },
+            },
+            DatasetStep: {
+              fields: {
+                progress: {
+                  type: "double",
+                  id: 1,
                 },
-                "stepName": {
-                  "type": "string",
-                  "id": 3
-                }
-              }
+                step: {
+                  type: "int64",
+                  id: 2,
+                },
+                stepName: {
+                  type: "string",
+                  id: 3,
+                },
+              },
             },
-            "GetDatasetRequest": {
-              "fields": {
-                "datasetId": {
-                  "type": "string",
-                  "id": 1
-                }
-              }
+            GetDatasetRequest: {
+              fields: {
+                datasetId: {
+                  type: "string",
+                  id: 1,
+                },
+              },
             },
-            "GetDatasetResponse": {
-              "fields": {
-                "dataset": {
-                  "type": "Dataset",
-                  "id": 1
-                }
-              }
+            GetDatasetResponse: {
+              fields: {
+                dataset: {
+                  type: "Dataset",
+                  id: 1,
+                },
+              },
             },
-            "CancelGravityTaskRequest": {
-              "fields": {
-                "gravityTaskId": {
-                  "type": "string",
-                  "id": 1
-                }
-              }
+            CancelGravityTaskRequest: {
+              fields: {
+                gravityTaskId: {
+                  type: "string",
+                  id: 1,
+                },
+              },
             },
-            "CancelGravityTaskResponse": {
-              "fields": {
-                "message": {
-                  "type": "string",
-                  "id": 1
-                }
-              }
+            CancelGravityTaskResponse: {
+              fields: {
+                message: {
+                  type: "string",
+                  id: 1,
+                },
+              },
             },
-            "CancelDatasetRequest": {
-              "fields": {
-                "datasetId": {
-                  "type": "string",
-                  "id": 1
-                }
-              }
+            CancelDatasetRequest: {
+              fields: {
+                datasetId: {
+                  type: "string",
+                  id: 1,
+                },
+              },
             },
-            "CancelDatasetResponse": {
-              "fields": {
-                "message": {
-                  "type": "string",
-                  "id": 1
-                }
-              }
-            }
-          }
-        }
-      }
+            CancelDatasetResponse: {
+              fields: {
+                message: {
+                  type: "string",
+                  id: 1,
+                },
+              },
+            },
+          },
+        },
+      },
     },
-    "google": {
-      "nested": {
-        "protobuf": {
-          "nested": {
-            "Timestamp": {
-              "fields": {
-                "seconds": {
-                  "type": "int64",
-                  "id": 1
+    google: {
+      nested: {
+        protobuf: {
+          nested: {
+            Timestamp: {
+              fields: {
+                seconds: {
+                  type: "int64",
+                  id: 1,
                 },
-                "nanos": {
-                  "type": "int32",
-                  "id": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
+                nanos: {
+                  type: "int32",
+                  id: 2,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
 };

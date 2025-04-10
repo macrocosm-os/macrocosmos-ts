@@ -17,42 +17,51 @@ export class ApexStream<Item> implements AsyncIterable<Item> {
   /**
    * Creates a Stream from a gRPC streaming response
    */
-  static fromGrpcStream<Item>(grpcStream: any, controller: AbortController): ApexStream<Item> {
+  static fromGrpcStream<Item>(
+    grpcStream: {
+      on: (event: string, listener: (...args: unknown[]) => void) => void;
+      cancel: () => void;
+      removeAllListeners: (event: string) => void;
+    },
+    controller: AbortController,
+  ): ApexStream<Item> {
     let consumed = false;
 
     // Create a more efficient implementation using direct event handling
-    async function* efficientIterator(): AsyncIterator<Item, any, undefined> {
+    async function* efficientIterator(): AsyncIterator<Item, void, undefined> {
       if (consumed) {
-        throw new Error('Cannot iterate over a consumed stream, use `.tee()` to split the stream.');
+        throw new Error(
+          "Cannot iterate over a consumed stream, use `.tee()` to split the stream.",
+        );
       }
       consumed = true;
 
       try {
         // Set up event listener cleanup function
         const cleanup = () => {
-          grpcStream.removeAllListeners('data');
-          grpcStream.removeAllListeners('end');
-          grpcStream.removeAllListeners('error');
+          grpcStream.removeAllListeners("data");
+          grpcStream.removeAllListeners("end");
+          grpcStream.removeAllListeners("error");
         };
 
         // Create a queue to hold chunks as they arrive
         const queue: Item[] = [];
         let streamEnded = false;
         let streamError: Error | null = null;
-        
+
         // Create promises to track new data and end of stream
         let resolveData: (() => void) | null = null;
-        
+
         // Set up the event handlers
-        grpcStream.on('data', (chunk: Item) => {
+        grpcStream.on("data", ((chunk: Item) => {
           queue.push(chunk);
           if (resolveData) {
             resolveData();
             resolveData = null;
           }
-        });
+        }) as (...args: unknown[]) => void);
 
-        grpcStream.on('end', () => {
+        grpcStream.on("end", () => {
           streamEnded = true;
           if (resolveData) {
             resolveData();
@@ -60,16 +69,16 @@ export class ApexStream<Item> implements AsyncIterable<Item> {
           }
         });
 
-        grpcStream.on('error', (error: Error) => {
+        grpcStream.on("error", ((error: Error) => {
           streamError = error;
           if (resolveData) {
             resolveData();
             resolveData = null;
           }
-        });
+        }) as (...args: unknown[]) => void);
 
         // Handle controller abort
-        controller.signal.addEventListener('abort', () => {
+        controller.signal.addEventListener("abort", () => {
           grpcStream.cancel();
           streamEnded = true;
           if (resolveData) {
@@ -87,19 +96,19 @@ export class ApexStream<Item> implements AsyncIterable<Item> {
             await new Promise<void>(resolve => {
               resolveData = resolve;
             });
-            
+
             // If we got an error, throw it
             if (streamError) {
-              throw streamError;
+              throw new Error(String(streamError));
             }
           }
         }
-        
+
         // Clean up event handlers
         cleanup();
       } catch (e) {
         // If the user calls `stream.controller.abort()`, we should exit without throwing.
-        if (e instanceof Error && e.name === 'AbortError') return;
+        if (e instanceof Error && e.name === "AbortError") return;
         throw e;
       } finally {
         // If not done, abort the ongoing request.
@@ -126,7 +135,9 @@ export class ApexStream<Item> implements AsyncIterable<Item> {
     const right: Array<Promise<IteratorResult<Item>>> = [];
     const iterator = this.iterator();
 
-    const teeIterator = (queue: Array<Promise<IteratorResult<Item>>>): AsyncIterator<Item> => {
+    const teeIterator = (
+      queue: Array<Promise<IteratorResult<Item>>>,
+    ): AsyncIterator<Item> => {
       return {
         next: () => {
           if (queue.length === 0) {
@@ -149,20 +160,23 @@ export class ApexStream<Item> implements AsyncIterable<Item> {
    * Converts this stream to a ReadableStream
    */
   toReadableStream(): ReadableStreamInterface {
-    const self = this;
     let iter: AsyncIterator<Item>;
     const encoder = new TextEncoder();
 
     return new ReadableStream({
-      async start() {
-        iter = self[Symbol.asyncIterator]();
+      start() {
+        iter = (this as ApexStream<Item>)[Symbol.asyncIterator]();
       },
       async pull(controller) {
         try {
-          const { value, done } = await iter.next();
-          if (done) return controller.close();
+          const result = await iter.next();
+          const value = result.value as Item;
+          const done = result.done;
+          if (done) {
+            return controller.close();
+          }
 
-          const bytes = encoder.encode(JSON.stringify(value) + '\n');
+          const bytes = encoder.encode(JSON.stringify(value) + "\n");
           controller.enqueue(bytes);
         } catch (err) {
           controller.error(err);
@@ -173,4 +187,4 @@ export class ApexStream<Item> implements AsyncIterable<Item> {
       },
     });
   }
-} 
+}

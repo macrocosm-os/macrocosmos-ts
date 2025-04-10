@@ -18,7 +18,7 @@ The Apex client provides an interface for accessing the Apex API for chat comple
 import { ApexClient } from 'macrocosmos';
 
 // Initialize the client
-const client = new ApexClient({apiKey: 'your-api-key'});
+const client = new ApexClient({ apiKey: 'your-api-key' });
 
 // Chat completions
 const response = await client.chat.completions.create({
@@ -43,7 +43,7 @@ The Gravity client provides an interface for data collection and dataset managem
 import { GravityClient } from 'macrocosmos';
 
 // Initialize the client
-const client = new GravityClient({apiKey: 'your-api-key'});
+const client = new GravityClient({ apiKey: 'your-api-key' });
 
 // Create a new gravity task
 const task = await client.createGravityTask({
