@@ -13,18 +13,18 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Get PR branch version
+        run: |
+          VERSION_PR=$(jq -r .version package.json)
+          echo "VERSION_PR=$VERSION_PR" >> $GITHUB_ENV
+
       - name: Get base branch version
         run: |
           git fetch origin main
           git checkout origin/main -- package.json
           VERSION_MAIN=$(jq -r .version package.json)
           echo "VERSION_MAIN=$VERSION_MAIN" >> $GITHUB_ENV
-          git restore package.json
-
-      - name: Get PR branch version
-        run: |
-          VERSION_PR=$(jq -r .version package.json)
-          echo "VERSION_PR=$VERSION_PR" >> $GITHUB_ENV
+          git checkout HEAD -- package.json
 
       - name: Compare versions
         run: |
