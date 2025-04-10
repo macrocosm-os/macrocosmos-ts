@@ -1,9 +1,7 @@
 import {
   ApexStream,
   ApexClient,
-  ChatCompletionChunkResponse,
   ChatMessage,
-  ChatCompletionResponse,
   ChatCompletionRequest,
 } from "macrocosmos";
 
