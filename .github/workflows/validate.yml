@@ -1,4 +1,4 @@
-name: Validate PR
+name: Run TSC, ESLint, Prettier & Tests
 
 on:
   pull_request:
