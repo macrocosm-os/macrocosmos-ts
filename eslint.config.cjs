@@ -24,6 +24,10 @@ module.exports = [
       ...tsPlugin.configs.recommended.rules,
       ...tsPlugin.configs["recommended-type-checked"].rules,
       "prettier/prettier": "warn",
+      "@typescript-eslint/no-unused-vars": [
+        "warn",
+        { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
+      ],
     },
   },
 ];
