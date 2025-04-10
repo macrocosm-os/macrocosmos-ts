@@ -3,6 +3,9 @@ name: Validate PR
 on:
   pull_request:
 
+env:
+  MACROCOSMOS_API_KEY: ${{ secrets.MACROCOSMOS_API_KEY }}
+
 jobs:
   validate:
     runs-on: ubuntu-latest
@@ -21,8 +24,6 @@ jobs:
 
       - name: Lint code with ESLint
         run: npx eslint .
-        env:
-          MACROCOSMOS_API_KEY: ${{ secrets.MACROCOSMOS_API_KEY }}
 
       - name: Type check with TypeScript
         run: npx tsc --noEmit
@@ -32,5 +33,3 @@ jobs:
 
       - name: Run tests
         run: npm test
-        env:
-          MACROCOSMOS_API_KEY: ${{ secrets.MACROCOSMOS_API_KEY }}
