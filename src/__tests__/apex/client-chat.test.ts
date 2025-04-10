@@ -48,7 +48,7 @@ describe("ApexClient", () => {
 
     // Handle streaming response
     let fullResponse = "";
-    const stream = result as ApexStream<ChatCompletionChunkResponse>;
+    const stream = result;
 
     for await (const chunk of stream) {
       // We know the interface matches the proto definition
@@ -95,7 +95,7 @@ describe("ApexClient", () => {
     }
 
     // Cast to the correct type
-    const response = result as ChatCompletionResponse;
+    const response = result;
 
     console.log("Response:", response.choices?.[0]?.message?.content);
     expect(response.choices?.[0]?.message?.content).toBeTruthy();
