@@ -1,10 +1,10 @@
-name: Run Tests
+name: Validate PR
 
 on:
   pull_request:
 
 jobs:
-  test:
+  validate:
     runs-on: ubuntu-latest
 
     steps:
@@ -18,6 +18,17 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Lint code with ESLint
+        run: npx eslint .
+        env:
+          MACROCOSMOS_API_KEY: ${{ secrets.MACROCOSMOS_API_KEY }}
+
+      - name: Type check with TypeScript
+        run: npx tsc --noEmit
+
+      - name: Check code formatting with Prettier
+        run: npx prettier --check .
 
       - name: Run tests
         run: npm test
