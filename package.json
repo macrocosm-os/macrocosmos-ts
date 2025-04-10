@@ -8,6 +8,7 @@
     "clean": "rimraf dist",
     "build": "npm run clean && npm run generate && tsc",
     "generate": "ts-node scripts/generate-protos.ts",
+    "ts-check": "tsc --noEmit",
     "test": "jest",
     "test:watch": "jest --watch",
     "lint:check": "eslint . --ext .ts",

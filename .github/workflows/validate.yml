@@ -23,13 +23,13 @@ jobs:
         run: npm ci
 
       - name: Lint code with ESLint
-        run: npx eslint .
+        run: npm run lint:check
 
       - name: Type check with TypeScript
-        run: npx tsc --noEmit
+        run: npm run ts-check
 
       - name: Check code formatting with Prettier
-        run: npx prettier --check .
+        run: npm run format:check
 
       - name: Run tests
         run: npm test
