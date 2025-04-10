@@ -6,9 +6,9 @@ import { CLIENT_NAME } from "../../constants";
 
 // Load package.json for version
 const packageJsonPath = path.resolve(__dirname, "../../../package.json");
-const packageVersion = JSON.parse(
-  fs.readFileSync(packageJsonPath, "utf8"),
-).version;
+const packageJsonContent = fs.readFileSync(packageJsonPath, "utf8");
+const packageJson = JSON.parse(packageJsonContent) as { version: string };
+const packageVersion = packageJson.version;
 
 // Load proto file directly
 const PROTO_PATH = path.resolve(
@@ -26,7 +26,17 @@ const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
 });
 
 // Get the ApexService definition
-const protoDescriptor = grpc.loadPackageDefinition(packageDefinition) as any;
+interface ApexProto {
+  apex: {
+    v1: {
+      ApexService: grpc.ServiceClientConstructor;
+    };
+  };
+}
+
+const protoDescriptor = grpc.loadPackageDefinition(
+  packageDefinition,
+) as unknown as ApexProto;
 const apexProto = protoDescriptor.apex.v1;
 
 describe("Apex Raw", () => {
@@ -60,7 +70,8 @@ describe("Apex Raw", () => {
     );
 
     // Create gRPC client
-    const client = new apexProto.ApexService(API_URL, combinedCreds);
+    const client: InstanceType<ApexProto["apex"]["v1"]["ApexService"]> =
+      new apexProto.ApexService(API_URL, combinedCreds);
 
     // Create request
     const request = {
@@ -80,17 +91,26 @@ describe("Apex Raw", () => {
     };
 
     // Create streaming call
-    const stream = client.ChatCompletionStream(request);
+    const stream = (
+      client.ChatCompletionStream as unknown as (
+        request: unknown,
+      ) => grpc.ClientReadableStream<{
+        choices: { delta: { content: string } }[];
+      }>
+    )(request);
 
     // Handle stream events
     return new Promise<void>((resolve, reject) => {
       let fullResponse = "";
 
-      stream.on("data", (chunk: any) => {
-        const content = chunk.choices?.[0]?.delta?.content || "";
-        fullResponse += content;
-        console.log("Received chunk:", content);
-      });
+      stream.on(
+        "data",
+        (chunk: { choices?: { delta?: { content?: string } }[] }) => {
+          const content = chunk.choices?.[0]?.delta?.content || "";
+          fullResponse += content;
+          console.log("Received chunk:", content);
+        },
+      );
 
       stream.on("end", () => {
         console.log("Stream ended. Full response:", fullResponse);
