@@ -2,7 +2,8 @@ import { GravityClient } from "macrocosmos";
 
 // Only mock the gRPC service client, not the proto loading
 jest.mock("@grpc/grpc-js", () => {
-  const actual = jest.requireActual("@grpc/grpc-js");
+  const actual =
+    jest.requireActual<typeof import("@grpc/grpc-js")>("@grpc/grpc-js");
   return {
     ...actual,
     credentials: {
@@ -18,7 +19,16 @@ jest.mock("@grpc/grpc-js", () => {
 
 describe("GravityClient", () => {
   let client: GravityClient;
-  let mockGrpcClient: any;
+  interface MockGrpcClient {
+    GetGravityTasks: jest.Mock;
+    GetCrawler: jest.Mock;
+    CreateGravityTask: jest.Mock;
+    BuildDataset: jest.Mock;
+    GetDataset: jest.Mock;
+    CancelGravityTask: jest.Mock;
+    CancelDataset: jest.Mock;
+  }
+  let mockGrpcClient: MockGrpcClient;
 
   beforeEach(() => {
     // Create a client with mock options
@@ -29,32 +39,83 @@ describe("GravityClient", () => {
 
     // Create a mock gRPC client for testing
     mockGrpcClient = {
-      GetGravityTasks: jest.fn((params, callback) =>
-        callback(null, { gravityTaskStates: [] }),
+      GetGravityTasks: jest.fn(
+        (
+          params: { includeCrawlers: boolean },
+          callback: (
+            error: Error | null,
+            response: { gravityTaskStates: { id: string; status: string }[] },
+          ) => void,
+        ) =>
+          callback(null, {
+            gravityTaskStates: [] as { id: string; status: string }[],
+          }),
       ),
-      GetCrawler: jest.fn((params, callback) =>
-        callback(null, { crawler: {} }),
+      GetCrawler: jest.fn(
+        (
+          params: { crawlerId: string },
+          callback: (
+            error: Error | null,
+            response: { crawler: Record<string, unknown> },
+          ) => void,
+        ) => callback(null, { crawler: {} }),
       ),
-      CreateGravityTask: jest.fn((params, callback) =>
-        callback(null, { gravityTaskId: "test-id" }),
+      CreateGravityTask: jest.fn(
+        (
+          params: {
+            gravityTasks: { platform: string; topic: string }[];
+            name: string;
+          },
+          callback: (
+            error: Error | null,
+            response: { gravityTaskId: string },
+          ) => void,
+        ) => callback(null, { gravityTaskId: "test-id" }),
       ),
-      BuildDataset: jest.fn((params, callback) =>
-        callback(null, { datasetId: "test-id", dataset: {} }),
+      BuildDataset: jest.fn(
+        (
+          params: Record<string, unknown>,
+          callback: (
+            error: Error | null,
+            response: { datasetId: string; dataset: Record<string, unknown> },
+          ) => void,
+        ) => callback(null, { datasetId: "test-id", dataset: {} }),
       ),
-      GetDataset: jest.fn((params, callback) =>
-        callback(null, { dataset: {} }),
+      GetDataset: jest.fn(
+        (
+          params: { datasetId: string },
+          callback: (
+            error: Error | null,
+            response: { dataset: Record<string, unknown> },
+          ) => void,
+        ) => callback(null, { dataset: {} }),
       ),
-      CancelGravityTask: jest.fn((params, callback) =>
-        callback(null, { message: "Cancelled" }),
+      CancelGravityTask: jest.fn(
+        (
+          params: { gravityTaskId: string },
+          callback: (
+            error: Error | null,
+            response: { message: string },
+          ) => void,
+        ) => callback(null, { message: "Cancelled" }),
       ),
-      CancelDataset: jest.fn((params, callback) =>
-        callback(null, { message: "Cancelled" }),
+      CancelDataset: jest.fn(
+        (
+          params: { datasetId: string },
+          callback: (
+            error: Error | null,
+            response: { message: string },
+          ) => void,
+        ) => callback(null, { message: "Cancelled" }),
       ),
     };
 
     // Replace the createGrpcClient method to return our mock
     jest
-      .spyOn(client as any, "createGrpcClient")
+      .spyOn(
+        client as unknown as { createGrpcClient: () => typeof mockGrpcClient },
+        "createGrpcClient",
+      )
       .mockReturnValue(mockGrpcClient);
   });
 
@@ -75,8 +136,15 @@ describe("GravityClient", () => {
 
     it("should handle errors", async () => {
       mockGrpcClient.GetGravityTasks.mockImplementationOnce(
-        (params: any, callback: (error: Error | null, response: any) => void) =>
-          callback(new Error("Test Error"), null),
+        (
+          params: { includeCrawlers: boolean },
+          callback: (
+            error: Error | null,
+            response: {
+              gravityTaskStates: { id: string; status: string }[];
+            } | null,
+          ) => void,
+        ) => callback(new Error("Test Error"), null),
       );
 
       await expect(client.getGravityTasks({})).rejects.toThrow("Test Error");
