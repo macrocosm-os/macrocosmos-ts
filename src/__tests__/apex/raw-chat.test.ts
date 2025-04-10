@@ -1,14 +1,7 @@
 import * as grpc from "@grpc/grpc-js";
 import * as protoLoader from "@grpc/proto-loader";
 import * as path from "path";
-import * as fs from "fs";
-import { CLIENT_NAME } from "../../constants";
-
-// Load package.json for version
-const packageJsonPath = path.resolve(__dirname, "../../../package.json");
-const packageJsonContent = fs.readFileSync(packageJsonPath, "utf8");
-const packageJson = JSON.parse(packageJsonContent) as { version: string };
-const packageVersion = packageJson.version;
+import { CLIENT_NAME, VERSION } from "../../constants";
 
 // Load proto file directly
 const PROTO_PATH = path.resolve(
@@ -57,7 +50,7 @@ describe("Apex Raw", () => {
         meta.add("authorization", `Bearer ${API_KEY}`);
         meta.add("x-source", "apex-raw.test.ts");
         meta.add("x-client-id", CLIENT_NAME);
-        meta.add("x-client-version", packageVersion);
+        meta.add("x-client-version", VERSION);
         callback(null, meta);
       },
     );
