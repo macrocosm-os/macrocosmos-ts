@@ -154,18 +154,12 @@ for (const protoFile of protoFiles) {
       return processedTypes.has(name);
     }
     
-    // Helper to determine if a field might be a timestamp based on name or type
+    // Helper to determine if a field might be a timestamp based on type only, not field name
     function isTimestampField(field: protobuf.Field): boolean {
-      // Check if the type name matches
+      // Check if the type name actually matches a Timestamp type
       if (field.type === 'Timestamp' || 
           field.resolvedType?.name === 'Timestamp' || 
           field.resolvedType?.fullName === 'google.protobuf.Timestamp') {
-        return true;
-      }
-      
-      // Check field naming patterns that suggest it's a timestamp
-      const name = field.name.toLowerCase();
-      if (name.endsWith('time') || name.endsWith('date') || name === 'timestamp') {
         return true;
       }
       

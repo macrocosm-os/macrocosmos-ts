@@ -170,7 +170,7 @@ export interface IWebRetrievalRequest {
   searchQuery?: string;
   nMiners?: number;
   nResults?: number;
-  maxResponseTime?: Date;
+  maxResponseTime?: number;
 }
 
 export interface IWebSearchResult {

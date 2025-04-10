@@ -26,7 +26,7 @@ export interface ICrawlerNotification {
 export interface IHfRepo {
   repoName?: string;
   rowCount?: number;
-  lastUpdate?: Date;
+  lastUpdate?: string;
 }
 
 export interface ICrawlerState {
