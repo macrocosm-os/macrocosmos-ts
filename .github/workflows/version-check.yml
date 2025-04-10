@@ -19,6 +19,7 @@ jobs:
           git checkout origin/main -- package.json
           VERSION_MAIN=$(jq -r .version package.json)
           echo "VERSION_MAIN=$VERSION_MAIN" >> $GITHUB_ENV
+          git restore package.json
 
       - name: Get PR branch version
         run: |
