@@ -34,7 +34,7 @@ interface ApexService
   extends grpc.ServiceClientConstructor,
     IApexServiceClient {}
 
-interface ApexProtoClient {
+export interface ApexProtoClient {
   ApexService: {
     new (address: string, credentials: grpc.ChannelCredentials): ApexService;
   };

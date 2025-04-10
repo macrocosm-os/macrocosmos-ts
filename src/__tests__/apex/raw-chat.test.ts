@@ -2,6 +2,7 @@ import * as grpc from "@grpc/grpc-js";
 import * as protoLoader from "@grpc/proto-loader";
 import * as path from "path";
 import { CLIENT_NAME, VERSION } from "../../constants";
+import { ApexProtoClient } from "macrocosmos/lib/apex";
 
 // Load proto file directly
 const PROTO_PATH = path.resolve(
@@ -21,9 +22,7 @@ const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
 // Get the ApexService definition
 interface ApexProto {
   apex: {
-    v1: {
-      ApexService: grpc.ServiceClientConstructor;
-    };
+    v1: ApexProtoClient;
   };
 }
 
@@ -63,8 +62,7 @@ describe("Apex Raw", () => {
     );
 
     // Create gRPC client
-    const client: InstanceType<ApexProto["apex"]["v1"]["ApexService"]> =
-      new apexProto.ApexService(API_URL, combinedCreds);
+    const client = new apexProto.ApexService(API_URL, combinedCreds);
 
     // Create request
     const request = {
