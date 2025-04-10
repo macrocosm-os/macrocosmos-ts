@@ -18,13 +18,17 @@ export class ApexStream<Item> implements AsyncIterable<Item> {
    * Creates a Stream from a gRPC streaming response
    */
   static fromGrpcStream<Item>(
-    grpcStream: any,
+    grpcStream: {
+      on: (event: string, listener: (...args: unknown[]) => void) => void;
+      cancel: () => void;
+      removeAllListeners: (event: string) => void;
+    },
     controller: AbortController,
   ): ApexStream<Item> {
     let consumed = false;
 
     // Create a more efficient implementation using direct event handling
-    async function* efficientIterator(): AsyncIterator<Item, any, undefined> {
+    async function* efficientIterator(): AsyncIterator<Item, void, undefined> {
       if (consumed) {
         throw new Error(
           "Cannot iterate over a consumed stream, use `.tee()` to split the stream.",
@@ -49,13 +53,13 @@ export class ApexStream<Item> implements AsyncIterable<Item> {
         let resolveData: (() => void) | null = null;
 
         // Set up the event handlers
-        grpcStream.on("data", (chunk: Item) => {
+        grpcStream.on("data", ((chunk: Item) => {
           queue.push(chunk);
           if (resolveData) {
             resolveData();
             resolveData = null;
           }
-        });
+        }) as (...args: unknown[]) => void);
 
         grpcStream.on("end", () => {
           streamEnded = true;
@@ -65,13 +69,13 @@ export class ApexStream<Item> implements AsyncIterable<Item> {
           }
         });
 
-        grpcStream.on("error", (error: Error) => {
+        grpcStream.on("error", ((error: Error) => {
           streamError = error;
           if (resolveData) {
             resolveData();
             resolveData = null;
           }
-        });
+        }) as (...args: unknown[]) => void);
 
         // Handle controller abort
         controller.signal.addEventListener("abort", () => {
@@ -95,7 +99,7 @@ export class ApexStream<Item> implements AsyncIterable<Item> {
 
             // If we got an error, throw it
             if (streamError) {
-              throw streamError;
+              throw new Error(String(streamError));
             }
           }
         }
@@ -156,18 +160,21 @@ export class ApexStream<Item> implements AsyncIterable<Item> {
    * Converts this stream to a ReadableStream
    */
   toReadableStream(): ReadableStreamInterface {
-    const self = this;
     let iter: AsyncIterator<Item>;
     const encoder = new TextEncoder();
 
     return new ReadableStream({
-      async start() {
-        iter = self[Symbol.asyncIterator]();
+      start() {
+        iter = (this as ApexStream<Item>)[Symbol.asyncIterator]();
       },
       async pull(controller) {
         try {
-          const { value, done } = await iter.next();
-          if (done) return controller.close();
+          const result = await iter.next();
+          const value = result.value as Item;
+          const done = result.done;
+          if (done) {
+            return controller.close();
+          }
 
           const bytes = encoder.encode(JSON.stringify(value) + "\n");
           controller.enqueue(bytes);
