@@ -19,6 +19,7 @@ import {
   IGravityTask,
   ICrawler,
   IDataset,
+  IGravityServiceClient,
 } from "../../generated/gravity/v1/gravity";
 import {
   CLIENT_NAME,
@@ -39,6 +40,16 @@ export type GravityTask = IGravityTask;
 export type Crawler = ICrawler;
 export type Dataset = IDataset;
 
+interface GravityService
+  extends grpc.ServiceClientConstructor,
+    IGravityServiceClient {}
+
+interface GravityProtoClient {
+  GravityService: {
+    new (address: string, credentials: grpc.ChannelCredentials): GravityService;
+  };
+}
+
 /**
  * Client for interacting with the Gravity API
  * Provides gRPC interface for data collection and dataset management
@@ -47,7 +58,7 @@ export class GravityClient {
   public apiKey: string;
   private baseURL: string;
   private appName: string;
-  private protoClient: any;
+  private protoClient: GravityProtoClient;
 
   constructor(options: GravityClientOptions) {
     this.apiKey = options.apiKey || GRAVITY_API_KEY || "";
@@ -82,7 +93,12 @@ export class GravityClient {
     // Get the GravityService definition
     const protoDescriptor = grpc.loadPackageDefinition(
       packageDefinition,
-    ) as any;
+    ) as unknown as {
+      gravity: {
+        v1: GravityProtoClient;
+      };
+    };
+
     return protoDescriptor.gravity.v1;
   }
 
@@ -119,7 +135,7 @@ export class GravityClient {
     const client = this.createGrpcClient();
 
     return new Promise<IGetGravityTasksResponse>((resolve, reject) => {
-      client.GetGravityTasks(
+      void client.GetGravityTasks(
         params,
         (error: Error | null, response: IGetGravityTasksResponse) => {
           if (error) {
@@ -142,7 +158,7 @@ export class GravityClient {
     const client = this.createGrpcClient();
 
     return new Promise<IGetCrawlerResponse>((resolve, reject) => {
-      client.GetCrawler(
+      void client.GetCrawler(
         params,
         (error: Error | null, response: IGetCrawlerResponse) => {
           if (error) {
@@ -165,7 +181,7 @@ export class GravityClient {
     const client = this.createGrpcClient();
 
     return new Promise<ICreateGravityTaskResponse>((resolve, reject) => {
-      client.CreateGravityTask(
+      void client.CreateGravityTask(
         params,
         (error: Error | null, response: ICreateGravityTaskResponse) => {
           if (error) {
@@ -188,7 +204,7 @@ export class GravityClient {
     const client = this.createGrpcClient();
 
     return new Promise<IBuildDatasetResponse>((resolve, reject) => {
-      client.BuildDataset(
+      void client.BuildDataset(
         params,
         (error: Error | null, response: IBuildDatasetResponse) => {
           if (error) {
@@ -211,7 +227,7 @@ export class GravityClient {
     const client = this.createGrpcClient();
 
     return new Promise<IGetDatasetResponse>((resolve, reject) => {
-      client.GetDataset(
+      void client.GetDataset(
         params,
         (error: Error | null, response: IGetDatasetResponse) => {
           if (error) {
@@ -234,7 +250,7 @@ export class GravityClient {
     const client = this.createGrpcClient();
 
     return new Promise<ICancelGravityTaskResponse>((resolve, reject) => {
-      client.CancelGravityTask(
+      void client.CancelGravityTask(
         params,
         (error: Error | null, response: ICancelGravityTaskResponse) => {
           if (error) {
@@ -257,7 +273,7 @@ export class GravityClient {
     const client = this.createGrpcClient();
 
     return new Promise<ICancelDatasetResponse>((resolve, reject) => {
-      client.CancelDataset(
+      void client.CancelDataset(
         params,
         (error: Error | null, response: ICancelDatasetResponse) => {
           if (error) {

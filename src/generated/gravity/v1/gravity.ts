@@ -147,18 +147,37 @@ export interface ICancelDatasetResponse {
 export interface IGravityServiceClient {
   GetGravityTasks(
     request: IGetGravityTasksRequest,
+    callback: (error: Error | null, response: IGetGravityTasksResponse) => void,
   ): Promise<IGetGravityTasksResponse>;
-  GetCrawler(request: IGetCrawlerRequest): Promise<IGetCrawlerResponse>;
+  GetCrawler(
+    request: IGetCrawlerRequest,
+    callback: (error: Error | null, response: IGetCrawlerResponse) => void,
+  ): Promise<IGetCrawlerResponse>;
   CreateGravityTask(
     request: ICreateGravityTaskRequest,
+    callback: (
+      error: Error | null,
+      response: ICreateGravityTaskResponse,
+    ) => void,
   ): Promise<ICreateGravityTaskResponse>;
-  BuildDataset(request: IBuildDatasetRequest): Promise<IBuildDatasetResponse>;
-  GetDataset(request: IGetDatasetRequest): Promise<IGetDatasetResponse>;
+  BuildDataset(
+    request: IBuildDatasetRequest,
+    callback: (error: Error | null, response: IBuildDatasetResponse) => void,
+  ): Promise<IBuildDatasetResponse>;
+  GetDataset(
+    request: IGetDatasetRequest,
+    callback: (error: Error | null, response: IGetDatasetResponse) => void,
+  ): Promise<IGetDatasetResponse>;
   CancelGravityTask(
     request: ICancelGravityTaskRequest,
+    callback: (
+      error: Error | null,
+      response: ICancelGravityTaskResponse,
+    ) => void,
   ): Promise<ICancelGravityTaskResponse>;
   CancelDataset(
     request: ICancelDatasetRequest,
+    callback: (error: Error | null, response: ICancelDatasetResponse) => void,
   ): Promise<ICancelDatasetResponse>;
 }
 
