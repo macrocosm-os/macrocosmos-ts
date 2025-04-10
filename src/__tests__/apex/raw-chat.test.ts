@@ -7,13 +7,13 @@ import { CLIENT_NAME } from "../../constants";
 // Load package.json for version
 const packageJsonPath = path.resolve(__dirname, "../../../package.json");
 const packageVersion = JSON.parse(
-  fs.readFileSync(packageJsonPath, "utf8")
+  fs.readFileSync(packageJsonPath, "utf8"),
 ).version;
 
 // Load proto file directly
 const PROTO_PATH = path.resolve(
   __dirname,
-  "../../../protos/apex/v1/apex.proto"
+  "../../../protos/apex/v1/apex.proto",
 );
 
 // Load protos using standard protobuf loader
@@ -49,14 +49,14 @@ describe("Apex Raw", () => {
         meta.add("x-client-id", CLIENT_NAME);
         meta.add("x-client-version", packageVersion);
         callback(null, meta);
-      }
+      },
     );
 
     // Create secure credentials
     const channelCreds = grpc.credentials.createSsl();
     const combinedCreds = grpc.credentials.combineChannelCredentials(
       channelCreds,
-      callCreds
+      callCreds,
     );
 
     // Create gRPC client

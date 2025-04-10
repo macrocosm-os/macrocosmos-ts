@@ -100,7 +100,7 @@ describe("ApexClient", () => {
     console.log("Response:", response.choices?.[0]?.message?.content);
     expect(response.choices?.[0]?.message?.content).toBeTruthy();
     expect(response.choices?.[0]?.message?.content?.toLowerCase()).toContain(
-      "paris"
+      "paris",
     );
   }, 30000); // Increase timeout to 30 seconds
 });

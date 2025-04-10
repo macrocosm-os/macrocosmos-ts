@@ -42,7 +42,7 @@ describe("ApexClient WebRetrieval", () => {
       console.log("First result URL:", firstResult.url);
       console.log(
         "First result content snippet:",
-        firstResult.content?.substring(0, 100) + "..."
+        firstResult.content?.substring(0, 100) + "...",
       );
     }
 
