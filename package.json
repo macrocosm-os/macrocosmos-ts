@@ -7,14 +7,14 @@
   "scripts": {
     "clean": "rimraf dist",
     "build": "npm run clean && npm run generate && tsc",
-    "generate": "ts-node scripts/generate-protos.ts",
     "ts-check": "tsc --noEmit",
     "test": "jest",
     "test:watch": "jest --watch",
     "lint:check": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
     "format:check": "prettier --check \"src/**/*.{ts,js,json,md}\"",
-    "format:write": "prettier --write \"src/**/*.{ts,js,json,md}\""
+    "format:write": "prettier --write \"src/**/*.{ts,js,json,md}\"",
+    "generate": "ts-node scripts/generate-protos.ts && npm run format:write"
   },
   "keywords": [],
   "author": "",
