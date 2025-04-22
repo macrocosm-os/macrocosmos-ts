@@ -186,15 +186,26 @@ export interface IWebRetrievalResponse {
 export interface IApexServiceClient {
   ChatCompletion(
     request: IChatCompletionRequest,
-    callback: (error: Error | null, response: IChatCompletionResponse) => void,
   ): Promise<IChatCompletionResponse>;
+  ChatCompletion(
+    request: IChatCompletionRequest,
+    callback: (error: Error | null, response: IChatCompletionResponse) => void,
+  ): void;
   ChatCompletionStream(
     request: IChatCompletionRequest,
   ): Promise<AsyncIterable<IChatCompletionChunkResponse>>;
+  ChatCompletionStream(
+    request: IChatCompletionRequest,
+    callback: (
+      error: Error | null,
+      response: AsyncIterable<IChatCompletionChunkResponse>,
+    ) => void,
+  ): void;
+  WebRetrieval(request: IWebRetrievalRequest): Promise<IWebRetrievalResponse>;
   WebRetrieval(
     request: IWebRetrievalRequest,
     callback: (error: Error | null, response: IWebRetrievalResponse) => void,
-  ): Promise<IWebRetrievalResponse>;
+  ): void;
 }
 
 // Original protobuf JSON schema

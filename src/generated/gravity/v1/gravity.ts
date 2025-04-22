@@ -147,38 +147,53 @@ export interface ICancelDatasetResponse {
 export interface IGravityServiceClient {
   GetGravityTasks(
     request: IGetGravityTasksRequest,
-    callback: (error: Error | null, response: IGetGravityTasksResponse) => void,
   ): Promise<IGetGravityTasksResponse>;
+  GetGravityTasks(
+    request: IGetGravityTasksRequest,
+    callback: (error: Error | null, response: IGetGravityTasksResponse) => void,
+  ): void;
+  GetCrawler(request: IGetCrawlerRequest): Promise<IGetCrawlerResponse>;
   GetCrawler(
     request: IGetCrawlerRequest,
     callback: (error: Error | null, response: IGetCrawlerResponse) => void,
-  ): Promise<IGetCrawlerResponse>;
+  ): void;
+  CreateGravityTask(
+    request: ICreateGravityTaskRequest,
+  ): Promise<ICreateGravityTaskResponse>;
   CreateGravityTask(
     request: ICreateGravityTaskRequest,
     callback: (
       error: Error | null,
       response: ICreateGravityTaskResponse,
     ) => void,
-  ): Promise<ICreateGravityTaskResponse>;
+  ): void;
+  BuildDataset(request: IBuildDatasetRequest): Promise<IBuildDatasetResponse>;
   BuildDataset(
     request: IBuildDatasetRequest,
     callback: (error: Error | null, response: IBuildDatasetResponse) => void,
-  ): Promise<IBuildDatasetResponse>;
+  ): void;
+  GetDataset(request: IGetDatasetRequest): Promise<IGetDatasetResponse>;
   GetDataset(
     request: IGetDatasetRequest,
     callback: (error: Error | null, response: IGetDatasetResponse) => void,
-  ): Promise<IGetDatasetResponse>;
+  ): void;
+  CancelGravityTask(
+    request: ICancelGravityTaskRequest,
+  ): Promise<ICancelGravityTaskResponse>;
   CancelGravityTask(
     request: ICancelGravityTaskRequest,
     callback: (
       error: Error | null,
       response: ICancelGravityTaskResponse,
     ) => void,
-  ): Promise<ICancelGravityTaskResponse>;
+  ): void;
+  CancelDataset(
+    request: ICancelDatasetRequest,
+  ): Promise<ICancelDatasetResponse>;
   CancelDataset(
     request: ICancelDatasetRequest,
     callback: (error: Error | null, response: ICancelDatasetResponse) => void,
-  ): Promise<ICancelDatasetResponse>;
+  ): void;
 }
 
 // Original protobuf JSON schema

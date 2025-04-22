@@ -165,16 +165,6 @@ for (const protoFile of protoFiles) {
         return true;
       }
 
-      // Check field naming patterns that suggest it's a timestamp
-      const name = field.name.toLowerCase();
-      if (
-        name.endsWith("time") ||
-        name.endsWith("date") ||
-        name === "timestamp"
-      ) {
-        return true;
-      }
-
       return false;
     }
 
@@ -329,27 +319,40 @@ ${enumValues.join("\n")}
 
     // Generate service interfaces
     for (const service of servicesList) {
-      const methods = service.methodsArray.map(method => {
+      // Create an array to hold all method signatures
+      const methodSignatures = [];
+ 
+      // Process each method in the service
+      for (const method of service.methodsArray) {
         let requestType = "any";
         let responseType = "any";
-
+ 
         if (method.resolvedRequestType) {
           requestType = `I${method.resolvedRequestType.name}`;
         }
-
+ 
         if (method.resolvedResponseType) {
           responseType = `I${method.resolvedResponseType.name}`;
         }
-
+ 
+        // Add both promise-based and callback-based method signatures
         if (method.responseStream) {
-          return `  ${method.name}(request: ${requestType}): Promise<AsyncIterable<${responseType}>>;`;
+          // Promise-based signature for streaming response
+          methodSignatures.push(`  ${method.name}(request: ${requestType}): Promise<AsyncIterable<${responseType}>>;`);
+          
+          // Callback-based signature for streaming response (Node.js style)
+          methodSignatures.push(`  ${method.name}(request: ${requestType}, callback: (error: Error | null, response: AsyncIterable<${responseType}>) => void): void;`);
         } else {
-          return `  ${method.name}(request: ${requestType}): Promise<${responseType}>;`;
+          // Promise-based signature for non-streaming response
+          methodSignatures.push(`  ${method.name}(request: ${requestType}): Promise<${responseType}>;`);
+          
+          // Callback-based signature for non-streaming response (Node.js style)
+          methodSignatures.push(`  ${method.name}(request: ${requestType}, callback: (error: Error | null, response: ${responseType}) => void): void;`);
         }
-      });
-
+      }
+ 
       services.push(`export interface I${service.name}Client {
-${methods.join("\n")}
+${methodSignatures.join("\n")}
 }`);
     }
 
