@@ -27,6 +27,9 @@ jobs:
         env:
           MACROCOSMOS_API_KEY: ${{ secrets.MACROCOSMOS_API_KEY }}
 
+      - name: Build
+        run: npm run build
+
       - name: Publish to npm
         run: npm publish
         env:
