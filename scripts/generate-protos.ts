@@ -320,37 +320,45 @@ ${enumValues.join("\n")}
     // Generate service interfaces
     for (const service of servicesList) {
       // Create an array to hold all method signatures
-      const methodSignatures = [];
- 
+      const methodSignatures: string[] = [];
+
       // Process each method in the service
       for (const method of service.methodsArray) {
         let requestType = "any";
         let responseType = "any";
- 
+
         if (method.resolvedRequestType) {
           requestType = `I${method.resolvedRequestType.name}`;
         }
- 
+
         if (method.resolvedResponseType) {
           responseType = `I${method.resolvedResponseType.name}`;
         }
- 
+
         // Add both promise-based and callback-based method signatures
         if (method.responseStream) {
           // Promise-based signature for streaming response
-          methodSignatures.push(`  ${method.name}(request: ${requestType}): Promise<AsyncIterable<${responseType}>>;`);
-          
+          methodSignatures.push(
+            `  ${method.name}(request: ${requestType}): Promise<AsyncIterable<${responseType}>>;`,
+          );
+
           // Callback-based signature for streaming response (Node.js style)
-          methodSignatures.push(`  ${method.name}(request: ${requestType}, callback: (error: Error | null, response: AsyncIterable<${responseType}>) => void): void;`);
+          methodSignatures.push(
+            `  ${method.name}(request: ${requestType}, callback: (error: Error | null, response: AsyncIterable<${responseType}>) => void): void;`,
+          );
         } else {
           // Promise-based signature for non-streaming response
-          methodSignatures.push(`  ${method.name}(request: ${requestType}): Promise<${responseType}>;`);
-          
+          methodSignatures.push(
+            `  ${method.name}(request: ${requestType}): Promise<${responseType}>;`,
+          );
+
           // Callback-based signature for non-streaming response (Node.js style)
-          methodSignatures.push(`  ${method.name}(request: ${requestType}, callback: (error: Error | null, response: ${responseType}) => void): void;`);
+          methodSignatures.push(
+            `  ${method.name}(request: ${requestType}, callback: (error: Error | null, response: ${responseType}) => void): void;`,
+          );
         }
       }
- 
+
       services.push(`export interface I${service.name}Client {
 ${methodSignatures.join("\n")}
 }`);
