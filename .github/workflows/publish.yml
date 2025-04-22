@@ -30,7 +30,16 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Debug - List dist contents
+        run: |
+          echo "Contents of dist directory:"
+          ls -R dist/
+          echo "\nCreating test package:"
+          npm pack
+          echo "\nContents of package:"
+          tar -tvf macrocosmos-*.tgz | grep dist/
+
       - name: Publish to npm
-        run: npm publish
+        run: npm publish --verbose
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
