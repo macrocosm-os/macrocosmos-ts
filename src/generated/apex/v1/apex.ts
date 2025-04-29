@@ -13,6 +13,7 @@ export interface IChatCompletionRequest {
   inferenceMode?: string;
   jsonFormat?: boolean;
   stream?: boolean;
+  timeout?: number;
 }
 
 export interface ISamplingParameters {
@@ -171,6 +172,7 @@ export interface IWebRetrievalRequest {
   nMiners?: number;
   nResults?: number;
   maxResponseTime?: number;
+  timeout?: number;
 }
 
 export interface IWebSearchResult {
@@ -285,6 +287,10 @@ export const apex = {
                 stream: {
                   type: "bool",
                   id: 11,
+                },
+                timeout: {
+                  type: "int64",
+                  id: 12,
                 },
               },
             },
@@ -748,6 +754,10 @@ export const apex = {
                 maxResponseTime: {
                   type: "int64",
                   id: 5,
+                },
+                timeout: {
+                  type: "int64",
+                  id: 6,
                 },
               },
             },

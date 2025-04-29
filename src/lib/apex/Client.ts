@@ -19,6 +19,8 @@ interface ApexClientOptions {
   apiKey?: string;
   baseURL?: string;
   appName?: string;
+  timeout?: number;
+  secure?: boolean;
 }
 
 // Re-export the interfaces from the proto for easier use
@@ -49,11 +51,20 @@ export class ApexClient {
   private baseURL: string;
   private appName: string;
   private protoClient: ApexProtoClient;
+  private defaultTimeout: number;
+  private secure: boolean;
 
   constructor(options: ApexClientOptions) {
     this.apiKey = options.apiKey || APEX_API_KEY || "";
     this.baseURL = options.baseURL || BASE_URL;
     this.appName = options.appName || "unknown";
+    this.defaultTimeout = options.timeout || 60;
+    
+    // Check environment variable for HTTPS setting
+    const useHttps = process.env.MACROCOSMOS_USE_HTTPS !== "false";
+    
+    // Use secure if explicitly set in options or if HTTPS is enabled via env var
+    this.secure = options.secure !== undefined ? options.secure : useHttps;
 
     // Initialize gRPC client
     this.protoClient = this.initializeGrpcClient();
@@ -105,15 +116,22 @@ export class ApexClient {
       },
     );
 
-    // Create secure credentials
-    const channelCreds = grpc.credentials.createSsl();
-    const combinedCreds = grpc.credentials.combineChannelCredentials(
-      channelCreds,
-      callCreds,
-    );
+    // Create credentials based on secure option
+    let credentials: grpc.ChannelCredentials;
+    if (this.secure) {
+      // Use secure credentials for production
+      const channelCreds = grpc.credentials.createSsl();
+      credentials = grpc.credentials.combineChannelCredentials(
+        channelCreds,
+        callCreds,
+      );
+    } else {
+      // For insecure connections, create insecure channel credentials
+      credentials = grpc.credentials.createInsecure();
+    }
 
     // Create gRPC client
-    return new this.protoClient.ApexService(this.baseURL, combinedCreds);
+    return new this.protoClient.ApexService(this.baseURL, credentials);
   }
 
   /**
@@ -129,11 +147,17 @@ export class ApexClient {
       > => {
         const client = this.createGrpcClient();
 
+        // Apply default timeout if not specified in params
+        const requestParams = {
+          ...params,
+          timeout: params.timeout || this.defaultTimeout,
+        };
+
         // Handle streaming vs non-streaming
-        if (params.stream) {
+        if (requestParams.stream) {
           // Create a streaming call
           const stream = (await client.ChatCompletionStream(
-            params,
+            requestParams,
           )) as unknown as {
             on: (event: string, listener: (...args: unknown[]) => void) => void;
             cancel: () => void;
@@ -152,7 +176,7 @@ export class ApexClient {
           // For non-streaming, return a promise that resolves with the completion
           return new Promise<ChatCompletionResponse>((resolve, reject) => {
             void client.ChatCompletion(
-              params,
+              requestParams,
               (error: Error | null, response: ChatCompletionResponse) => {
                 if (error) {
                   reject(error);
