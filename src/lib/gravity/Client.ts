@@ -66,10 +66,10 @@ export class GravityClient {
     this.apiKey = options.apiKey || GRAVITY_API_KEY || "";
     this.baseURL = options.baseURL || BASE_URL;
     this.appName = options.appName || "unknown";
-    
+
     // Check environment variable for HTTPS setting
     const useHttps = process.env.MACROCOSMOS_USE_HTTPS !== "false";
-    
+
     // Use secure if explicitly set in options or if HTTPS is enabled via env var
     this.secure = options.secure !== undefined ? options.secure : useHttps;
 

@@ -59,10 +59,10 @@ export class ApexClient {
     this.baseURL = options.baseURL || BASE_URL;
     this.appName = options.appName || "unknown";
     this.defaultTimeout = options.timeout || 60;
-    
+
     // Check environment variable for HTTPS setting
     const useHttps = process.env.MACROCOSMOS_USE_HTTPS !== "false";
-    
+
     // Use secure if explicitly set in options or if HTTPS is enabled via env var
     this.secure = options.secure !== undefined ? options.secure : useHttps;
 
