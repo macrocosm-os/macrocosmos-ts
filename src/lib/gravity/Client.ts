@@ -33,6 +33,7 @@ interface GravityClientOptions {
   apiKey?: string;
   baseURL?: string;
   appName?: string;
+  secure?: boolean;
 }
 
 // Re-export the interfaces from the proto for easier use
@@ -59,11 +60,18 @@ export class GravityClient {
   private baseURL: string;
   private appName: string;
   private protoClient: GravityProtoClient;
+  private secure: boolean;
 
   constructor(options: GravityClientOptions) {
     this.apiKey = options.apiKey || GRAVITY_API_KEY || "";
     this.baseURL = options.baseURL || BASE_URL;
     this.appName = options.appName || "unknown";
+
+    // Check environment variable for HTTPS setting
+    const useHttps = process.env.MACROCOSMOS_USE_HTTPS !== "false";
+
+    // Use secure if explicitly set in options or if HTTPS is enabled via env var
+    this.secure = options.secure !== undefined ? options.secure : useHttps;
 
     // Initialize gRPC client
     this.protoClient = this.initializeGrpcClient();
@@ -102,7 +110,7 @@ export class GravityClient {
     return protoDescriptor.gravity.v1;
   }
 
-  private createGrpcClient() {
+  private createGrpcClient(): GravityService {
     // Create gRPC credentials with API key
     const callCreds = grpc.credentials.createFromMetadataGenerator(
       (_params, callback) => {
@@ -115,15 +123,22 @@ export class GravityClient {
       },
     );
 
-    // Create secure credentials
-    const channelCreds = grpc.credentials.createSsl();
-    const combinedCreds = grpc.credentials.combineChannelCredentials(
-      channelCreds,
-      callCreds,
-    );
+    // Create credentials based on secure option
+    let credentials: grpc.ChannelCredentials;
+    if (this.secure) {
+      // Use secure credentials for production
+      const channelCreds = grpc.credentials.createSsl();
+      credentials = grpc.credentials.combineChannelCredentials(
+        channelCreds,
+        callCreds,
+      );
+    } else {
+      // For insecure connections, create insecure channel credentials
+      credentials = grpc.credentials.createInsecure();
+    }
 
     // Create gRPC client
-    return new this.protoClient.GravityService(this.baseURL, combinedCreds);
+    return new this.protoClient.GravityService(this.baseURL, credentials);
   }
 
   /**
