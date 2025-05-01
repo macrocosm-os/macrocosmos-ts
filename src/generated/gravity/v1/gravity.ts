@@ -87,6 +87,7 @@ export interface ICreateGravityTaskResponse {
 export interface IBuildDatasetRequest {
   crawlerId?: string;
   notificationRequests?: INotificationRequest[];
+  maxRows?: number;
 }
 
 export interface IBuildDatasetResponse {
@@ -478,6 +479,10 @@ export const gravity = {
                   rule: "repeated",
                   type: "NotificationRequest",
                   id: 2,
+                },
+                maxRows: {
+                  type: "int64",
+                  id: 3,
                 },
               },
             },
