@@ -15,11 +15,33 @@ export interface IListTopicsResponse {
   details?: IListTopicsResponseDetail[];
 }
 
+export interface IValidateRedditTopicRequest {
+  topic?: string;
+}
+
+export interface IValidateRedditTopicResponse {
+  platform?: string;
+  topic?: string;
+  exists?: boolean;
+  over18?: boolean;
+  quarantine?: boolean;
+}
+
 export interface ISn13ServiceClient {
   ListTopics(request: IListTopicsRequest): Promise<IListTopicsResponse>;
   ListTopics(
     request: IListTopicsRequest,
     callback: (error: Error | null, response: IListTopicsResponse) => void,
+  ): void;
+  ValidateRedditTopic(
+    request: IValidateRedditTopicRequest,
+  ): Promise<IValidateRedditTopicResponse>;
+  ValidateRedditTopic(
+    request: IValidateRedditTopicRequest,
+    callback: (
+      error: Error | null,
+      response: IValidateRedditTopicResponse,
+    ) => void,
   ): void;
 }
 
@@ -41,6 +63,10 @@ export const sn13_validator = {
                 ListTopics: {
                   requestType: "ListTopicsRequest",
                   responseType: "ListTopicsResponse",
+                },
+                ValidateRedditTopic: {
+                  requestType: "ValidateRedditTopicRequest",
+                  responseType: "ValidateRedditTopicResponse",
                 },
               },
             },
@@ -74,6 +100,38 @@ export const sn13_validator = {
                   rule: "repeated",
                   type: "ListTopicsResponseDetail",
                   id: 1,
+                },
+              },
+            },
+            ValidateRedditTopicRequest: {
+              fields: {
+                topic: {
+                  type: "string",
+                  id: 1,
+                },
+              },
+            },
+            ValidateRedditTopicResponse: {
+              fields: {
+                platform: {
+                  type: "string",
+                  id: 1,
+                },
+                topic: {
+                  type: "string",
+                  id: 2,
+                },
+                exists: {
+                  type: "bool",
+                  id: 3,
+                },
+                over18: {
+                  type: "bool",
+                  id: 4,
+                },
+                quarantine: {
+                  type: "bool",
+                  id: 5,
                 },
               },
             },

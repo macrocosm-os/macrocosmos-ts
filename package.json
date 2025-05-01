@@ -14,7 +14,8 @@
     "lint:fix": "eslint . --ext .ts --fix",
     "format:check": "prettier --check \"src/**/*.{ts,js,json,md}\"",
     "format:write": "prettier --write \"src/**/*.{ts,js,json,md}\"",
-    "generate": "ts-node scripts/generate-protos.ts && npm run format:write"
+    "generate": "ts-node scripts/generate-protos.ts && npm run format:write",
+    "example:sn13:list-topics": "ts-node src/__examples__/sn13/list-topics.ts"
   },
   "keywords": [],
   "author": "",
