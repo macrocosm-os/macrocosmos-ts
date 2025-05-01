@@ -174,4 +174,4 @@ export class Sn13Client {
       );
     });
   };
-} 
+}

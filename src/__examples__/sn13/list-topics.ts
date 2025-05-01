@@ -20,7 +20,7 @@ async function main() {
     };
 
     console.log("Fetching topics...");
-    
+
     // Get topics
     const response = await client.listTopics(request);
 
@@ -32,7 +32,9 @@ async function main() {
         console.log(`\nTopic ${index + 1}:`);
         console.log(`Label: ${detail.labelValue}`);
         console.log(`Content Size: ${detail.contentSizeBytes} bytes`);
-        console.log(`Adjacent Content Size: ${detail.adjContentSizeBytes} bytes`);
+        console.log(
+          `Adjacent Content Size: ${detail.adjContentSizeBytes} bytes`,
+        );
       });
     } else {
       console.log("No topics found");

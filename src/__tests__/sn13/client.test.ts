@@ -37,4 +37,4 @@ describe("Sn13Client", () => {
     // Log response for debugging
     console.log("Validation Response:", response);
   }, 30000); // Increase timeout to 30 seconds
-}); 
+});
