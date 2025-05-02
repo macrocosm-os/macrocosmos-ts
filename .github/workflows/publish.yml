@@ -19,6 +19,32 @@ jobs:
           node-version: 20
           registry-url: "https://registry.npmjs.org/"
 
+      - name: Get previous commit on main
+        id: prev
+        run: |
+          echo "PREV_COMMIT=$(git rev-parse HEAD^1)" >> $GITHUB_OUTPUT
+
+      - name: Get previous version
+        id: old_version
+        run: |
+          git show ${{ steps.prev.outputs.PREV_COMMIT }}:package.json | grep '"version":' | cut -d'"' -f4 > old_version.txt
+          echo "OLD_VERSION=$(cat old_version.txt)" >> $GITHUB_OUTPUT
+
+      - name: Get current version
+        id: new_version
+        run: |
+          grep '"version":' package.json | cut -d'"' -f4 > new_version.txt
+          echo "NEW_VERSION=$(cat new_version.txt)" >> $GITHUB_OUTPUT
+
+      - name: Check version bump
+        id: version_check
+        run: |
+          if [ "${{ steps.old_version.outputs.OLD_VERSION }}" != "${{ steps.new_version.outputs.NEW_VERSION }}" ]; then
+            echo "VERSION_CHANGED=true" >> $GITHUB_OUTPUT
+          else
+            echo "VERSION_CHANGED=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Install dependencies
         run: npm ci
 
@@ -31,6 +57,15 @@ jobs:
         run: npm run build
 
       - name: Publish to npm
+        if: steps.version_check.outputs.VERSION_CHANGED == 'true'
         run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Create Tag and Release
+        if: steps.version_check.outputs.VERSION_CHANGED == 'true'
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.new_version.outputs.NEW_VERSION }}
+          name: Release v${{ steps.new_version.outputs.NEW_VERSION }}
+          generate_release_notes: true
