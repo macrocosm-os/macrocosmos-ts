@@ -84,4 +84,4 @@ export abstract class BaseClient {
   protected getUserId(): string {
     return this.userId;
   }
-} 
+}
