@@ -11,16 +11,12 @@ import {
   IWebRetrievalResponse,
   IApexServiceClient,
 } from "../../generated/apex/v1/apex";
-import { CLIENT_NAME, VERSION, BASE_URL, APEX_API_KEY } from "../../constants";
+import { BaseClient, BaseClientOptions } from "../BaseClient";
 import { ApexStream } from "./Stream";
 
 // Client options
-interface ApexClientOptions {
-  apiKey?: string;
-  baseURL?: string;
-  appName?: string;
+interface ApexClientOptions extends BaseClientOptions {
   timeout?: number;
-  secure?: boolean;
 }
 
 // Re-export the interfaces from the proto for easier use
@@ -46,33 +42,14 @@ export interface ApexProtoClient {
  * Client for interacting with the Apex API
  * Provides OpenAI-compatible interface over gRPC
  */
-export class ApexClient {
-  public apiKey: string;
-  private baseURL: string;
-  private appName: string;
+export class ApexClient extends BaseClient {
   private protoClient: ApexProtoClient;
   private defaultTimeout: number;
-  private secure: boolean;
 
   constructor(options: ApexClientOptions) {
-    this.apiKey = options.apiKey || APEX_API_KEY || "";
-    this.baseURL = options.baseURL || BASE_URL;
-    this.appName = options.appName || "unknown";
+    super(options);
     this.defaultTimeout = options.timeout || 60;
-
-    // Check environment variable for HTTPS setting
-    const useHttps = process.env.MACROCOSMOS_USE_HTTPS !== "false";
-
-    // Use secure if explicitly set in options or if HTTPS is enabled via env var
-    this.secure = options.secure !== undefined ? options.secure : useHttps;
-
-    // Initialize gRPC client
     this.protoClient = this.initializeGrpcClient();
-
-    // Check if the API key is valid
-    if (!this.apiKey) {
-      throw new Error("API key is required");
-    }
   }
 
   private initializeGrpcClient() {
@@ -108,17 +85,18 @@ export class ApexClient {
     const callCreds = grpc.credentials.createFromMetadataGenerator(
       (_params, callback) => {
         const meta = new grpc.Metadata();
-        meta.add("authorization", `Bearer ${this.apiKey}`);
-        meta.add("x-source", this.appName);
-        meta.add("x-client-id", CLIENT_NAME);
-        meta.add("x-client-version", VERSION);
+        meta.add("authorization", `Bearer ${this.getApiKey()}`);
+        meta.add("x-source", this.getAppName());
+        meta.add("x-client-id", this.getClientName());
+        meta.add("x-client-version", this.getClientVersion());
+        meta.add("x-forwarded-user", this.getUserId());
         callback(null, meta);
       },
     );
 
     // Create credentials based on secure option
     let credentials: grpc.ChannelCredentials;
-    if (this.secure) {
+    if (this.isSecure()) {
       // Use secure credentials for production
       const channelCreds = grpc.credentials.createSsl();
       credentials = grpc.credentials.combineChannelCredentials(
@@ -131,7 +109,14 @@ export class ApexClient {
     }
 
     // Create gRPC client
-    return new this.protoClient.ApexService(this.baseURL, credentials);
+    return new this.protoClient.ApexService(this.getBaseURL(), credentials);
+  }
+
+  /**
+   * Get the default timeout for chat completions
+   */
+  private getDefaultTimeout(): number {
+    return this.defaultTimeout;
   }
 
   /**
@@ -150,7 +135,7 @@ export class ApexClient {
         // Apply default timeout if not specified in params
         const requestParams = {
           ...params,
-          timeout: params.timeout || this.defaultTimeout,
+          timeout: params.timeout || this.getDefaultTimeout(),
         };
 
         // Handle streaming vs non-streaming

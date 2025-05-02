@@ -9,16 +9,10 @@ import {
   IValidateRedditTopicResponse,
   ISn13ServiceClient,
 } from "../../generated/sn13/v1/sn13_validator";
-import { CLIENT_NAME, VERSION, BASE_URL, APEX_API_KEY } from "../../constants";
+import { BaseClient, BaseClientOptions } from "../BaseClient";
 
 // Client options
-interface Sn13ClientOptions {
-  apiKey?: string;
-  baseURL?: string;
-  appName?: string;
-  timeout?: number;
-  secure?: boolean;
-}
+interface Sn13ClientOptions extends BaseClientOptions {}
 
 // Re-export the interfaces from the proto for easier use
 export type ListTopicsRequest = IListTopicsRequest;
@@ -41,33 +35,12 @@ export interface Sn13ProtoClient {
  * Client for interacting with the SN13 API
  * Provides SN13 service interface over gRPC
  */
-export class Sn13Client {
-  public apiKey: string;
-  private baseURL: string;
-  private appName: string;
+export class Sn13Client extends BaseClient {
   private protoClient: Sn13ProtoClient;
-  private defaultTimeout: number;
-  private secure: boolean;
 
   constructor(options: Sn13ClientOptions) {
-    this.apiKey = options.apiKey || APEX_API_KEY || "";
-    this.baseURL = options.baseURL || BASE_URL;
-    this.appName = options.appName || "unknown";
-    this.defaultTimeout = options.timeout || 60;
-
-    // Check environment variable for HTTPS setting
-    const useHttps = process.env.MACROCOSMOS_USE_HTTPS !== "false";
-
-    // Use secure if explicitly set in options or if HTTPS is enabled via env var
-    this.secure = options.secure !== undefined ? options.secure : useHttps;
-
-    // Initialize gRPC client
+    super(options);
     this.protoClient = this.initializeGrpcClient();
-
-    // Check if the API key is valid
-    if (!this.apiKey) {
-      throw new Error("API key is required");
-    }
   }
 
   private initializeGrpcClient() {
@@ -103,17 +76,18 @@ export class Sn13Client {
     const callCreds = grpc.credentials.createFromMetadataGenerator(
       (_params, callback) => {
         const meta = new grpc.Metadata();
-        meta.add("authorization", `Bearer ${this.apiKey}`);
-        meta.add("x-source", this.appName);
-        meta.add("x-client-id", CLIENT_NAME);
-        meta.add("x-client-version", VERSION);
+        meta.add("authorization", `Bearer ${this.getApiKey()}`);
+        meta.add("x-source", this.getAppName());
+        meta.add("x-client-id", this.getClientName());
+        meta.add("x-client-version", this.getClientVersion());
+        meta.add("x-forwarded-user", this.getUserId());
         callback(null, meta);
       },
     );
 
     // Create credentials based on secure option
     let credentials: grpc.ChannelCredentials;
-    if (this.secure) {
+    if (this.isSecure()) {
       // Use secure credentials for production
       const channelCreds = grpc.credentials.createSsl();
       credentials = grpc.credentials.combineChannelCredentials(
@@ -126,7 +100,7 @@ export class Sn13Client {
     }
 
     // Create gRPC client
-    return new this.protoClient.Sn13Service(this.baseURL, credentials);
+    return new this.protoClient.Sn13Service(this.getBaseURL(), credentials);
   }
 
   /**
