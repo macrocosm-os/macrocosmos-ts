@@ -23,7 +23,7 @@ import {
 } from "../../generated/gravity/v1/gravity";
 import { BaseClient, BaseClientOptions } from "../BaseClient";
 
-// Client options
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 interface GravityClientOptions extends BaseClientOptions {}
 
 interface GravityService

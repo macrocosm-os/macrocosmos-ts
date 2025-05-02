@@ -11,7 +11,7 @@ import {
 } from "../../generated/sn13/v1/sn13_validator";
 import { BaseClient, BaseClientOptions } from "../BaseClient";
 
-// Client options
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 interface Sn13ClientOptions extends BaseClientOptions {}
 
 // Re-export the interfaces from the proto for easier use
