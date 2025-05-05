@@ -16,9 +16,6 @@ import {
   ICancelGravityTaskResponse,
   ICancelDatasetRequest,
   ICancelDatasetResponse,
-  IGravityTask,
-  ICrawler,
-  IDataset,
   IGravityServiceClient,
 } from "../../generated/gravity/v1/gravity";
 import { BaseClient, BaseClientOptions } from "../BaseClient";
