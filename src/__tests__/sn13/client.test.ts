@@ -1,8 +1,4 @@
-import {
-  Sn13Client,
-  ListTopicsRequest,
-  ValidateRedditTopicRequest,
-} from "macrocosmos";
+import { Sn13Client, ValidateRedditTopicRequest } from "macrocosmos";
 
 describe("Sn13Client", () => {
   const API_KEY = process.env.MACROCOSMOS_API_KEY;
