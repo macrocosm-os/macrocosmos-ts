@@ -19,16 +19,16 @@ export abstract class BaseClient {
   protected userId: string;
 
   constructor(options: BaseClientOptions) {
-    this.apiKey = options.apiKey || "";
-    this.baseURL = options.baseURL || BASE_URL;
-    this.appName = options.appName || "unknown";
-    this.userId = options.userId || "";
+    this.apiKey = options.apiKey ?? "";
+    this.baseURL = options.baseURL ?? BASE_URL;
+    this.appName = options.appName ?? "unknown";
+    this.userId = options.userId ?? "";
 
     // Check environment variable for HTTPS setting
     const useHttps = process.env.MACROCOSMOS_USE_HTTPS !== "false";
 
     // Use secure if explicitly set in options or if HTTPS is enabled via env var
-    this.secure = options.secure !== undefined ? options.secure : useHttps;
+    this.secure = options.secure ?? useHttps;
 
     // Check if the API key is valid
     if (!this.apiKey) {
