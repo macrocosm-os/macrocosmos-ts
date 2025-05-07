@@ -1,72 +1,30 @@
-import * as grpc from "@grpc/grpc-js";
-import * as protoLoader from "@grpc/proto-loader";
-import * as path from "path";
 import {
-  IGetUsageRequest,
-  IGetUsageResponse,
-  IBillingServiceClient,
+  BillingServiceClient,
+  GetUsageRequest,
+  GetUsageResponse,
 } from "../../generated/billing/v1/billing";
+import * as grpc from "@grpc/grpc-js";
 import { BaseClient, BaseClientOptions } from "../BaseClient";
 
-// Client options
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-interface BillingClientOptions extends BaseClientOptions {}
-
-// Re-export the interfaces from the proto for easier use
-export type GetUsageRequest = IGetUsageRequest;
-export type GetUsageResponse = IGetUsageResponse;
-
-interface BillingService
-  extends grpc.ServiceClientConstructor,
-    IBillingServiceClient {}
-
-export interface BillingProtoClient {
-  BillingService: {
-    new (address: string, credentials: grpc.ChannelCredentials): BillingService;
-  };
-}
+// re-export the types for use in the package
+export type { GetUsageResponse, GetUsageRequest };
 
 /**
  * Client for interacting with the Billing API
  * Provides billing service interface over gRPC
  */
 export class BillingClient extends BaseClient {
-  private protoClient: BillingProtoClient;
+  private _grpcClient?: BillingServiceClient;
 
-  constructor(options: BillingClientOptions) {
+  constructor(options: BaseClientOptions, grpcClient?: BillingServiceClient) {
     super(options);
-    this.protoClient = this.initializeGrpcClient();
+
+    this._grpcClient = grpcClient;
   }
 
-  private initializeGrpcClient() {
-    // Load proto file directly
-    const PROTO_PATH = path.resolve(
-      __dirname,
-      "../../../protos/billing/v1/billing.proto",
-    );
+  private createGrpcClient(): BillingServiceClient {
+    if (this._grpcClient) return this._grpcClient;
 
-    // Load protos using standard protobuf loader
-    const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
-      keepCase: false,
-      longs: String,
-      enums: String,
-      defaults: true,
-      oneofs: true,
-    });
-
-    // Get the BillingService definition
-    const protoDescriptor = grpc.loadPackageDefinition(
-      packageDefinition,
-    ) as unknown as {
-      billing: {
-        v1: BillingProtoClient;
-      };
-    };
-
-    return protoDescriptor.billing.v1;
-  }
-
-  private createGrpcClient(): BillingService {
     // Create gRPC credentials with API key
     const callCreds = grpc.credentials.createFromMetadataGenerator(
       (_params, callback) => {
@@ -95,7 +53,7 @@ export class BillingClient extends BaseClient {
     }
 
     // Create gRPC client
-    return new this.protoClient.BillingService(this.getBaseURL(), credentials);
+    return new BillingServiceClient(this.getBaseURL(), credentials);
   }
 
   /**
@@ -105,17 +63,13 @@ export class BillingClient extends BaseClient {
     const client = this.createGrpcClient();
 
     return new Promise<GetUsageResponse>((resolve, reject) => {
-      void client.GetUsage(
-        params,
-        (error: Error | null, response: GetUsageResponse) => {
-          if (error) {
-            reject(error);
-            return;
-          }
-
-          resolve(response);
-        },
-      );
+      client.getUsage(params, (error, response) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+        resolve(response);
+      });
     });
   };
 }

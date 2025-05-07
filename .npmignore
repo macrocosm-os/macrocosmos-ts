@@ -3,6 +3,12 @@ src/
 scripts/
 protos/
 
+# dev docs
+docs/
+
+# eslint config
+eslint.config.cjs
+
 # Tests
 **/__tests__/
 *.test.ts

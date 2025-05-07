@@ -37,7 +37,7 @@ describe("ApexClient", () => {
         maxNewTokens: 100,
         doSample: true,
       },
-    } as ChatCompletionRequest);
+    });
 
     // Check if it's a Stream
     if (!(result instanceof ApexStream)) {
