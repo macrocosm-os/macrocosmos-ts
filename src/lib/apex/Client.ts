@@ -1,36 +1,44 @@
-import * as grpc from "@grpc/grpc-js";
-import * as protoLoader from "@grpc/proto-loader";
-import * as path from "path";
 import {
-  IChatCompletionRequest,
-  IChatMessage,
-  ISamplingParameters,
-  IChatCompletionResponse,
-  IChatCompletionChunkResponse,
-  IWebRetrievalRequest,
-  IWebRetrievalResponse,
-  IApexServiceClient,
+  ApexServiceClient,
+  ChatCompletionRequest as GeneratedChatCompletionRequest,
+  ChatCompletionResponse,
+  ChatCompletionChunkResponse,
+  WebRetrievalRequest as GeneratedWebRetrievalRequest,
+  WebRetrievalResponse,
+  ChatMessage,
 } from "../../generated/apex/v1/apex";
+import * as grpc from "@grpc/grpc-js";
 import { BaseClient, BaseClientOptions } from "../BaseClient";
 import { ApexStream } from "./Stream";
+import { MarkFieldsOptional } from "../util.types";
+
+type ChatCompletionRequest = MarkFieldsOptional<
+  GeneratedChatCompletionRequest,
+  "uids"
+>;
+
+type WebRetrievalRequest = MarkFieldsOptional<
+  GeneratedWebRetrievalRequest,
+  "uids"
+>;
+
+// re-export the types for use in the package
+export {
+  ApexStream,
+  WebRetrievalRequest,
+  WebRetrievalResponse,
+  ChatCompletionRequest,
+  ChatMessage,
+};
 
 // Client options
 interface ApexClientOptions extends BaseClientOptions {
   timeout?: number;
 }
 
-// Re-export the interfaces from the proto for easier use
-export type ChatMessage = IChatMessage;
-export type SamplingParameters = ISamplingParameters;
-export type ChatCompletionRequest = IChatCompletionRequest;
-export type ChatCompletionResponse = IChatCompletionResponse;
-export type ChatCompletionChunkResponse = IChatCompletionChunkResponse;
-export type WebRetrievalRequest = IWebRetrievalRequest;
-export type WebRetrievalResponse = IWebRetrievalResponse;
-
 interface ApexService
   extends grpc.ServiceClientConstructor,
-    IApexServiceClient {}
+    ApexServiceClient {}
 
 export interface ApexProtoClient {
   ApexService: {
@@ -43,44 +51,19 @@ export interface ApexProtoClient {
  * Provides OpenAI-compatible interface over gRPC
  */
 export class ApexClient extends BaseClient {
-  private protoClient: ApexProtoClient;
+  private _grpcClient?: ApexServiceClient;
+
   private defaultTimeout: number;
 
-  constructor(options: ApexClientOptions) {
+  constructor(options: ApexClientOptions, grpcClient?: ApexServiceClient) {
     super(options);
     this.defaultTimeout = options.timeout || 60;
-    this.protoClient = this.initializeGrpcClient();
+    this._grpcClient = grpcClient;
   }
 
-  private initializeGrpcClient() {
-    // Load proto file directly
-    const PROTO_PATH = path.resolve(
-      __dirname,
-      "../../../protos/apex/v1/apex.proto",
-    );
+  private createGrpcClient(): ApexServiceClient {
+    if (this._grpcClient) return this._grpcClient;
 
-    // Load protos using standard protobuf loader
-    const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
-      keepCase: false,
-      longs: String,
-      enums: String,
-      defaults: true,
-      oneofs: true,
-    });
-
-    // Get the ApexService definition
-    const protoDescriptor = grpc.loadPackageDefinition(
-      packageDefinition,
-    ) as unknown as {
-      apex: {
-        v1: ApexProtoClient;
-      };
-    };
-
-    return protoDescriptor.apex.v1;
-  }
-
-  private createGrpcClient(): ApexService {
     // Create gRPC credentials with API key
     const callCreds = grpc.credentials.createFromMetadataGenerator(
       (_params, callback) => {
@@ -109,7 +92,7 @@ export class ApexClient extends BaseClient {
     }
 
     // Create gRPC client
-    return new this.protoClient.ApexService(this.getBaseURL(), credentials);
+    return new ApexServiceClient(this.getBaseURL(), credentials);
   }
 
   /**
@@ -135,19 +118,14 @@ export class ApexClient extends BaseClient {
         // Apply default timeout if not specified in params
         const requestParams = {
           ...params,
+          uids: params.uids ?? [],
           timeout: params.timeout || this.getDefaultTimeout(),
         };
 
         // Handle streaming vs non-streaming
         if (requestParams.stream) {
           // Create a streaming call
-          const stream = (await client.ChatCompletionStream(
-            requestParams,
-          )) as unknown as {
-            on: (event: string, listener: (...args: unknown[]) => void) => void;
-            cancel: () => void;
-            removeAllListeners: (event: string) => void;
-          };
+          const stream = client.chatCompletionStream(requestParams);
 
           // Create controller for abort capability
           const controller = new AbortController();
@@ -160,17 +138,13 @@ export class ApexClient extends BaseClient {
         } else {
           // For non-streaming, return a promise that resolves with the completion
           return new Promise<ChatCompletionResponse>((resolve, reject) => {
-            void client.ChatCompletion(
-              requestParams,
-              (error: Error | null, response: ChatCompletionResponse) => {
-                if (error) {
-                  reject(error);
-                  return;
-                }
-
-                resolve(response);
-              },
-            );
+            client.chatCompletion(requestParams, (error, response) => {
+              if (error) {
+                reject(error);
+                return;
+              }
+              resolve(response);
+            });
           });
         }
       },
@@ -186,14 +160,13 @@ export class ApexClient extends BaseClient {
     const client = this.createGrpcClient();
 
     return new Promise<WebRetrievalResponse>((resolve, reject) => {
-      void client.WebRetrieval(
-        params,
-        (error: Error | null, response: WebRetrievalResponse) => {
+      client.webRetrieval(
+        { ...params, uids: params.uids ?? [] },
+        (error, response) => {
           if (error) {
             reject(error);
             return;
           }
-
           resolve(response);
         },
       );

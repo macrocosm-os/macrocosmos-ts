@@ -1,79 +1,69 @@
 import * as grpc from "@grpc/grpc-js";
-import * as protoLoader from "@grpc/proto-loader";
-import * as path from "path";
 import {
-  IGetGravityTasksRequest,
-  IGetGravityTasksResponse,
-  IGetCrawlerRequest,
-  IGetCrawlerResponse,
-  ICreateGravityTaskRequest,
-  ICreateGravityTaskResponse,
-  IBuildDatasetRequest,
-  IBuildDatasetResponse,
-  IGetDatasetRequest,
-  IGetDatasetResponse,
-  ICancelGravityTaskRequest,
-  ICancelGravityTaskResponse,
-  ICancelDatasetRequest,
-  ICancelDatasetResponse,
-  IGravityServiceClient,
+  GravityServiceClient,
+  GetGravityTasksRequest,
+  GetGravityTasksResponse,
+  GetCrawlerRequest,
+  GetCrawlerResponse,
+  CreateGravityTaskRequest as GeneratedCreateGravityTaskRequest,
+  CreateGravityTaskResponse,
+  BuildDatasetRequest as GeneratedBuildDatasetRequest,
+  BuildDatasetResponse,
+  GetDatasetRequest,
+  GetDatasetResponse,
+  CancelGravityTaskRequest,
+  CancelGravityTaskResponse,
+  CancelDatasetRequest,
+  CancelDatasetResponse,
 } from "../../generated/gravity/v1/gravity";
 import { BaseClient, BaseClientOptions } from "../BaseClient";
+import { MarkFieldsOptional } from "../util.types";
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-interface GravityClientOptions extends BaseClientOptions {}
+// re-work some generated fields to be optional -
+// the generated types are stricter than they need to be.
 
-interface GravityService
-  extends grpc.ServiceClientConstructor,
-    IGravityServiceClient {}
+type CreateGravityTaskRequest = MarkFieldsOptional<
+  GeneratedCreateGravityTaskRequest,
+  "notificationRequests"
+>;
 
-export interface GravityProtoClient {
-  GravityService: {
-    new (address: string, credentials: grpc.ChannelCredentials): GravityService;
-  };
-}
+type BuildDatasetRequest = MarkFieldsOptional<
+  GeneratedBuildDatasetRequest,
+  "notificationRequests"
+>;
+// re-export the types for use in the package
+export type {
+  GetGravityTasksRequest,
+  GetGravityTasksResponse,
+  GetCrawlerRequest,
+  GetCrawlerResponse,
+  CreateGravityTaskRequest,
+  CreateGravityTaskResponse,
+  BuildDatasetRequest,
+  BuildDatasetResponse,
+  GetDatasetRequest,
+  GetDatasetResponse,
+  CancelGravityTaskRequest,
+  CancelGravityTaskResponse,
+  CancelDatasetRequest,
+  CancelDatasetResponse,
+};
 
 /**
  * Client for interacting with the Gravity API
  * Provides gRPC interface for data collection and dataset management
  */
 export class GravityClient extends BaseClient {
-  private protoClient: GravityProtoClient;
+  private _grpcClient?: GravityServiceClient;
 
-  constructor(options: GravityClientOptions) {
+  constructor(options: BaseClientOptions, grpcClient?: GravityServiceClient) {
     super(options);
-    this.protoClient = this.initializeGrpcClient();
+    this._grpcClient = grpcClient;
   }
 
-  private initializeGrpcClient() {
-    // Load proto file directly
-    const PROTO_PATH = path.resolve(
-      __dirname,
-      "../../../protos/gravity/v1/gravity.proto",
-    );
+  private createGrpcClient(): GravityServiceClient {
+    if (this._grpcClient) return this._grpcClient;
 
-    // Load protos using standard protobuf loader
-    const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
-      keepCase: false,
-      longs: String,
-      enums: String,
-      defaults: true,
-      oneofs: true,
-    });
-
-    // Get the GravityService definition
-    const protoDescriptor = grpc.loadPackageDefinition(
-      packageDefinition,
-    ) as unknown as {
-      gravity: {
-        v1: GravityProtoClient;
-      };
-    };
-
-    return protoDescriptor.gravity.v1;
-  }
-
-  private createGrpcClient(): GravityService {
     // Create gRPC credentials with API key
     const callCreds = grpc.credentials.createFromMetadataGenerator(
       (_params, callback) => {
@@ -102,29 +92,24 @@ export class GravityClient extends BaseClient {
     }
 
     // Create gRPC client
-    return new this.protoClient.GravityService(this.getBaseURL(), credentials);
+    return new GravityServiceClient(this.getBaseURL(), credentials);
   }
 
   /**
    * Lists all data collection tasks for a user
    */
   getGravityTasks = async (
-    params: IGetGravityTasksRequest,
-  ): Promise<IGetGravityTasksResponse> => {
+    params: GetGravityTasksRequest,
+  ): Promise<GetGravityTasksResponse> => {
     const client = this.createGrpcClient();
-
-    return new Promise<IGetGravityTasksResponse>((resolve, reject) => {
-      void client.GetGravityTasks(
-        params,
-        (error: Error | null, response: IGetGravityTasksResponse) => {
-          if (error) {
-            reject(error);
-            return;
-          }
-
-          resolve(response);
-        },
-      );
+    return new Promise<GetGravityTasksResponse>((resolve, reject) => {
+      client.getGravityTasks(params, (error, response) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+        resolve(response);
+      });
     });
   };
 
@@ -132,22 +117,17 @@ export class GravityClient extends BaseClient {
    * Get a single crawler by its ID
    */
   getCrawler = async (
-    params: IGetCrawlerRequest,
-  ): Promise<IGetCrawlerResponse> => {
+    params: GetCrawlerRequest,
+  ): Promise<GetCrawlerResponse> => {
     const client = this.createGrpcClient();
-
-    return new Promise<IGetCrawlerResponse>((resolve, reject) => {
-      void client.GetCrawler(
-        params,
-        (error: Error | null, response: IGetCrawlerResponse) => {
-          if (error) {
-            reject(error);
-            return;
-          }
-
-          resolve(response);
-        },
-      );
+    return new Promise<GetCrawlerResponse>((resolve, reject) => {
+      client.getCrawler(params, (error, response) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+        resolve(response);
+      });
     });
   };
 
@@ -155,19 +135,17 @@ export class GravityClient extends BaseClient {
    * Create a new gravity task
    */
   createGravityTask = async (
-    params: ICreateGravityTaskRequest,
-  ): Promise<ICreateGravityTaskResponse> => {
+    params: CreateGravityTaskRequest,
+  ): Promise<CreateGravityTaskResponse> => {
     const client = this.createGrpcClient();
-
-    return new Promise<ICreateGravityTaskResponse>((resolve, reject) => {
-      void client.CreateGravityTask(
-        params,
-        (error: Error | null, response: ICreateGravityTaskResponse) => {
+    return new Promise<CreateGravityTaskResponse>((resolve, reject) => {
+      client.createGravityTask(
+        params as GeneratedCreateGravityTaskRequest,
+        (error, response) => {
           if (error) {
             reject(error);
             return;
           }
-
           resolve(response);
         },
       );
@@ -178,19 +156,17 @@ export class GravityClient extends BaseClient {
    * Build a dataset for a single crawler
    */
   buildDataset = async (
-    params: IBuildDatasetRequest,
-  ): Promise<IBuildDatasetResponse> => {
+    params: BuildDatasetRequest,
+  ): Promise<BuildDatasetResponse> => {
     const client = this.createGrpcClient();
-
-    return new Promise<IBuildDatasetResponse>((resolve, reject) => {
-      void client.BuildDataset(
-        params,
-        (error: Error | null, response: IBuildDatasetResponse) => {
+    return new Promise<BuildDatasetResponse>((resolve, reject) => {
+      client.buildDataset(
+        params as GeneratedBuildDatasetRequest,
+        (error, response) => {
           if (error) {
             reject(error);
             return;
           }
-
           resolve(response);
         },
       );
@@ -201,22 +177,17 @@ export class GravityClient extends BaseClient {
    * Get the dataset build status and results
    */
   getDataset = async (
-    params: IGetDatasetRequest,
-  ): Promise<IGetDatasetResponse> => {
+    params: GetDatasetRequest,
+  ): Promise<GetDatasetResponse> => {
     const client = this.createGrpcClient();
-
-    return new Promise<IGetDatasetResponse>((resolve, reject) => {
-      void client.GetDataset(
-        params,
-        (error: Error | null, response: IGetDatasetResponse) => {
-          if (error) {
-            reject(error);
-            return;
-          }
-
-          resolve(response);
-        },
-      );
+    return new Promise<GetDatasetResponse>((resolve, reject) => {
+      client.getDataset(params, (error, response) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+        resolve(response);
+      });
     });
   };
 
@@ -224,22 +195,17 @@ export class GravityClient extends BaseClient {
    * Cancel a gravity task and any crawlers associated with it
    */
   cancelGravityTask = async (
-    params: ICancelGravityTaskRequest,
-  ): Promise<ICancelGravityTaskResponse> => {
+    params: CancelGravityTaskRequest,
+  ): Promise<CancelGravityTaskResponse> => {
     const client = this.createGrpcClient();
-
-    return new Promise<ICancelGravityTaskResponse>((resolve, reject) => {
-      void client.CancelGravityTask(
-        params,
-        (error: Error | null, response: ICancelGravityTaskResponse) => {
-          if (error) {
-            reject(error);
-            return;
-          }
-
-          resolve(response);
-        },
-      );
+    return new Promise<CancelGravityTaskResponse>((resolve, reject) => {
+      client.cancelGravityTask(params, (error, response) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+        resolve(response);
+      });
     });
   };
 
@@ -247,22 +213,17 @@ export class GravityClient extends BaseClient {
    * Cancel dataset build if it is in progress and purges the dataset
    */
   cancelDataset = async (
-    params: ICancelDatasetRequest,
-  ): Promise<ICancelDatasetResponse> => {
+    params: CancelDatasetRequest,
+  ): Promise<CancelDatasetResponse> => {
     const client = this.createGrpcClient();
-
-    return new Promise<ICancelDatasetResponse>((resolve, reject) => {
-      void client.CancelDataset(
-        params,
-        (error: Error | null, response: ICancelDatasetResponse) => {
-          if (error) {
-            reject(error);
-            return;
-          }
-
-          resolve(response);
-        },
-      );
+    return new Promise<CancelDatasetResponse>((resolve, reject) => {
+      client.cancelDataset(params, (error, response) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+        resolve(response);
+      });
     });
   };
 }

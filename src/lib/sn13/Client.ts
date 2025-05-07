@@ -1,77 +1,39 @@
-import * as grpc from "@grpc/grpc-js";
-import * as protoLoader from "@grpc/proto-loader";
-import * as path from "path";
 import {
-  IListTopicsRequest,
-  IListTopicsResponse,
-  IListTopicsResponseDetail,
-  IValidateRedditTopicRequest,
-  IValidateRedditTopicResponse,
-  ISn13ServiceClient,
+  Sn13ServiceClient,
+  ListTopicsRequest,
+  ListTopicsResponse,
+  ListTopicsResponseDetail,
+  ValidateRedditTopicRequest,
+  ValidateRedditTopicResponse,
 } from "../../generated/sn13/v1/sn13_validator";
+import * as grpc from "@grpc/grpc-js";
 import { BaseClient, BaseClientOptions } from "../BaseClient";
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-interface Sn13ClientOptions extends BaseClientOptions {}
-
-// Re-export the interfaces from the proto for easier use
-export type ListTopicsRequest = IListTopicsRequest;
-export type ListTopicsResponse = IListTopicsResponse;
-export type ListTopicsResponseDetail = IListTopicsResponseDetail;
-export type ValidateRedditTopicRequest = IValidateRedditTopicRequest;
-export type ValidateRedditTopicResponse = IValidateRedditTopicResponse;
-
-interface Sn13Service
-  extends grpc.ServiceClientConstructor,
-    ISn13ServiceClient {}
-
-export interface Sn13ProtoClient {
-  Sn13Service: {
-    new (address: string, credentials: grpc.ChannelCredentials): Sn13Service;
-  };
-}
+// re-export the types for use in the package
+export type {
+  ListTopicsRequest,
+  ListTopicsResponse,
+  ListTopicsResponseDetail,
+  ValidateRedditTopicRequest,
+  ValidateRedditTopicResponse,
+};
 
 /**
  * Client for interacting with the SN13 API
  * Provides SN13 service interface over gRPC
  */
 export class Sn13Client extends BaseClient {
-  private protoClient: Sn13ProtoClient;
+  private _grpcClient?: Sn13ServiceClient;
 
-  constructor(options: Sn13ClientOptions) {
+  constructor(options: BaseClientOptions, grpcClient?: Sn13ServiceClient) {
     super(options);
-    this.protoClient = this.initializeGrpcClient();
+
+    this._grpcClient = grpcClient;
   }
 
-  private initializeGrpcClient() {
-    // Load proto file directly
-    const PROTO_PATH = path.resolve(
-      __dirname,
-      "../../../protos/sn13/v1/sn13_validator.proto",
-    );
+  private createGrpcClient(): Sn13ServiceClient {
+    if (this._grpcClient) return this._grpcClient;
 
-    // Load protos using standard protobuf loader
-    const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
-      keepCase: false,
-      longs: String,
-      enums: String,
-      defaults: true,
-      oneofs: true,
-    });
-
-    // Get the Sn13Service definition
-    const protoDescriptor = grpc.loadPackageDefinition(
-      packageDefinition,
-    ) as unknown as {
-      sn13: {
-        v1: Sn13ProtoClient;
-      };
-    };
-
-    return protoDescriptor.sn13.v1;
-  }
-
-  private createGrpcClient(): Sn13Service {
     // Create gRPC credentials with API key
     const callCreds = grpc.credentials.createFromMetadataGenerator(
       (_params, callback) => {
@@ -100,7 +62,7 @@ export class Sn13Client extends BaseClient {
     }
 
     // Create gRPC client
-    return new this.protoClient.Sn13Service(this.getBaseURL(), credentials);
+    return new Sn13ServiceClient(this.getBaseURL(), credentials);
   }
 
   /**
@@ -110,19 +72,14 @@ export class Sn13Client extends BaseClient {
     params: ListTopicsRequest,
   ): Promise<ListTopicsResponse> => {
     const client = this.createGrpcClient();
-
     return new Promise<ListTopicsResponse>((resolve, reject) => {
-      void client.ListTopics(
-        params,
-        (error: Error | null, response: ListTopicsResponse) => {
-          if (error) {
-            reject(error);
-            return;
-          }
-
-          resolve(response);
-        },
-      );
+      client.listTopics(params, (error, response) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+        resolve(response);
+      });
     });
   };
 
@@ -133,19 +90,14 @@ export class Sn13Client extends BaseClient {
     params: ValidateRedditTopicRequest,
   ): Promise<ValidateRedditTopicResponse> => {
     const client = this.createGrpcClient();
-
     return new Promise<ValidateRedditTopicResponse>((resolve, reject) => {
-      void client.ValidateRedditTopic(
-        params,
-        (error: Error | null, response: ValidateRedditTopicResponse) => {
-          if (error) {
-            reject(error);
-            return;
-          }
-
-          resolve(response);
-        },
-      );
+      client.validateRedditTopic(params, (error, response) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+        resolve(response);
+      });
     });
   };
 }
