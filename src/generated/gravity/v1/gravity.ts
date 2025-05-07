@@ -179,7 +179,7 @@ export interface BuildDatasetRequest {
   /** notification_requests: the details of the notification to be sent to the user when the dataset is ready to download (optional) */
   notificationRequests: NotificationRequest[];
   /** max_rows: the maximum number of rows to include in the dataset (optional, defaults to 500) */
-  maxRows?: number | undefined;
+  maxRows: number;
 }
 
 /**
@@ -1781,7 +1781,7 @@ export const CreateGravityTaskResponse: MessageFns<CreateGravityTaskResponse> =
   };
 
 function createBaseBuildDatasetRequest(): BuildDatasetRequest {
-  return { crawlerId: "", notificationRequests: [], maxRows: undefined };
+  return { crawlerId: "", notificationRequests: [], maxRows: 0 };
 }
 
 export const BuildDatasetRequest: MessageFns<BuildDatasetRequest> = {
@@ -1795,7 +1795,7 @@ export const BuildDatasetRequest: MessageFns<BuildDatasetRequest> = {
     for (const v of message.notificationRequests) {
       NotificationRequest.encode(v!, writer.uint32(18).fork()).join();
     }
-    if (message.maxRows !== undefined) {
+    if (message.maxRows !== 0) {
       writer.uint32(24).int64(message.maxRows);
     }
     return writer;
@@ -1859,9 +1859,7 @@ export const BuildDatasetRequest: MessageFns<BuildDatasetRequest> = {
             NotificationRequest.fromJSON(e),
           )
         : [],
-      maxRows: isSet(object.maxRows)
-        ? globalThis.Number(object.maxRows)
-        : undefined,
+      maxRows: isSet(object.maxRows) ? globalThis.Number(object.maxRows) : 0,
     };
   },
 
@@ -1875,7 +1873,7 @@ export const BuildDatasetRequest: MessageFns<BuildDatasetRequest> = {
         NotificationRequest.toJSON(e),
       );
     }
-    if (message.maxRows !== undefined) {
+    if (message.maxRows !== 0) {
       obj.maxRows = Math.round(message.maxRows);
     }
     return obj;
@@ -1891,7 +1889,7 @@ export const BuildDatasetRequest: MessageFns<BuildDatasetRequest> = {
       object.notificationRequests?.map(e =>
         NotificationRequest.fromPartial(e),
       ) || [];
-    message.maxRows = object.maxRows ?? undefined;
+    message.maxRows = object.maxRows ?? 0;
     return message;
   },
 };
