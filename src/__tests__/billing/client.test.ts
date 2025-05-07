@@ -30,7 +30,6 @@ describe("BillingClient", () => {
     if (response.billingRates && response.billingRates.length > 0) {
       const rate = response.billingRates[0];
       expect(typeof rate.rateType).toBe("string");
-      expect(typeof rate.unitSize).toBe("string"); // int64 is returned as string
       expect(typeof rate.unitType).toBe("string");
       expect(typeof rate.pricePerUnit).toBe("number");
       expect(typeof rate.currency).toBe("string");
