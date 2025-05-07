@@ -115,9 +115,9 @@ message GravityTaskState {
 // GetGravityTasksRequest is the request message for listing gravity tasks for a user
 message GetGravityTasksRequest {
   // gravity_task_id: the ID of the gravity task (optional, if not provided, all gravity tasks for the user will be returned)
-  string gravity_task_id = 1;
+  optional string gravity_task_id = 1;
   // include_crawlers: whether to include the crawler states in the response
-  bool include_crawlers = 2;
+  optional bool include_crawlers = 2;
 }
 
 // GetGravityTasksResponse is the response message for listing gravity tasks for a user
@@ -141,7 +141,7 @@ message NotificationRequest {
   // address: the address to send the notification to (only email addresses are supported currently)
   string address = 2;
   // redirect_url: the URL to include in the notication message that redirects the user to any built datasets
-  string redirect_url = 3;
+  optional string redirect_url = 3;
 }
 
 // GetCrawlerRequest is the request message for getting a crawler
@@ -166,7 +166,7 @@ message CreateGravityTaskRequest {
   //   that is automatically generated upon completion of the crawler is ready to download (optional)
   repeated NotificationRequest notification_requests = 3;
   // gravity_task_id: the ID of the gravity task (optional, default will generate a random ID)
-  string gravity_task_id = 4;
+  optional string gravity_task_id = 4;
 }
 
 // CreateGravityTaskResponse is the response message for creating a new gravity task
@@ -182,7 +182,7 @@ message BuildDatasetRequest {
   // notification_requests: the details of the notification to be sent to the user when the dataset is ready to download (optional)
   repeated NotificationRequest notification_requests = 2;
   // max_rows: the maximum number of rows to include in the dataset (optional, defaults to 500)
-  int64 max_rows = 3;
+  optional int64 max_rows = 3;
 }
 
 // BuildDatasetResponse is the response message for manually requesting the building of a dataset for a single crawler
