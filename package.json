@@ -15,6 +15,7 @@
     "format:check": "prettier --check \"src/**/*.{ts,js,json,md}\"",
     "format:write": "prettier --write \"src/**/*.{ts,js,json,md}\"",
     "generate": "ts-node scripts/generate-protos.ts && npm run format:write",
+    "gen:proto": "npx protoc --plugin=protoc-gen-ts_proto=./node_modules/.bin/protoc-gen-ts_proto --ts_proto_out=./src/generated --ts_proto_opt=outputServices=grpc-js,useOptionals=messages,useExactTypes=false,esModuleInterop=true,forceLong=number -I ./protos $(find ./protos -name \"*.proto\")",
     "example:sn13:list-topics": "ts-node src/__examples__/sn13/list-topics.ts"
   },
   "keywords": [],
@@ -50,6 +51,7 @@
     "rimraf": "^5.0.5",
     "ts-jest": "^29.1.2",
     "ts-node": "^10.9.2",
+    "ts-proto": "^2.7.0",
     "typescript": "^5.3.3"
   }
 }
