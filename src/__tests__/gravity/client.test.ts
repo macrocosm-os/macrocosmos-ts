@@ -1,25 +1,13 @@
-import { GravityClient } from "macrocosmos";
+import {
+  BuildDatasetRequest,
+  CreateGravityTaskRequest,
+  GravityClient,
+} from "macrocosmos";
 import { GravityServiceClient } from "macrocosmos/generated/gravity/v1/gravity";
-
-// Only mock the gRPC service client, not the proto loading
-jest.mock("@grpc/grpc-js", () => {
-  const actual =
-    jest.requireActual<typeof import("@grpc/grpc-js")>("@grpc/grpc-js");
-  return {
-    ...actual,
-    credentials: {
-      createFromMetadataGenerator: jest.fn(() => ({})),
-      createSsl: jest.fn(() => ({})),
-      combineChannelCredentials: jest.fn(() => ({})),
-    },
-    Metadata: jest.fn(() => ({
-      add: jest.fn(),
-    })),
-  };
-});
 
 describe("GravityClient", () => {
   let client: GravityClient;
+
   interface MockGrpcClient {
     getGravityTasks: jest.Mock;
     getCrawler: jest.Mock;
@@ -29,6 +17,7 @@ describe("GravityClient", () => {
     cancelGravityTask: jest.Mock;
     cancelDataset: jest.Mock;
   }
+
   let mockGrpcClient: MockGrpcClient;
 
   beforeEach(() => {
@@ -163,7 +152,7 @@ describe("GravityClient", () => {
 
   describe("createGravityTask", () => {
     it("should call the CreateGravityTask method on the gRPC client", async () => {
-      const params = {
+      const params: CreateGravityTaskRequest = {
         gravityTasks: [{ platform: "x", topic: "#ai" }],
         name: "Test Task",
       };
@@ -180,9 +169,10 @@ describe("GravityClient", () => {
 
   describe("buildDataset", () => {
     it("should call the BuildDataset method on the gRPC client", async () => {
-      const params = {
+      const params: BuildDatasetRequest = {
         crawlerId: "test-crawler-id",
         notificationRequests: [{ type: "email", address: "test@example.com" }],
+        maxRows: 100000,
       };
 
       const result = await client.buildDataset(params);
