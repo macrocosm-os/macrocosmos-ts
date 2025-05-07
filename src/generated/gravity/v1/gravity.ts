@@ -27,25 +27,15 @@ export interface Crawler {
   /** crawler_id: the ID of the crawler */
   crawlerId: string;
   /** criteria: the contents of the job and the notification details */
-  criteria?:
-    | CrawlerCriteria
-    | undefined;
+  criteria?: CrawlerCriteria | undefined;
   /** start_time: the time the crawler was created */
-  startTime?:
-    | Date
-    | undefined;
+  startTime?: Date | undefined;
   /** deregistration_time: the time the crawler was deregistered */
-  deregistrationTime?:
-    | Date
-    | undefined;
+  deregistrationTime?: Date | undefined;
   /** archive_time: the time the crawler was archived */
-  archiveTime?:
-    | Date
-    | undefined;
+  archiveTime?: Date | undefined;
   /** state: the current state of the crawler */
-  state?:
-    | CrawlerState
-    | undefined;
+  state?: CrawlerState | undefined;
   /** dataset_workflows: the IDs of the dataset workflows that are associated with the crawler */
   datasetWorkflows: string[];
 }
@@ -57,9 +47,7 @@ export interface CrawlerCriteria {
   /** topic: the topic of the job (e.g. '#ai' for X, 'r/ai' for Reddit) */
   topic: string;
   /** notification: the details of the notification to be sent to the user */
-  notification?:
-    | CrawlerNotification
-    | undefined;
+  notification?: CrawlerNotification | undefined;
   /** mock: Used for testing purposes (optional, defaults to false) */
   mock: boolean;
 }
@@ -112,9 +100,7 @@ export interface GravityTaskState {
   /** status: the current status of the gravity task */
   status: string;
   /** start_time: the time the gravity task was created */
-  startTime?:
-    | Date
-    | undefined;
+  startTime?: Date | undefined;
   /** crawler_ids: the IDs of the crawler workflows that are associated with the gravity task */
   crawlerIds: string[];
   /** crawler_workflows: the crawler workflows that are associated with the gravity task */
@@ -124,9 +110,7 @@ export interface GravityTaskState {
 /** GetGravityTasksRequest is the request message for listing gravity tasks for a user */
 export interface GetGravityTasksRequest {
   /** gravity_task_id: the ID of the gravity task (optional, if not provided, all gravity tasks for the user will be returned) */
-  gravityTaskId?:
-    | string
-    | undefined;
+  gravityTaskId?: string | undefined;
   /** include_crawlers: whether to include the crawler states in the response */
   includeCrawlers?: boolean | undefined;
 }
@@ -214,13 +198,9 @@ export interface Dataset {
   /** crawler_workflow_id: the ID of the parent crawler for this dataset */
   crawlerWorkflowId: string;
   /** create_date: the date the dataset was created */
-  createDate?:
-    | Date
-    | undefined;
+  createDate?: Date | undefined;
   /** expire_date: the date the dataset will expire (be deleted) */
-  expireDate?:
-    | Date
-    | undefined;
+  expireDate?: Date | undefined;
   /** files: the details about the dataset files that are included in the dataset */
   files: DatasetFile[];
   /** status: the status of the dataset */
@@ -240,9 +220,7 @@ export interface DatasetFile {
   /** file_size_bytes: the size of the file in bytes */
   fileSizeBytes: number;
   /** last_modified: the date the file was last modified */
-  lastModified?:
-    | Date
-    | undefined;
+  lastModified?: Date | undefined;
   /** num_rows: the number of rows in the file */
   numRows: number;
   /** s3_key: the key of the file in S3 (internal use only) */
@@ -313,7 +291,10 @@ function createBaseCrawler(): Crawler {
 }
 
 export const Crawler: MessageFns<Crawler> = {
-  encode(message: Crawler, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: Crawler,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.crawlerId !== "") {
       writer.uint32(10).string(message.crawlerId);
     }
@@ -321,13 +302,22 @@ export const Crawler: MessageFns<Crawler> = {
       CrawlerCriteria.encode(message.criteria, writer.uint32(18).fork()).join();
     }
     if (message.startTime !== undefined) {
-      Timestamp.encode(toTimestamp(message.startTime), writer.uint32(26).fork()).join();
+      Timestamp.encode(
+        toTimestamp(message.startTime),
+        writer.uint32(26).fork(),
+      ).join();
     }
     if (message.deregistrationTime !== undefined) {
-      Timestamp.encode(toTimestamp(message.deregistrationTime), writer.uint32(34).fork()).join();
+      Timestamp.encode(
+        toTimestamp(message.deregistrationTime),
+        writer.uint32(34).fork(),
+      ).join();
     }
     if (message.archiveTime !== undefined) {
-      Timestamp.encode(toTimestamp(message.archiveTime), writer.uint32(42).fork()).join();
+      Timestamp.encode(
+        toTimestamp(message.archiveTime),
+        writer.uint32(42).fork(),
+      ).join();
     }
     if (message.state !== undefined) {
       CrawlerState.encode(message.state, writer.uint32(50).fork()).join();
@@ -339,7 +329,8 @@ export const Crawler: MessageFns<Crawler> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): Crawler {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCrawler();
     while (reader.pos < end) {
@@ -366,7 +357,9 @@ export const Crawler: MessageFns<Crawler> = {
             break;
           }
 
-          message.startTime = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
+          message.startTime = fromTimestamp(
+            Timestamp.decode(reader, reader.uint32()),
+          );
           continue;
         }
         case 4: {
@@ -374,7 +367,9 @@ export const Crawler: MessageFns<Crawler> = {
             break;
           }
 
-          message.deregistrationTime = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
+          message.deregistrationTime = fromTimestamp(
+            Timestamp.decode(reader, reader.uint32()),
+          );
           continue;
         }
         case 5: {
@@ -382,7 +377,9 @@ export const Crawler: MessageFns<Crawler> = {
             break;
           }
 
-          message.archiveTime = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
+          message.archiveTime = fromTimestamp(
+            Timestamp.decode(reader, reader.uint32()),
+          );
           continue;
         }
         case 6: {
@@ -412,12 +409,24 @@ export const Crawler: MessageFns<Crawler> = {
 
   fromJSON(object: any): Crawler {
     return {
-      crawlerId: isSet(object.crawlerId) ? globalThis.String(object.crawlerId) : "",
-      criteria: isSet(object.criteria) ? CrawlerCriteria.fromJSON(object.criteria) : undefined,
-      startTime: isSet(object.startTime) ? fromJsonTimestamp(object.startTime) : undefined,
-      deregistrationTime: isSet(object.deregistrationTime) ? fromJsonTimestamp(object.deregistrationTime) : undefined,
-      archiveTime: isSet(object.archiveTime) ? fromJsonTimestamp(object.archiveTime) : undefined,
-      state: isSet(object.state) ? CrawlerState.fromJSON(object.state) : undefined,
+      crawlerId: isSet(object.crawlerId)
+        ? globalThis.String(object.crawlerId)
+        : "",
+      criteria: isSet(object.criteria)
+        ? CrawlerCriteria.fromJSON(object.criteria)
+        : undefined,
+      startTime: isSet(object.startTime)
+        ? fromJsonTimestamp(object.startTime)
+        : undefined,
+      deregistrationTime: isSet(object.deregistrationTime)
+        ? fromJsonTimestamp(object.deregistrationTime)
+        : undefined,
+      archiveTime: isSet(object.archiveTime)
+        ? fromJsonTimestamp(object.archiveTime)
+        : undefined,
+      state: isSet(object.state)
+        ? CrawlerState.fromJSON(object.state)
+        : undefined,
       datasetWorkflows: globalThis.Array.isArray(object?.datasetWorkflows)
         ? object.datasetWorkflows.map((e: any) => globalThis.String(e))
         : [],
@@ -456,16 +465,18 @@ export const Crawler: MessageFns<Crawler> = {
   fromPartial(object: DeepPartial<Crawler>): Crawler {
     const message = createBaseCrawler();
     message.crawlerId = object.crawlerId ?? "";
-    message.criteria = (object.criteria !== undefined && object.criteria !== null)
-      ? CrawlerCriteria.fromPartial(object.criteria)
-      : undefined;
+    message.criteria =
+      object.criteria !== undefined && object.criteria !== null
+        ? CrawlerCriteria.fromPartial(object.criteria)
+        : undefined;
     message.startTime = object.startTime ?? undefined;
     message.deregistrationTime = object.deregistrationTime ?? undefined;
     message.archiveTime = object.archiveTime ?? undefined;
-    message.state = (object.state !== undefined && object.state !== null)
-      ? CrawlerState.fromPartial(object.state)
-      : undefined;
-    message.datasetWorkflows = object.datasetWorkflows?.map((e) => e) || [];
+    message.state =
+      object.state !== undefined && object.state !== null
+        ? CrawlerState.fromPartial(object.state)
+        : undefined;
+    message.datasetWorkflows = object.datasetWorkflows?.map(e => e) || [];
     return message;
   },
 };
@@ -475,7 +486,10 @@ function createBaseCrawlerCriteria(): CrawlerCriteria {
 }
 
 export const CrawlerCriteria: MessageFns<CrawlerCriteria> = {
-  encode(message: CrawlerCriteria, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: CrawlerCriteria,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.platform !== "") {
       writer.uint32(10).string(message.platform);
     }
@@ -483,7 +497,10 @@ export const CrawlerCriteria: MessageFns<CrawlerCriteria> = {
       writer.uint32(18).string(message.topic);
     }
     if (message.notification !== undefined) {
-      CrawlerNotification.encode(message.notification, writer.uint32(26).fork()).join();
+      CrawlerNotification.encode(
+        message.notification,
+        writer.uint32(26).fork(),
+      ).join();
     }
     if (message.mock !== false) {
       writer.uint32(32).bool(message.mock);
@@ -492,7 +509,8 @@ export const CrawlerCriteria: MessageFns<CrawlerCriteria> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): CrawlerCriteria {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCrawlerCriteria();
     while (reader.pos < end) {
@@ -519,7 +537,10 @@ export const CrawlerCriteria: MessageFns<CrawlerCriteria> = {
             break;
           }
 
-          message.notification = CrawlerNotification.decode(reader, reader.uint32());
+          message.notification = CrawlerNotification.decode(
+            reader,
+            reader.uint32(),
+          );
           continue;
         }
         case 4: {
@@ -541,9 +562,13 @@ export const CrawlerCriteria: MessageFns<CrawlerCriteria> = {
 
   fromJSON(object: any): CrawlerCriteria {
     return {
-      platform: isSet(object.platform) ? globalThis.String(object.platform) : "",
+      platform: isSet(object.platform)
+        ? globalThis.String(object.platform)
+        : "",
       topic: isSet(object.topic) ? globalThis.String(object.topic) : "",
-      notification: isSet(object.notification) ? CrawlerNotification.fromJSON(object.notification) : undefined,
+      notification: isSet(object.notification)
+        ? CrawlerNotification.fromJSON(object.notification)
+        : undefined,
       mock: isSet(object.mock) ? globalThis.Boolean(object.mock) : false,
     };
   },
@@ -572,9 +597,10 @@ export const CrawlerCriteria: MessageFns<CrawlerCriteria> = {
     const message = createBaseCrawlerCriteria();
     message.platform = object.platform ?? "";
     message.topic = object.topic ?? "";
-    message.notification = (object.notification !== undefined && object.notification !== null)
-      ? CrawlerNotification.fromPartial(object.notification)
-      : undefined;
+    message.notification =
+      object.notification !== undefined && object.notification !== null
+        ? CrawlerNotification.fromPartial(object.notification)
+        : undefined;
     message.mock = object.mock ?? false;
     return message;
   },
@@ -585,7 +611,10 @@ function createBaseCrawlerNotification(): CrawlerNotification {
 }
 
 export const CrawlerNotification: MessageFns<CrawlerNotification> = {
-  encode(message: CrawlerNotification, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: CrawlerNotification,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.to !== "") {
       writer.uint32(10).string(message.to);
     }
@@ -595,8 +624,12 @@ export const CrawlerNotification: MessageFns<CrawlerNotification> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): CrawlerNotification {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): CrawlerNotification {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCrawlerNotification();
     while (reader.pos < end) {
@@ -661,7 +694,10 @@ function createBaseHfRepo(): HfRepo {
 }
 
 export const HfRepo: MessageFns<HfRepo> = {
-  encode(message: HfRepo, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: HfRepo,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.repoName !== "") {
       writer.uint32(10).string(message.repoName);
     }
@@ -675,7 +711,8 @@ export const HfRepo: MessageFns<HfRepo> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): HfRepo {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseHfRepo();
     while (reader.pos < end) {
@@ -716,9 +753,13 @@ export const HfRepo: MessageFns<HfRepo> = {
 
   fromJSON(object: any): HfRepo {
     return {
-      repoName: isSet(object.repoName) ? globalThis.String(object.repoName) : "",
+      repoName: isSet(object.repoName)
+        ? globalThis.String(object.repoName)
+        : "",
       rowCount: isSet(object.rowCount) ? globalThis.Number(object.rowCount) : 0,
-      lastUpdate: isSet(object.lastUpdate) ? globalThis.String(object.lastUpdate) : "",
+      lastUpdate: isSet(object.lastUpdate)
+        ? globalThis.String(object.lastUpdate)
+        : "",
     };
   },
 
@@ -753,7 +794,10 @@ function createBaseCrawlerState(): CrawlerState {
 }
 
 export const CrawlerState: MessageFns<CrawlerState> = {
-  encode(message: CrawlerState, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: CrawlerState,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.status !== "") {
       writer.uint32(10).string(message.status);
     }
@@ -770,7 +814,8 @@ export const CrawlerState: MessageFns<CrawlerState> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): CrawlerState {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCrawlerState();
     while (reader.pos < end) {
@@ -820,9 +865,15 @@ export const CrawlerState: MessageFns<CrawlerState> = {
   fromJSON(object: any): CrawlerState {
     return {
       status: isSet(object.status) ? globalThis.String(object.status) : "",
-      bytesCollected: isSet(object.bytesCollected) ? globalThis.Number(object.bytesCollected) : 0,
-      recordsCollected: isSet(object.recordsCollected) ? globalThis.Number(object.recordsCollected) : 0,
-      repos: globalThis.Array.isArray(object?.repos) ? object.repos.map((e: any) => HfRepo.fromJSON(e)) : [],
+      bytesCollected: isSet(object.bytesCollected)
+        ? globalThis.Number(object.bytesCollected)
+        : 0,
+      recordsCollected: isSet(object.recordsCollected)
+        ? globalThis.Number(object.recordsCollected)
+        : 0,
+      repos: globalThis.Array.isArray(object?.repos)
+        ? object.repos.map((e: any) => HfRepo.fromJSON(e))
+        : [],
     };
   },
 
@@ -838,7 +889,7 @@ export const CrawlerState: MessageFns<CrawlerState> = {
       obj.recordsCollected = Math.round(message.recordsCollected);
     }
     if (message.repos?.length) {
-      obj.repos = message.repos.map((e) => HfRepo.toJSON(e));
+      obj.repos = message.repos.map(e => HfRepo.toJSON(e));
     }
     return obj;
   },
@@ -851,17 +902,27 @@ export const CrawlerState: MessageFns<CrawlerState> = {
     message.status = object.status ?? "";
     message.bytesCollected = object.bytesCollected ?? 0;
     message.recordsCollected = object.recordsCollected ?? 0;
-    message.repos = object.repos?.map((e) => HfRepo.fromPartial(e)) || [];
+    message.repos = object.repos?.map(e => HfRepo.fromPartial(e)) || [];
     return message;
   },
 };
 
 function createBaseGravityTaskState(): GravityTaskState {
-  return { gravityTaskId: "", name: "", status: "", startTime: undefined, crawlerIds: [], crawlerWorkflows: [] };
+  return {
+    gravityTaskId: "",
+    name: "",
+    status: "",
+    startTime: undefined,
+    crawlerIds: [],
+    crawlerWorkflows: [],
+  };
 }
 
 export const GravityTaskState: MessageFns<GravityTaskState> = {
-  encode(message: GravityTaskState, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: GravityTaskState,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.gravityTaskId !== "") {
       writer.uint32(10).string(message.gravityTaskId);
     }
@@ -872,7 +933,10 @@ export const GravityTaskState: MessageFns<GravityTaskState> = {
       writer.uint32(26).string(message.status);
     }
     if (message.startTime !== undefined) {
-      Timestamp.encode(toTimestamp(message.startTime), writer.uint32(34).fork()).join();
+      Timestamp.encode(
+        toTimestamp(message.startTime),
+        writer.uint32(34).fork(),
+      ).join();
     }
     for (const v of message.crawlerIds) {
       writer.uint32(42).string(v!);
@@ -884,7 +948,8 @@ export const GravityTaskState: MessageFns<GravityTaskState> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): GravityTaskState {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseGravityTaskState();
     while (reader.pos < end) {
@@ -919,7 +984,9 @@ export const GravityTaskState: MessageFns<GravityTaskState> = {
             break;
           }
 
-          message.startTime = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
+          message.startTime = fromTimestamp(
+            Timestamp.decode(reader, reader.uint32()),
+          );
           continue;
         }
         case 5: {
@@ -935,7 +1002,9 @@ export const GravityTaskState: MessageFns<GravityTaskState> = {
             break;
           }
 
-          message.crawlerWorkflows.push(Crawler.decode(reader, reader.uint32()));
+          message.crawlerWorkflows.push(
+            Crawler.decode(reader, reader.uint32()),
+          );
           continue;
         }
       }
@@ -949,10 +1018,14 @@ export const GravityTaskState: MessageFns<GravityTaskState> = {
 
   fromJSON(object: any): GravityTaskState {
     return {
-      gravityTaskId: isSet(object.gravityTaskId) ? globalThis.String(object.gravityTaskId) : "",
+      gravityTaskId: isSet(object.gravityTaskId)
+        ? globalThis.String(object.gravityTaskId)
+        : "",
       name: isSet(object.name) ? globalThis.String(object.name) : "",
       status: isSet(object.status) ? globalThis.String(object.status) : "",
-      startTime: isSet(object.startTime) ? fromJsonTimestamp(object.startTime) : undefined,
+      startTime: isSet(object.startTime)
+        ? fromJsonTimestamp(object.startTime)
+        : undefined,
       crawlerIds: globalThis.Array.isArray(object?.crawlerIds)
         ? object.crawlerIds.map((e: any) => globalThis.String(e))
         : [],
@@ -980,7 +1053,9 @@ export const GravityTaskState: MessageFns<GravityTaskState> = {
       obj.crawlerIds = message.crawlerIds;
     }
     if (message.crawlerWorkflows?.length) {
-      obj.crawlerWorkflows = message.crawlerWorkflows.map((e) => Crawler.toJSON(e));
+      obj.crawlerWorkflows = message.crawlerWorkflows.map(e =>
+        Crawler.toJSON(e),
+      );
     }
     return obj;
   },
@@ -994,8 +1069,9 @@ export const GravityTaskState: MessageFns<GravityTaskState> = {
     message.name = object.name ?? "";
     message.status = object.status ?? "";
     message.startTime = object.startTime ?? undefined;
-    message.crawlerIds = object.crawlerIds?.map((e) => e) || [];
-    message.crawlerWorkflows = object.crawlerWorkflows?.map((e) => Crawler.fromPartial(e)) || [];
+    message.crawlerIds = object.crawlerIds?.map(e => e) || [];
+    message.crawlerWorkflows =
+      object.crawlerWorkflows?.map(e => Crawler.fromPartial(e)) || [];
     return message;
   },
 };
@@ -1005,7 +1081,10 @@ function createBaseGetGravityTasksRequest(): GetGravityTasksRequest {
 }
 
 export const GetGravityTasksRequest: MessageFns<GetGravityTasksRequest> = {
-  encode(message: GetGravityTasksRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: GetGravityTasksRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.gravityTaskId !== undefined) {
       writer.uint32(10).string(message.gravityTaskId);
     }
@@ -1015,8 +1094,12 @@ export const GetGravityTasksRequest: MessageFns<GetGravityTasksRequest> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): GetGravityTasksRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): GetGravityTasksRequest {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseGetGravityTasksRequest();
     while (reader.pos < end) {
@@ -1049,8 +1132,12 @@ export const GetGravityTasksRequest: MessageFns<GetGravityTasksRequest> = {
 
   fromJSON(object: any): GetGravityTasksRequest {
     return {
-      gravityTaskId: isSet(object.gravityTaskId) ? globalThis.String(object.gravityTaskId) : undefined,
-      includeCrawlers: isSet(object.includeCrawlers) ? globalThis.Boolean(object.includeCrawlers) : undefined,
+      gravityTaskId: isSet(object.gravityTaskId)
+        ? globalThis.String(object.gravityTaskId)
+        : undefined,
+      includeCrawlers: isSet(object.includeCrawlers)
+        ? globalThis.Boolean(object.includeCrawlers)
+        : undefined,
     };
   },
 
@@ -1068,7 +1155,9 @@ export const GetGravityTasksRequest: MessageFns<GetGravityTasksRequest> = {
   create(base?: DeepPartial<GetGravityTasksRequest>): GetGravityTasksRequest {
     return GetGravityTasksRequest.fromPartial(base ?? {});
   },
-  fromPartial(object: DeepPartial<GetGravityTasksRequest>): GetGravityTasksRequest {
+  fromPartial(
+    object: DeepPartial<GetGravityTasksRequest>,
+  ): GetGravityTasksRequest {
     const message = createBaseGetGravityTasksRequest();
     message.gravityTaskId = object.gravityTaskId ?? undefined;
     message.includeCrawlers = object.includeCrawlers ?? undefined;
@@ -1081,15 +1170,22 @@ function createBaseGetGravityTasksResponse(): GetGravityTasksResponse {
 }
 
 export const GetGravityTasksResponse: MessageFns<GetGravityTasksResponse> = {
-  encode(message: GetGravityTasksResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: GetGravityTasksResponse,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     for (const v of message.gravityTaskStates) {
       GravityTaskState.encode(v!, writer.uint32(10).fork()).join();
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): GetGravityTasksResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): GetGravityTasksResponse {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseGetGravityTasksResponse();
     while (reader.pos < end) {
@@ -1100,7 +1196,9 @@ export const GetGravityTasksResponse: MessageFns<GetGravityTasksResponse> = {
             break;
           }
 
-          message.gravityTaskStates.push(GravityTaskState.decode(reader, reader.uint32()));
+          message.gravityTaskStates.push(
+            GravityTaskState.decode(reader, reader.uint32()),
+          );
           continue;
         }
       }
@@ -1123,7 +1221,9 @@ export const GetGravityTasksResponse: MessageFns<GetGravityTasksResponse> = {
   toJSON(message: GetGravityTasksResponse): unknown {
     const obj: any = {};
     if (message.gravityTaskStates?.length) {
-      obj.gravityTaskStates = message.gravityTaskStates.map((e) => GravityTaskState.toJSON(e));
+      obj.gravityTaskStates = message.gravityTaskStates.map(e =>
+        GravityTaskState.toJSON(e),
+      );
     }
     return obj;
   },
@@ -1131,9 +1231,12 @@ export const GetGravityTasksResponse: MessageFns<GetGravityTasksResponse> = {
   create(base?: DeepPartial<GetGravityTasksResponse>): GetGravityTasksResponse {
     return GetGravityTasksResponse.fromPartial(base ?? {});
   },
-  fromPartial(object: DeepPartial<GetGravityTasksResponse>): GetGravityTasksResponse {
+  fromPartial(
+    object: DeepPartial<GetGravityTasksResponse>,
+  ): GetGravityTasksResponse {
     const message = createBaseGetGravityTasksResponse();
-    message.gravityTaskStates = object.gravityTaskStates?.map((e) => GravityTaskState.fromPartial(e)) || [];
+    message.gravityTaskStates =
+      object.gravityTaskStates?.map(e => GravityTaskState.fromPartial(e)) || [];
     return message;
   },
 };
@@ -1143,7 +1246,10 @@ function createBaseGravityTask(): GravityTask {
 }
 
 export const GravityTask: MessageFns<GravityTask> = {
-  encode(message: GravityTask, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: GravityTask,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.topic !== "") {
       writer.uint32(10).string(message.topic);
     }
@@ -1154,7 +1260,8 @@ export const GravityTask: MessageFns<GravityTask> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): GravityTask {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseGravityTask();
     while (reader.pos < end) {
@@ -1188,7 +1295,9 @@ export const GravityTask: MessageFns<GravityTask> = {
   fromJSON(object: any): GravityTask {
     return {
       topic: isSet(object.topic) ? globalThis.String(object.topic) : "",
-      platform: isSet(object.platform) ? globalThis.String(object.platform) : "",
+      platform: isSet(object.platform)
+        ? globalThis.String(object.platform)
+        : "",
     };
   },
 
@@ -1219,7 +1328,10 @@ function createBaseNotificationRequest(): NotificationRequest {
 }
 
 export const NotificationRequest: MessageFns<NotificationRequest> = {
-  encode(message: NotificationRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: NotificationRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.type !== "") {
       writer.uint32(10).string(message.type);
     }
@@ -1232,8 +1344,12 @@ export const NotificationRequest: MessageFns<NotificationRequest> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): NotificationRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): NotificationRequest {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseNotificationRequest();
     while (reader.pos < end) {
@@ -1276,7 +1392,9 @@ export const NotificationRequest: MessageFns<NotificationRequest> = {
     return {
       type: isSet(object.type) ? globalThis.String(object.type) : "",
       address: isSet(object.address) ? globalThis.String(object.address) : "",
-      redirectUrl: isSet(object.redirectUrl) ? globalThis.String(object.redirectUrl) : undefined,
+      redirectUrl: isSet(object.redirectUrl)
+        ? globalThis.String(object.redirectUrl)
+        : undefined,
     };
   },
 
@@ -1311,7 +1429,10 @@ function createBaseGetCrawlerRequest(): GetCrawlerRequest {
 }
 
 export const GetCrawlerRequest: MessageFns<GetCrawlerRequest> = {
-  encode(message: GetCrawlerRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: GetCrawlerRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.crawlerId !== "") {
       writer.uint32(10).string(message.crawlerId);
     }
@@ -1319,7 +1440,8 @@ export const GetCrawlerRequest: MessageFns<GetCrawlerRequest> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): GetCrawlerRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseGetCrawlerRequest();
     while (reader.pos < end) {
@@ -1343,7 +1465,11 @@ export const GetCrawlerRequest: MessageFns<GetCrawlerRequest> = {
   },
 
   fromJSON(object: any): GetCrawlerRequest {
-    return { crawlerId: isSet(object.crawlerId) ? globalThis.String(object.crawlerId) : "" };
+    return {
+      crawlerId: isSet(object.crawlerId)
+        ? globalThis.String(object.crawlerId)
+        : "",
+    };
   },
 
   toJSON(message: GetCrawlerRequest): unknown {
@@ -1369,15 +1495,22 @@ function createBaseGetCrawlerResponse(): GetCrawlerResponse {
 }
 
 export const GetCrawlerResponse: MessageFns<GetCrawlerResponse> = {
-  encode(message: GetCrawlerResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: GetCrawlerResponse,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.crawler !== undefined) {
       Crawler.encode(message.crawler, writer.uint32(10).fork()).join();
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): GetCrawlerResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): GetCrawlerResponse {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseGetCrawlerResponse();
     while (reader.pos < end) {
@@ -1401,7 +1534,11 @@ export const GetCrawlerResponse: MessageFns<GetCrawlerResponse> = {
   },
 
   fromJSON(object: any): GetCrawlerResponse {
-    return { crawler: isSet(object.crawler) ? Crawler.fromJSON(object.crawler) : undefined };
+    return {
+      crawler: isSet(object.crawler)
+        ? Crawler.fromJSON(object.crawler)
+        : undefined,
+    };
   },
 
   toJSON(message: GetCrawlerResponse): unknown {
@@ -1417,19 +1554,28 @@ export const GetCrawlerResponse: MessageFns<GetCrawlerResponse> = {
   },
   fromPartial(object: DeepPartial<GetCrawlerResponse>): GetCrawlerResponse {
     const message = createBaseGetCrawlerResponse();
-    message.crawler = (object.crawler !== undefined && object.crawler !== null)
-      ? Crawler.fromPartial(object.crawler)
-      : undefined;
+    message.crawler =
+      object.crawler !== undefined && object.crawler !== null
+        ? Crawler.fromPartial(object.crawler)
+        : undefined;
     return message;
   },
 };
 
 function createBaseCreateGravityTaskRequest(): CreateGravityTaskRequest {
-  return { gravityTasks: [], name: "", notificationRequests: [], gravityTaskId: undefined };
+  return {
+    gravityTasks: [],
+    name: "",
+    notificationRequests: [],
+    gravityTaskId: undefined,
+  };
 }
 
 export const CreateGravityTaskRequest: MessageFns<CreateGravityTaskRequest> = {
-  encode(message: CreateGravityTaskRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: CreateGravityTaskRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     for (const v of message.gravityTasks) {
       GravityTask.encode(v!, writer.uint32(10).fork()).join();
     }
@@ -1445,8 +1591,12 @@ export const CreateGravityTaskRequest: MessageFns<CreateGravityTaskRequest> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): CreateGravityTaskRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): CreateGravityTaskRequest {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCreateGravityTaskRequest();
     while (reader.pos < end) {
@@ -1457,7 +1607,9 @@ export const CreateGravityTaskRequest: MessageFns<CreateGravityTaskRequest> = {
             break;
           }
 
-          message.gravityTasks.push(GravityTask.decode(reader, reader.uint32()));
+          message.gravityTasks.push(
+            GravityTask.decode(reader, reader.uint32()),
+          );
           continue;
         }
         case 2: {
@@ -1473,7 +1625,9 @@ export const CreateGravityTaskRequest: MessageFns<CreateGravityTaskRequest> = {
             break;
           }
 
-          message.notificationRequests.push(NotificationRequest.decode(reader, reader.uint32()));
+          message.notificationRequests.push(
+            NotificationRequest.decode(reader, reader.uint32()),
+          );
           continue;
         }
         case 4: {
@@ -1499,23 +1653,31 @@ export const CreateGravityTaskRequest: MessageFns<CreateGravityTaskRequest> = {
         ? object.gravityTasks.map((e: any) => GravityTask.fromJSON(e))
         : [],
       name: isSet(object.name) ? globalThis.String(object.name) : "",
-      notificationRequests: globalThis.Array.isArray(object?.notificationRequests)
-        ? object.notificationRequests.map((e: any) => NotificationRequest.fromJSON(e))
+      notificationRequests: globalThis.Array.isArray(
+        object?.notificationRequests,
+      )
+        ? object.notificationRequests.map((e: any) =>
+            NotificationRequest.fromJSON(e),
+          )
         : [],
-      gravityTaskId: isSet(object.gravityTaskId) ? globalThis.String(object.gravityTaskId) : undefined,
+      gravityTaskId: isSet(object.gravityTaskId)
+        ? globalThis.String(object.gravityTaskId)
+        : undefined,
     };
   },
 
   toJSON(message: CreateGravityTaskRequest): unknown {
     const obj: any = {};
     if (message.gravityTasks?.length) {
-      obj.gravityTasks = message.gravityTasks.map((e) => GravityTask.toJSON(e));
+      obj.gravityTasks = message.gravityTasks.map(e => GravityTask.toJSON(e));
     }
     if (message.name !== "") {
       obj.name = message.name;
     }
     if (message.notificationRequests?.length) {
-      obj.notificationRequests = message.notificationRequests.map((e) => NotificationRequest.toJSON(e));
+      obj.notificationRequests = message.notificationRequests.map(e =>
+        NotificationRequest.toJSON(e),
+      );
     }
     if (message.gravityTaskId !== undefined) {
       obj.gravityTaskId = message.gravityTaskId;
@@ -1523,14 +1685,22 @@ export const CreateGravityTaskRequest: MessageFns<CreateGravityTaskRequest> = {
     return obj;
   },
 
-  create(base?: DeepPartial<CreateGravityTaskRequest>): CreateGravityTaskRequest {
+  create(
+    base?: DeepPartial<CreateGravityTaskRequest>,
+  ): CreateGravityTaskRequest {
     return CreateGravityTaskRequest.fromPartial(base ?? {});
   },
-  fromPartial(object: DeepPartial<CreateGravityTaskRequest>): CreateGravityTaskRequest {
+  fromPartial(
+    object: DeepPartial<CreateGravityTaskRequest>,
+  ): CreateGravityTaskRequest {
     const message = createBaseCreateGravityTaskRequest();
-    message.gravityTasks = object.gravityTasks?.map((e) => GravityTask.fromPartial(e)) || [];
+    message.gravityTasks =
+      object.gravityTasks?.map(e => GravityTask.fromPartial(e)) || [];
     message.name = object.name ?? "";
-    message.notificationRequests = object.notificationRequests?.map((e) => NotificationRequest.fromPartial(e)) || [];
+    message.notificationRequests =
+      object.notificationRequests?.map(e =>
+        NotificationRequest.fromPartial(e),
+      ) || [];
     message.gravityTaskId = object.gravityTaskId ?? undefined;
     return message;
   },
@@ -1540,66 +1710,85 @@ function createBaseCreateGravityTaskResponse(): CreateGravityTaskResponse {
   return { gravityTaskId: "" };
 }
 
-export const CreateGravityTaskResponse: MessageFns<CreateGravityTaskResponse> = {
-  encode(message: CreateGravityTaskResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.gravityTaskId !== "") {
-      writer.uint32(10).string(message.gravityTaskId);
-    }
-    return writer;
-  },
+export const CreateGravityTaskResponse: MessageFns<CreateGravityTaskResponse> =
+  {
+    encode(
+      message: CreateGravityTaskResponse,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      if (message.gravityTaskId !== "") {
+        writer.uint32(10).string(message.gravityTaskId);
+      }
+      return writer;
+    },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): CreateGravityTaskResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseCreateGravityTaskResponse();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): CreateGravityTaskResponse {
+      const reader =
+        input instanceof BinaryReader ? input : new BinaryReader(input);
+      let end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseCreateGravityTaskResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.gravityTaskId = reader.string();
+            continue;
           }
-
-          message.gravityTaskId = reader.string();
-          continue;
         }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
       }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
+      return message;
+    },
+
+    fromJSON(object: any): CreateGravityTaskResponse {
+      return {
+        gravityTaskId: isSet(object.gravityTaskId)
+          ? globalThis.String(object.gravityTaskId)
+          : "",
+      };
+    },
+
+    toJSON(message: CreateGravityTaskResponse): unknown {
+      const obj: any = {};
+      if (message.gravityTaskId !== "") {
+        obj.gravityTaskId = message.gravityTaskId;
       }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
+      return obj;
+    },
 
-  fromJSON(object: any): CreateGravityTaskResponse {
-    return { gravityTaskId: isSet(object.gravityTaskId) ? globalThis.String(object.gravityTaskId) : "" };
-  },
-
-  toJSON(message: CreateGravityTaskResponse): unknown {
-    const obj: any = {};
-    if (message.gravityTaskId !== "") {
-      obj.gravityTaskId = message.gravityTaskId;
-    }
-    return obj;
-  },
-
-  create(base?: DeepPartial<CreateGravityTaskResponse>): CreateGravityTaskResponse {
-    return CreateGravityTaskResponse.fromPartial(base ?? {});
-  },
-  fromPartial(object: DeepPartial<CreateGravityTaskResponse>): CreateGravityTaskResponse {
-    const message = createBaseCreateGravityTaskResponse();
-    message.gravityTaskId = object.gravityTaskId ?? "";
-    return message;
-  },
-};
+    create(
+      base?: DeepPartial<CreateGravityTaskResponse>,
+    ): CreateGravityTaskResponse {
+      return CreateGravityTaskResponse.fromPartial(base ?? {});
+    },
+    fromPartial(
+      object: DeepPartial<CreateGravityTaskResponse>,
+    ): CreateGravityTaskResponse {
+      const message = createBaseCreateGravityTaskResponse();
+      message.gravityTaskId = object.gravityTaskId ?? "";
+      return message;
+    },
+  };
 
 function createBaseBuildDatasetRequest(): BuildDatasetRequest {
   return { crawlerId: "", notificationRequests: [], maxRows: undefined };
 }
 
 export const BuildDatasetRequest: MessageFns<BuildDatasetRequest> = {
-  encode(message: BuildDatasetRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: BuildDatasetRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.crawlerId !== "") {
       writer.uint32(10).string(message.crawlerId);
     }
@@ -1612,8 +1801,12 @@ export const BuildDatasetRequest: MessageFns<BuildDatasetRequest> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): BuildDatasetRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): BuildDatasetRequest {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseBuildDatasetRequest();
     while (reader.pos < end) {
@@ -1632,7 +1825,9 @@ export const BuildDatasetRequest: MessageFns<BuildDatasetRequest> = {
             break;
           }
 
-          message.notificationRequests.push(NotificationRequest.decode(reader, reader.uint32()));
+          message.notificationRequests.push(
+            NotificationRequest.decode(reader, reader.uint32()),
+          );
           continue;
         }
         case 3: {
@@ -1654,11 +1849,19 @@ export const BuildDatasetRequest: MessageFns<BuildDatasetRequest> = {
 
   fromJSON(object: any): BuildDatasetRequest {
     return {
-      crawlerId: isSet(object.crawlerId) ? globalThis.String(object.crawlerId) : "",
-      notificationRequests: globalThis.Array.isArray(object?.notificationRequests)
-        ? object.notificationRequests.map((e: any) => NotificationRequest.fromJSON(e))
+      crawlerId: isSet(object.crawlerId)
+        ? globalThis.String(object.crawlerId)
+        : "",
+      notificationRequests: globalThis.Array.isArray(
+        object?.notificationRequests,
+      )
+        ? object.notificationRequests.map((e: any) =>
+            NotificationRequest.fromJSON(e),
+          )
         : [],
-      maxRows: isSet(object.maxRows) ? globalThis.Number(object.maxRows) : undefined,
+      maxRows: isSet(object.maxRows)
+        ? globalThis.Number(object.maxRows)
+        : undefined,
     };
   },
 
@@ -1668,7 +1871,9 @@ export const BuildDatasetRequest: MessageFns<BuildDatasetRequest> = {
       obj.crawlerId = message.crawlerId;
     }
     if (message.notificationRequests?.length) {
-      obj.notificationRequests = message.notificationRequests.map((e) => NotificationRequest.toJSON(e));
+      obj.notificationRequests = message.notificationRequests.map(e =>
+        NotificationRequest.toJSON(e),
+      );
     }
     if (message.maxRows !== undefined) {
       obj.maxRows = Math.round(message.maxRows);
@@ -1682,7 +1887,10 @@ export const BuildDatasetRequest: MessageFns<BuildDatasetRequest> = {
   fromPartial(object: DeepPartial<BuildDatasetRequest>): BuildDatasetRequest {
     const message = createBaseBuildDatasetRequest();
     message.crawlerId = object.crawlerId ?? "";
-    message.notificationRequests = object.notificationRequests?.map((e) => NotificationRequest.fromPartial(e)) || [];
+    message.notificationRequests =
+      object.notificationRequests?.map(e =>
+        NotificationRequest.fromPartial(e),
+      ) || [];
     message.maxRows = object.maxRows ?? undefined;
     return message;
   },
@@ -1693,7 +1901,10 @@ function createBaseBuildDatasetResponse(): BuildDatasetResponse {
 }
 
 export const BuildDatasetResponse: MessageFns<BuildDatasetResponse> = {
-  encode(message: BuildDatasetResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: BuildDatasetResponse,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.datasetId !== "") {
       writer.uint32(10).string(message.datasetId);
     }
@@ -1703,8 +1914,12 @@ export const BuildDatasetResponse: MessageFns<BuildDatasetResponse> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): BuildDatasetResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): BuildDatasetResponse {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseBuildDatasetResponse();
     while (reader.pos < end) {
@@ -1737,8 +1952,12 @@ export const BuildDatasetResponse: MessageFns<BuildDatasetResponse> = {
 
   fromJSON(object: any): BuildDatasetResponse {
     return {
-      datasetId: isSet(object.datasetId) ? globalThis.String(object.datasetId) : "",
-      dataset: isSet(object.dataset) ? Dataset.fromJSON(object.dataset) : undefined,
+      datasetId: isSet(object.datasetId)
+        ? globalThis.String(object.datasetId)
+        : "",
+      dataset: isSet(object.dataset)
+        ? Dataset.fromJSON(object.dataset)
+        : undefined,
     };
   },
 
@@ -1759,9 +1978,10 @@ export const BuildDatasetResponse: MessageFns<BuildDatasetResponse> = {
   fromPartial(object: DeepPartial<BuildDatasetResponse>): BuildDatasetResponse {
     const message = createBaseBuildDatasetResponse();
     message.datasetId = object.datasetId ?? "";
-    message.dataset = (object.dataset !== undefined && object.dataset !== null)
-      ? Dataset.fromPartial(object.dataset)
-      : undefined;
+    message.dataset =
+      object.dataset !== undefined && object.dataset !== null
+        ? Dataset.fromPartial(object.dataset)
+        : undefined;
     return message;
   },
 };
@@ -1780,15 +2000,24 @@ function createBaseDataset(): Dataset {
 }
 
 export const Dataset: MessageFns<Dataset> = {
-  encode(message: Dataset, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: Dataset,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.crawlerWorkflowId !== "") {
       writer.uint32(10).string(message.crawlerWorkflowId);
     }
     if (message.createDate !== undefined) {
-      Timestamp.encode(toTimestamp(message.createDate), writer.uint32(18).fork()).join();
+      Timestamp.encode(
+        toTimestamp(message.createDate),
+        writer.uint32(18).fork(),
+      ).join();
     }
     if (message.expireDate !== undefined) {
-      Timestamp.encode(toTimestamp(message.expireDate), writer.uint32(26).fork()).join();
+      Timestamp.encode(
+        toTimestamp(message.expireDate),
+        writer.uint32(26).fork(),
+      ).join();
     }
     for (const v of message.files) {
       DatasetFile.encode(v!, writer.uint32(34).fork()).join();
@@ -1809,7 +2038,8 @@ export const Dataset: MessageFns<Dataset> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): Dataset {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseDataset();
     while (reader.pos < end) {
@@ -1828,7 +2058,9 @@ export const Dataset: MessageFns<Dataset> = {
             break;
           }
 
-          message.createDate = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
+          message.createDate = fromTimestamp(
+            Timestamp.decode(reader, reader.uint32()),
+          );
           continue;
         }
         case 3: {
@@ -1836,7 +2068,9 @@ export const Dataset: MessageFns<Dataset> = {
             break;
           }
 
-          message.expireDate = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
+          message.expireDate = fromTimestamp(
+            Timestamp.decode(reader, reader.uint32()),
+          );
           continue;
         }
         case 4: {
@@ -1890,14 +2124,28 @@ export const Dataset: MessageFns<Dataset> = {
 
   fromJSON(object: any): Dataset {
     return {
-      crawlerWorkflowId: isSet(object.crawlerWorkflowId) ? globalThis.String(object.crawlerWorkflowId) : "",
-      createDate: isSet(object.createDate) ? fromJsonTimestamp(object.createDate) : undefined,
-      expireDate: isSet(object.expireDate) ? fromJsonTimestamp(object.expireDate) : undefined,
-      files: globalThis.Array.isArray(object?.files) ? object.files.map((e: any) => DatasetFile.fromJSON(e)) : [],
+      crawlerWorkflowId: isSet(object.crawlerWorkflowId)
+        ? globalThis.String(object.crawlerWorkflowId)
+        : "",
+      createDate: isSet(object.createDate)
+        ? fromJsonTimestamp(object.createDate)
+        : undefined,
+      expireDate: isSet(object.expireDate)
+        ? fromJsonTimestamp(object.expireDate)
+        : undefined,
+      files: globalThis.Array.isArray(object?.files)
+        ? object.files.map((e: any) => DatasetFile.fromJSON(e))
+        : [],
       status: isSet(object.status) ? globalThis.String(object.status) : "",
-      statusMessage: isSet(object.statusMessage) ? globalThis.String(object.statusMessage) : "",
-      steps: globalThis.Array.isArray(object?.steps) ? object.steps.map((e: any) => DatasetStep.fromJSON(e)) : [],
-      totalSteps: isSet(object.totalSteps) ? globalThis.Number(object.totalSteps) : 0,
+      statusMessage: isSet(object.statusMessage)
+        ? globalThis.String(object.statusMessage)
+        : "",
+      steps: globalThis.Array.isArray(object?.steps)
+        ? object.steps.map((e: any) => DatasetStep.fromJSON(e))
+        : [],
+      totalSteps: isSet(object.totalSteps)
+        ? globalThis.Number(object.totalSteps)
+        : 0,
     };
   },
 
@@ -1913,7 +2161,7 @@ export const Dataset: MessageFns<Dataset> = {
       obj.expireDate = message.expireDate.toISOString();
     }
     if (message.files?.length) {
-      obj.files = message.files.map((e) => DatasetFile.toJSON(e));
+      obj.files = message.files.map(e => DatasetFile.toJSON(e));
     }
     if (message.status !== "") {
       obj.status = message.status;
@@ -1922,7 +2170,7 @@ export const Dataset: MessageFns<Dataset> = {
       obj.statusMessage = message.statusMessage;
     }
     if (message.steps?.length) {
-      obj.steps = message.steps.map((e) => DatasetStep.toJSON(e));
+      obj.steps = message.steps.map(e => DatasetStep.toJSON(e));
     }
     if (message.totalSteps !== 0) {
       obj.totalSteps = Math.round(message.totalSteps);
@@ -1938,21 +2186,31 @@ export const Dataset: MessageFns<Dataset> = {
     message.crawlerWorkflowId = object.crawlerWorkflowId ?? "";
     message.createDate = object.createDate ?? undefined;
     message.expireDate = object.expireDate ?? undefined;
-    message.files = object.files?.map((e) => DatasetFile.fromPartial(e)) || [];
+    message.files = object.files?.map(e => DatasetFile.fromPartial(e)) || [];
     message.status = object.status ?? "";
     message.statusMessage = object.statusMessage ?? "";
-    message.steps = object.steps?.map((e) => DatasetStep.fromPartial(e)) || [];
+    message.steps = object.steps?.map(e => DatasetStep.fromPartial(e)) || [];
     message.totalSteps = object.totalSteps ?? 0;
     return message;
   },
 };
 
 function createBaseDatasetFile(): DatasetFile {
-  return { fileName: "", fileSizeBytes: 0, lastModified: undefined, numRows: 0, s3Key: "", url: "" };
+  return {
+    fileName: "",
+    fileSizeBytes: 0,
+    lastModified: undefined,
+    numRows: 0,
+    s3Key: "",
+    url: "",
+  };
 }
 
 export const DatasetFile: MessageFns<DatasetFile> = {
-  encode(message: DatasetFile, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: DatasetFile,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.fileName !== "") {
       writer.uint32(10).string(message.fileName);
     }
@@ -1960,7 +2218,10 @@ export const DatasetFile: MessageFns<DatasetFile> = {
       writer.uint32(16).uint64(message.fileSizeBytes);
     }
     if (message.lastModified !== undefined) {
-      Timestamp.encode(toTimestamp(message.lastModified), writer.uint32(26).fork()).join();
+      Timestamp.encode(
+        toTimestamp(message.lastModified),
+        writer.uint32(26).fork(),
+      ).join();
     }
     if (message.numRows !== 0) {
       writer.uint32(32).uint64(message.numRows);
@@ -1975,7 +2236,8 @@ export const DatasetFile: MessageFns<DatasetFile> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): DatasetFile {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseDatasetFile();
     while (reader.pos < end) {
@@ -2002,7 +2264,9 @@ export const DatasetFile: MessageFns<DatasetFile> = {
             break;
           }
 
-          message.lastModified = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
+          message.lastModified = fromTimestamp(
+            Timestamp.decode(reader, reader.uint32()),
+          );
           continue;
         }
         case 4: {
@@ -2040,9 +2304,15 @@ export const DatasetFile: MessageFns<DatasetFile> = {
 
   fromJSON(object: any): DatasetFile {
     return {
-      fileName: isSet(object.fileName) ? globalThis.String(object.fileName) : "",
-      fileSizeBytes: isSet(object.fileSizeBytes) ? globalThis.Number(object.fileSizeBytes) : 0,
-      lastModified: isSet(object.lastModified) ? fromJsonTimestamp(object.lastModified) : undefined,
+      fileName: isSet(object.fileName)
+        ? globalThis.String(object.fileName)
+        : "",
+      fileSizeBytes: isSet(object.fileSizeBytes)
+        ? globalThis.Number(object.fileSizeBytes)
+        : 0,
+      lastModified: isSet(object.lastModified)
+        ? fromJsonTimestamp(object.lastModified)
+        : undefined,
       numRows: isSet(object.numRows) ? globalThis.Number(object.numRows) : 0,
       s3Key: isSet(object.s3Key) ? globalThis.String(object.s3Key) : "",
       url: isSet(object.url) ? globalThis.String(object.url) : "",
@@ -2092,7 +2362,10 @@ function createBaseDatasetStep(): DatasetStep {
 }
 
 export const DatasetStep: MessageFns<DatasetStep> = {
-  encode(message: DatasetStep, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: DatasetStep,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.progress !== 0) {
       writer.uint32(9).double(message.progress);
     }
@@ -2106,7 +2379,8 @@ export const DatasetStep: MessageFns<DatasetStep> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): DatasetStep {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseDatasetStep();
     while (reader.pos < end) {
@@ -2149,7 +2423,9 @@ export const DatasetStep: MessageFns<DatasetStep> = {
     return {
       progress: isSet(object.progress) ? globalThis.Number(object.progress) : 0,
       step: isSet(object.step) ? globalThis.Number(object.step) : 0,
-      stepName: isSet(object.stepName) ? globalThis.String(object.stepName) : "",
+      stepName: isSet(object.stepName)
+        ? globalThis.String(object.stepName)
+        : "",
     };
   },
 
@@ -2184,7 +2460,10 @@ function createBaseGetDatasetRequest(): GetDatasetRequest {
 }
 
 export const GetDatasetRequest: MessageFns<GetDatasetRequest> = {
-  encode(message: GetDatasetRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: GetDatasetRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.datasetId !== "") {
       writer.uint32(10).string(message.datasetId);
     }
@@ -2192,7 +2471,8 @@ export const GetDatasetRequest: MessageFns<GetDatasetRequest> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): GetDatasetRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseGetDatasetRequest();
     while (reader.pos < end) {
@@ -2216,7 +2496,11 @@ export const GetDatasetRequest: MessageFns<GetDatasetRequest> = {
   },
 
   fromJSON(object: any): GetDatasetRequest {
-    return { datasetId: isSet(object.datasetId) ? globalThis.String(object.datasetId) : "" };
+    return {
+      datasetId: isSet(object.datasetId)
+        ? globalThis.String(object.datasetId)
+        : "",
+    };
   },
 
   toJSON(message: GetDatasetRequest): unknown {
@@ -2242,15 +2526,22 @@ function createBaseGetDatasetResponse(): GetDatasetResponse {
 }
 
 export const GetDatasetResponse: MessageFns<GetDatasetResponse> = {
-  encode(message: GetDatasetResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: GetDatasetResponse,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.dataset !== undefined) {
       Dataset.encode(message.dataset, writer.uint32(10).fork()).join();
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): GetDatasetResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): GetDatasetResponse {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseGetDatasetResponse();
     while (reader.pos < end) {
@@ -2274,7 +2565,11 @@ export const GetDatasetResponse: MessageFns<GetDatasetResponse> = {
   },
 
   fromJSON(object: any): GetDatasetResponse {
-    return { dataset: isSet(object.dataset) ? Dataset.fromJSON(object.dataset) : undefined };
+    return {
+      dataset: isSet(object.dataset)
+        ? Dataset.fromJSON(object.dataset)
+        : undefined,
+    };
   },
 
   toJSON(message: GetDatasetResponse): unknown {
@@ -2290,9 +2585,10 @@ export const GetDatasetResponse: MessageFns<GetDatasetResponse> = {
   },
   fromPartial(object: DeepPartial<GetDatasetResponse>): GetDatasetResponse {
     const message = createBaseGetDatasetResponse();
-    message.dataset = (object.dataset !== undefined && object.dataset !== null)
-      ? Dataset.fromPartial(object.dataset)
-      : undefined;
+    message.dataset =
+      object.dataset !== undefined && object.dataset !== null
+        ? Dataset.fromPartial(object.dataset)
+        : undefined;
     return message;
   },
 };
@@ -2302,15 +2598,22 @@ function createBaseCancelGravityTaskRequest(): CancelGravityTaskRequest {
 }
 
 export const CancelGravityTaskRequest: MessageFns<CancelGravityTaskRequest> = {
-  encode(message: CancelGravityTaskRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: CancelGravityTaskRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.gravityTaskId !== "") {
       writer.uint32(10).string(message.gravityTaskId);
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): CancelGravityTaskRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): CancelGravityTaskRequest {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCancelGravityTaskRequest();
     while (reader.pos < end) {
@@ -2334,7 +2637,11 @@ export const CancelGravityTaskRequest: MessageFns<CancelGravityTaskRequest> = {
   },
 
   fromJSON(object: any): CancelGravityTaskRequest {
-    return { gravityTaskId: isSet(object.gravityTaskId) ? globalThis.String(object.gravityTaskId) : "" };
+    return {
+      gravityTaskId: isSet(object.gravityTaskId)
+        ? globalThis.String(object.gravityTaskId)
+        : "",
+    };
   },
 
   toJSON(message: CancelGravityTaskRequest): unknown {
@@ -2345,10 +2652,14 @@ export const CancelGravityTaskRequest: MessageFns<CancelGravityTaskRequest> = {
     return obj;
   },
 
-  create(base?: DeepPartial<CancelGravityTaskRequest>): CancelGravityTaskRequest {
+  create(
+    base?: DeepPartial<CancelGravityTaskRequest>,
+  ): CancelGravityTaskRequest {
     return CancelGravityTaskRequest.fromPartial(base ?? {});
   },
-  fromPartial(object: DeepPartial<CancelGravityTaskRequest>): CancelGravityTaskRequest {
+  fromPartial(
+    object: DeepPartial<CancelGravityTaskRequest>,
+  ): CancelGravityTaskRequest {
     const message = createBaseCancelGravityTaskRequest();
     message.gravityTaskId = object.gravityTaskId ?? "";
     return message;
@@ -2359,74 +2670,95 @@ function createBaseCancelGravityTaskResponse(): CancelGravityTaskResponse {
   return { message: "" };
 }
 
-export const CancelGravityTaskResponse: MessageFns<CancelGravityTaskResponse> = {
-  encode(message: CancelGravityTaskResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.message !== "") {
-      writer.uint32(10).string(message.message);
-    }
-    return writer;
-  },
+export const CancelGravityTaskResponse: MessageFns<CancelGravityTaskResponse> =
+  {
+    encode(
+      message: CancelGravityTaskResponse,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      if (message.message !== "") {
+        writer.uint32(10).string(message.message);
+      }
+      return writer;
+    },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): CancelGravityTaskResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseCancelGravityTaskResponse();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): CancelGravityTaskResponse {
+      const reader =
+        input instanceof BinaryReader ? input : new BinaryReader(input);
+      let end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseCancelGravityTaskResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.message = reader.string();
+            continue;
           }
-
-          message.message = reader.string();
-          continue;
         }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
       }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
+      return message;
+    },
+
+    fromJSON(object: any): CancelGravityTaskResponse {
+      return {
+        message: isSet(object.message) ? globalThis.String(object.message) : "",
+      };
+    },
+
+    toJSON(message: CancelGravityTaskResponse): unknown {
+      const obj: any = {};
+      if (message.message !== "") {
+        obj.message = message.message;
       }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
+      return obj;
+    },
 
-  fromJSON(object: any): CancelGravityTaskResponse {
-    return { message: isSet(object.message) ? globalThis.String(object.message) : "" };
-  },
-
-  toJSON(message: CancelGravityTaskResponse): unknown {
-    const obj: any = {};
-    if (message.message !== "") {
-      obj.message = message.message;
-    }
-    return obj;
-  },
-
-  create(base?: DeepPartial<CancelGravityTaskResponse>): CancelGravityTaskResponse {
-    return CancelGravityTaskResponse.fromPartial(base ?? {});
-  },
-  fromPartial(object: DeepPartial<CancelGravityTaskResponse>): CancelGravityTaskResponse {
-    const message = createBaseCancelGravityTaskResponse();
-    message.message = object.message ?? "";
-    return message;
-  },
-};
+    create(
+      base?: DeepPartial<CancelGravityTaskResponse>,
+    ): CancelGravityTaskResponse {
+      return CancelGravityTaskResponse.fromPartial(base ?? {});
+    },
+    fromPartial(
+      object: DeepPartial<CancelGravityTaskResponse>,
+    ): CancelGravityTaskResponse {
+      const message = createBaseCancelGravityTaskResponse();
+      message.message = object.message ?? "";
+      return message;
+    },
+  };
 
 function createBaseCancelDatasetRequest(): CancelDatasetRequest {
   return { datasetId: "" };
 }
 
 export const CancelDatasetRequest: MessageFns<CancelDatasetRequest> = {
-  encode(message: CancelDatasetRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: CancelDatasetRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.datasetId !== "") {
       writer.uint32(10).string(message.datasetId);
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): CancelDatasetRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): CancelDatasetRequest {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCancelDatasetRequest();
     while (reader.pos < end) {
@@ -2450,7 +2782,11 @@ export const CancelDatasetRequest: MessageFns<CancelDatasetRequest> = {
   },
 
   fromJSON(object: any): CancelDatasetRequest {
-    return { datasetId: isSet(object.datasetId) ? globalThis.String(object.datasetId) : "" };
+    return {
+      datasetId: isSet(object.datasetId)
+        ? globalThis.String(object.datasetId)
+        : "",
+    };
   },
 
   toJSON(message: CancelDatasetRequest): unknown {
@@ -2476,15 +2812,22 @@ function createBaseCancelDatasetResponse(): CancelDatasetResponse {
 }
 
 export const CancelDatasetResponse: MessageFns<CancelDatasetResponse> = {
-  encode(message: CancelDatasetResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: CancelDatasetResponse,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.message !== "") {
       writer.uint32(10).string(message.message);
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): CancelDatasetResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): CancelDatasetResponse {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCancelDatasetResponse();
     while (reader.pos < end) {
@@ -2508,7 +2851,9 @@ export const CancelDatasetResponse: MessageFns<CancelDatasetResponse> = {
   },
 
   fromJSON(object: any): CancelDatasetResponse {
-    return { message: isSet(object.message) ? globalThis.String(object.message) : "" };
+    return {
+      message: isSet(object.message) ? globalThis.String(object.message) : "",
+    };
   },
 
   toJSON(message: CancelDatasetResponse): unknown {
@@ -2522,7 +2867,9 @@ export const CancelDatasetResponse: MessageFns<CancelDatasetResponse> = {
   create(base?: DeepPartial<CancelDatasetResponse>): CancelDatasetResponse {
     return CancelDatasetResponse.fromPartial(base ?? {});
   },
-  fromPartial(object: DeepPartial<CancelDatasetResponse>): CancelDatasetResponse {
+  fromPartial(
+    object: DeepPartial<CancelDatasetResponse>,
+  ): CancelDatasetResponse {
     const message = createBaseCancelDatasetResponse();
     message.message = object.message ?? "";
     return message;
@@ -2536,19 +2883,24 @@ export const GravityServiceService = {
     path: "/gravity.v1.GravityService/GetGravityTasks",
     requestStream: false,
     responseStream: false,
-    requestSerialize: (value: GetGravityTasksRequest) => Buffer.from(GetGravityTasksRequest.encode(value).finish()),
+    requestSerialize: (value: GetGravityTasksRequest) =>
+      Buffer.from(GetGravityTasksRequest.encode(value).finish()),
     requestDeserialize: (value: Buffer) => GetGravityTasksRequest.decode(value),
-    responseSerialize: (value: GetGravityTasksResponse) => Buffer.from(GetGravityTasksResponse.encode(value).finish()),
-    responseDeserialize: (value: Buffer) => GetGravityTasksResponse.decode(value),
+    responseSerialize: (value: GetGravityTasksResponse) =>
+      Buffer.from(GetGravityTasksResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer) =>
+      GetGravityTasksResponse.decode(value),
   },
   /** Get a single crawler by its ID */
   getCrawler: {
     path: "/gravity.v1.GravityService/GetCrawler",
     requestStream: false,
     responseStream: false,
-    requestSerialize: (value: GetCrawlerRequest) => Buffer.from(GetCrawlerRequest.encode(value).finish()),
+    requestSerialize: (value: GetCrawlerRequest) =>
+      Buffer.from(GetCrawlerRequest.encode(value).finish()),
     requestDeserialize: (value: Buffer) => GetCrawlerRequest.decode(value),
-    responseSerialize: (value: GetCrawlerResponse) => Buffer.from(GetCrawlerResponse.encode(value).finish()),
+    responseSerialize: (value: GetCrawlerResponse) =>
+      Buffer.from(GetCrawlerResponse.encode(value).finish()),
     responseDeserialize: (value: Buffer) => GetCrawlerResponse.decode(value),
   },
   /** Create a new gravity task */
@@ -2556,20 +2908,25 @@ export const GravityServiceService = {
     path: "/gravity.v1.GravityService/CreateGravityTask",
     requestStream: false,
     responseStream: false,
-    requestSerialize: (value: CreateGravityTaskRequest) => Buffer.from(CreateGravityTaskRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer) => CreateGravityTaskRequest.decode(value),
+    requestSerialize: (value: CreateGravityTaskRequest) =>
+      Buffer.from(CreateGravityTaskRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer) =>
+      CreateGravityTaskRequest.decode(value),
     responseSerialize: (value: CreateGravityTaskResponse) =>
       Buffer.from(CreateGravityTaskResponse.encode(value).finish()),
-    responseDeserialize: (value: Buffer) => CreateGravityTaskResponse.decode(value),
+    responseDeserialize: (value: Buffer) =>
+      CreateGravityTaskResponse.decode(value),
   },
   /** Build a dataset for a single crawler */
   buildDataset: {
     path: "/gravity.v1.GravityService/BuildDataset",
     requestStream: false,
     responseStream: false,
-    requestSerialize: (value: BuildDatasetRequest) => Buffer.from(BuildDatasetRequest.encode(value).finish()),
+    requestSerialize: (value: BuildDatasetRequest) =>
+      Buffer.from(BuildDatasetRequest.encode(value).finish()),
     requestDeserialize: (value: Buffer) => BuildDatasetRequest.decode(value),
-    responseSerialize: (value: BuildDatasetResponse) => Buffer.from(BuildDatasetResponse.encode(value).finish()),
+    responseSerialize: (value: BuildDatasetResponse) =>
+      Buffer.from(BuildDatasetResponse.encode(value).finish()),
     responseDeserialize: (value: Buffer) => BuildDatasetResponse.decode(value),
   },
   /** Get the dataset build status and results */
@@ -2577,9 +2934,11 @@ export const GravityServiceService = {
     path: "/gravity.v1.GravityService/GetDataset",
     requestStream: false,
     responseStream: false,
-    requestSerialize: (value: GetDatasetRequest) => Buffer.from(GetDatasetRequest.encode(value).finish()),
+    requestSerialize: (value: GetDatasetRequest) =>
+      Buffer.from(GetDatasetRequest.encode(value).finish()),
     requestDeserialize: (value: Buffer) => GetDatasetRequest.decode(value),
-    responseSerialize: (value: GetDatasetResponse) => Buffer.from(GetDatasetResponse.encode(value).finish()),
+    responseSerialize: (value: GetDatasetResponse) =>
+      Buffer.from(GetDatasetResponse.encode(value).finish()),
     responseDeserialize: (value: Buffer) => GetDatasetResponse.decode(value),
   },
   /** Cancel a gravity task and any crawlers associated with it */
@@ -2587,37 +2946,51 @@ export const GravityServiceService = {
     path: "/gravity.v1.GravityService/CancelGravityTask",
     requestStream: false,
     responseStream: false,
-    requestSerialize: (value: CancelGravityTaskRequest) => Buffer.from(CancelGravityTaskRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer) => CancelGravityTaskRequest.decode(value),
+    requestSerialize: (value: CancelGravityTaskRequest) =>
+      Buffer.from(CancelGravityTaskRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer) =>
+      CancelGravityTaskRequest.decode(value),
     responseSerialize: (value: CancelGravityTaskResponse) =>
       Buffer.from(CancelGravityTaskResponse.encode(value).finish()),
-    responseDeserialize: (value: Buffer) => CancelGravityTaskResponse.decode(value),
+    responseDeserialize: (value: Buffer) =>
+      CancelGravityTaskResponse.decode(value),
   },
   /** Cancel dataset build if it is in progress and purges the dataset */
   cancelDataset: {
     path: "/gravity.v1.GravityService/CancelDataset",
     requestStream: false,
     responseStream: false,
-    requestSerialize: (value: CancelDatasetRequest) => Buffer.from(CancelDatasetRequest.encode(value).finish()),
+    requestSerialize: (value: CancelDatasetRequest) =>
+      Buffer.from(CancelDatasetRequest.encode(value).finish()),
     requestDeserialize: (value: Buffer) => CancelDatasetRequest.decode(value),
-    responseSerialize: (value: CancelDatasetResponse) => Buffer.from(CancelDatasetResponse.encode(value).finish()),
+    responseSerialize: (value: CancelDatasetResponse) =>
+      Buffer.from(CancelDatasetResponse.encode(value).finish()),
     responseDeserialize: (value: Buffer) => CancelDatasetResponse.decode(value),
   },
 } as const;
 
 export interface GravityServiceServer extends UntypedServiceImplementation {
   /** Lists all data collection tasks for a user */
-  getGravityTasks: handleUnaryCall<GetGravityTasksRequest, GetGravityTasksResponse>;
+  getGravityTasks: handleUnaryCall<
+    GetGravityTasksRequest,
+    GetGravityTasksResponse
+  >;
   /** Get a single crawler by its ID */
   getCrawler: handleUnaryCall<GetCrawlerRequest, GetCrawlerResponse>;
   /** Create a new gravity task */
-  createGravityTask: handleUnaryCall<CreateGravityTaskRequest, CreateGravityTaskResponse>;
+  createGravityTask: handleUnaryCall<
+    CreateGravityTaskRequest,
+    CreateGravityTaskResponse
+  >;
   /** Build a dataset for a single crawler */
   buildDataset: handleUnaryCall<BuildDatasetRequest, BuildDatasetResponse>;
   /** Get the dataset build status and results */
   getDataset: handleUnaryCall<GetDatasetRequest, GetDatasetResponse>;
   /** Cancel a gravity task and any crawlers associated with it */
-  cancelGravityTask: handleUnaryCall<CancelGravityTaskRequest, CancelGravityTaskResponse>;
+  cancelGravityTask: handleUnaryCall<
+    CancelGravityTaskRequest,
+    CancelGravityTaskResponse
+  >;
   /** Cancel dataset build if it is in progress and purges the dataset */
   cancelDataset: handleUnaryCall<CancelDatasetRequest, CancelDatasetResponse>;
 }
@@ -2626,114 +2999,177 @@ export interface GravityServiceClient extends Client {
   /** Lists all data collection tasks for a user */
   getGravityTasks(
     request: GetGravityTasksRequest,
-    callback: (error: ServiceError | null, response: GetGravityTasksResponse) => void,
+    callback: (
+      error: ServiceError | null,
+      response: GetGravityTasksResponse,
+    ) => void,
   ): ClientUnaryCall;
   getGravityTasks(
     request: GetGravityTasksRequest,
     metadata: Metadata,
-    callback: (error: ServiceError | null, response: GetGravityTasksResponse) => void,
+    callback: (
+      error: ServiceError | null,
+      response: GetGravityTasksResponse,
+    ) => void,
   ): ClientUnaryCall;
   getGravityTasks(
     request: GetGravityTasksRequest,
     metadata: Metadata,
     options: Partial<CallOptions>,
-    callback: (error: ServiceError | null, response: GetGravityTasksResponse) => void,
+    callback: (
+      error: ServiceError | null,
+      response: GetGravityTasksResponse,
+    ) => void,
   ): ClientUnaryCall;
   /** Get a single crawler by its ID */
   getCrawler(
     request: GetCrawlerRequest,
-    callback: (error: ServiceError | null, response: GetCrawlerResponse) => void,
+    callback: (
+      error: ServiceError | null,
+      response: GetCrawlerResponse,
+    ) => void,
   ): ClientUnaryCall;
   getCrawler(
     request: GetCrawlerRequest,
     metadata: Metadata,
-    callback: (error: ServiceError | null, response: GetCrawlerResponse) => void,
+    callback: (
+      error: ServiceError | null,
+      response: GetCrawlerResponse,
+    ) => void,
   ): ClientUnaryCall;
   getCrawler(
     request: GetCrawlerRequest,
     metadata: Metadata,
     options: Partial<CallOptions>,
-    callback: (error: ServiceError | null, response: GetCrawlerResponse) => void,
+    callback: (
+      error: ServiceError | null,
+      response: GetCrawlerResponse,
+    ) => void,
   ): ClientUnaryCall;
   /** Create a new gravity task */
   createGravityTask(
     request: CreateGravityTaskRequest,
-    callback: (error: ServiceError | null, response: CreateGravityTaskResponse) => void,
+    callback: (
+      error: ServiceError | null,
+      response: CreateGravityTaskResponse,
+    ) => void,
   ): ClientUnaryCall;
   createGravityTask(
     request: CreateGravityTaskRequest,
     metadata: Metadata,
-    callback: (error: ServiceError | null, response: CreateGravityTaskResponse) => void,
+    callback: (
+      error: ServiceError | null,
+      response: CreateGravityTaskResponse,
+    ) => void,
   ): ClientUnaryCall;
   createGravityTask(
     request: CreateGravityTaskRequest,
     metadata: Metadata,
     options: Partial<CallOptions>,
-    callback: (error: ServiceError | null, response: CreateGravityTaskResponse) => void,
+    callback: (
+      error: ServiceError | null,
+      response: CreateGravityTaskResponse,
+    ) => void,
   ): ClientUnaryCall;
   /** Build a dataset for a single crawler */
   buildDataset(
     request: BuildDatasetRequest,
-    callback: (error: ServiceError | null, response: BuildDatasetResponse) => void,
+    callback: (
+      error: ServiceError | null,
+      response: BuildDatasetResponse,
+    ) => void,
   ): ClientUnaryCall;
   buildDataset(
     request: BuildDatasetRequest,
     metadata: Metadata,
-    callback: (error: ServiceError | null, response: BuildDatasetResponse) => void,
+    callback: (
+      error: ServiceError | null,
+      response: BuildDatasetResponse,
+    ) => void,
   ): ClientUnaryCall;
   buildDataset(
     request: BuildDatasetRequest,
     metadata: Metadata,
     options: Partial<CallOptions>,
-    callback: (error: ServiceError | null, response: BuildDatasetResponse) => void,
+    callback: (
+      error: ServiceError | null,
+      response: BuildDatasetResponse,
+    ) => void,
   ): ClientUnaryCall;
   /** Get the dataset build status and results */
   getDataset(
     request: GetDatasetRequest,
-    callback: (error: ServiceError | null, response: GetDatasetResponse) => void,
+    callback: (
+      error: ServiceError | null,
+      response: GetDatasetResponse,
+    ) => void,
   ): ClientUnaryCall;
   getDataset(
     request: GetDatasetRequest,
     metadata: Metadata,
-    callback: (error: ServiceError | null, response: GetDatasetResponse) => void,
+    callback: (
+      error: ServiceError | null,
+      response: GetDatasetResponse,
+    ) => void,
   ): ClientUnaryCall;
   getDataset(
     request: GetDatasetRequest,
     metadata: Metadata,
     options: Partial<CallOptions>,
-    callback: (error: ServiceError | null, response: GetDatasetResponse) => void,
+    callback: (
+      error: ServiceError | null,
+      response: GetDatasetResponse,
+    ) => void,
   ): ClientUnaryCall;
   /** Cancel a gravity task and any crawlers associated with it */
   cancelGravityTask(
     request: CancelGravityTaskRequest,
-    callback: (error: ServiceError | null, response: CancelGravityTaskResponse) => void,
+    callback: (
+      error: ServiceError | null,
+      response: CancelGravityTaskResponse,
+    ) => void,
   ): ClientUnaryCall;
   cancelGravityTask(
     request: CancelGravityTaskRequest,
     metadata: Metadata,
-    callback: (error: ServiceError | null, response: CancelGravityTaskResponse) => void,
+    callback: (
+      error: ServiceError | null,
+      response: CancelGravityTaskResponse,
+    ) => void,
   ): ClientUnaryCall;
   cancelGravityTask(
     request: CancelGravityTaskRequest,
     metadata: Metadata,
     options: Partial<CallOptions>,
-    callback: (error: ServiceError | null, response: CancelGravityTaskResponse) => void,
+    callback: (
+      error: ServiceError | null,
+      response: CancelGravityTaskResponse,
+    ) => void,
   ): ClientUnaryCall;
   /** Cancel dataset build if it is in progress and purges the dataset */
   cancelDataset(
     request: CancelDatasetRequest,
-    callback: (error: ServiceError | null, response: CancelDatasetResponse) => void,
+    callback: (
+      error: ServiceError | null,
+      response: CancelDatasetResponse,
+    ) => void,
   ): ClientUnaryCall;
   cancelDataset(
     request: CancelDatasetRequest,
     metadata: Metadata,
-    callback: (error: ServiceError | null, response: CancelDatasetResponse) => void,
+    callback: (
+      error: ServiceError | null,
+      response: CancelDatasetResponse,
+    ) => void,
   ): ClientUnaryCall;
   cancelDataset(
     request: CancelDatasetRequest,
     metadata: Metadata,
     options: Partial<CallOptions>,
-    callback: (error: ServiceError | null, response: CancelDatasetResponse) => void,
+    callback: (
+      error: ServiceError | null,
+      response: CancelDatasetResponse,
+    ) => void,
   ): ClientUnaryCall;
 }
 
@@ -2741,18 +3177,33 @@ export const GravityServiceClient = makeGenericClientConstructor(
   GravityServiceService,
   "gravity.v1.GravityService",
 ) as unknown as {
-  new (address: string, credentials: ChannelCredentials, options?: Partial<ClientOptions>): GravityServiceClient;
+  new (
+    address: string,
+    credentials: ChannelCredentials,
+    options?: Partial<ClientOptions>,
+  ): GravityServiceClient;
   service: typeof GravityServiceService;
   serviceName: string;
 };
 
-type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
+type Builtin =
+  | Date
+  | Function
+  | Uint8Array
+  | string
+  | number
+  | boolean
+  | undefined;
 
-export type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
-  : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
-  : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
-  : Partial<T>;
+export type DeepPartial<T> = T extends Builtin
+  ? T
+  : T extends globalThis.Array<infer U>
+    ? globalThis.Array<DeepPartial<U>>
+    : T extends ReadonlyArray<infer U>
+      ? ReadonlyArray<DeepPartial<U>>
+      : T extends {}
+        ? { [K in keyof T]?: DeepPartial<T[K]> }
+        : Partial<T>;
 
 function toTimestamp(date: Date): Timestamp {
   const seconds = Math.trunc(date.getTime() / 1_000);

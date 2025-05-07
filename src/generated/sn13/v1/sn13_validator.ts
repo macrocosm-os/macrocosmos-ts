@@ -68,7 +68,10 @@ function createBaseListTopicsRequest(): ListTopicsRequest {
 }
 
 export const ListTopicsRequest: MessageFns<ListTopicsRequest> = {
-  encode(message: ListTopicsRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: ListTopicsRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.source !== "") {
       writer.uint32(10).string(message.source);
     }
@@ -76,7 +79,8 @@ export const ListTopicsRequest: MessageFns<ListTopicsRequest> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): ListTopicsRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseListTopicsRequest();
     while (reader.pos < end) {
@@ -100,7 +104,9 @@ export const ListTopicsRequest: MessageFns<ListTopicsRequest> = {
   },
 
   fromJSON(object: any): ListTopicsRequest {
-    return { source: isSet(object.source) ? globalThis.String(object.source) : "" };
+    return {
+      source: isSet(object.source) ? globalThis.String(object.source) : "",
+    };
   },
 
   toJSON(message: ListTopicsRequest): unknown {
@@ -126,7 +132,10 @@ function createBaseListTopicsResponseDetail(): ListTopicsResponseDetail {
 }
 
 export const ListTopicsResponseDetail: MessageFns<ListTopicsResponseDetail> = {
-  encode(message: ListTopicsResponseDetail, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: ListTopicsResponseDetail,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.labelValue !== "") {
       writer.uint32(10).string(message.labelValue);
     }
@@ -139,8 +148,12 @@ export const ListTopicsResponseDetail: MessageFns<ListTopicsResponseDetail> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): ListTopicsResponseDetail {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): ListTopicsResponseDetail {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseListTopicsResponseDetail();
     while (reader.pos < end) {
@@ -181,9 +194,15 @@ export const ListTopicsResponseDetail: MessageFns<ListTopicsResponseDetail> = {
 
   fromJSON(object: any): ListTopicsResponseDetail {
     return {
-      labelValue: isSet(object.labelValue) ? globalThis.String(object.labelValue) : "",
-      contentSizeBytes: isSet(object.contentSizeBytes) ? globalThis.Number(object.contentSizeBytes) : 0,
-      adjContentSizeBytes: isSet(object.adjContentSizeBytes) ? globalThis.Number(object.adjContentSizeBytes) : 0,
+      labelValue: isSet(object.labelValue)
+        ? globalThis.String(object.labelValue)
+        : "",
+      contentSizeBytes: isSet(object.contentSizeBytes)
+        ? globalThis.Number(object.contentSizeBytes)
+        : 0,
+      adjContentSizeBytes: isSet(object.adjContentSizeBytes)
+        ? globalThis.Number(object.adjContentSizeBytes)
+        : 0,
     };
   },
 
@@ -201,10 +220,14 @@ export const ListTopicsResponseDetail: MessageFns<ListTopicsResponseDetail> = {
     return obj;
   },
 
-  create(base?: DeepPartial<ListTopicsResponseDetail>): ListTopicsResponseDetail {
+  create(
+    base?: DeepPartial<ListTopicsResponseDetail>,
+  ): ListTopicsResponseDetail {
     return ListTopicsResponseDetail.fromPartial(base ?? {});
   },
-  fromPartial(object: DeepPartial<ListTopicsResponseDetail>): ListTopicsResponseDetail {
+  fromPartial(
+    object: DeepPartial<ListTopicsResponseDetail>,
+  ): ListTopicsResponseDetail {
     const message = createBaseListTopicsResponseDetail();
     message.labelValue = object.labelValue ?? "";
     message.contentSizeBytes = object.contentSizeBytes ?? 0;
@@ -218,15 +241,22 @@ function createBaseListTopicsResponse(): ListTopicsResponse {
 }
 
 export const ListTopicsResponse: MessageFns<ListTopicsResponse> = {
-  encode(message: ListTopicsResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: ListTopicsResponse,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     for (const v of message.details) {
       ListTopicsResponseDetail.encode(v!, writer.uint32(10).fork()).join();
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): ListTopicsResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): ListTopicsResponse {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseListTopicsResponse();
     while (reader.pos < end) {
@@ -237,7 +267,9 @@ export const ListTopicsResponse: MessageFns<ListTopicsResponse> = {
             break;
           }
 
-          message.details.push(ListTopicsResponseDetail.decode(reader, reader.uint32()));
+          message.details.push(
+            ListTopicsResponseDetail.decode(reader, reader.uint32()),
+          );
           continue;
         }
       }
@@ -260,7 +292,9 @@ export const ListTopicsResponse: MessageFns<ListTopicsResponse> = {
   toJSON(message: ListTopicsResponse): unknown {
     const obj: any = {};
     if (message.details?.length) {
-      obj.details = message.details.map((e) => ListTopicsResponseDetail.toJSON(e));
+      obj.details = message.details.map(e =>
+        ListTopicsResponseDetail.toJSON(e),
+      );
     }
     return obj;
   },
@@ -270,7 +304,8 @@ export const ListTopicsResponse: MessageFns<ListTopicsResponse> = {
   },
   fromPartial(object: DeepPartial<ListTopicsResponse>): ListTopicsResponse {
     const message = createBaseListTopicsResponse();
-    message.details = object.details?.map((e) => ListTopicsResponseDetail.fromPartial(e)) || [];
+    message.details =
+      object.details?.map(e => ListTopicsResponseDetail.fromPartial(e)) || [];
     return message;
   },
 };
@@ -279,183 +314,223 @@ function createBaseValidateRedditTopicRequest(): ValidateRedditTopicRequest {
   return { topic: "" };
 }
 
-export const ValidateRedditTopicRequest: MessageFns<ValidateRedditTopicRequest> = {
-  encode(message: ValidateRedditTopicRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.topic !== "") {
-      writer.uint32(10).string(message.topic);
-    }
-    return writer;
-  },
+export const ValidateRedditTopicRequest: MessageFns<ValidateRedditTopicRequest> =
+  {
+    encode(
+      message: ValidateRedditTopicRequest,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      if (message.topic !== "") {
+        writer.uint32(10).string(message.topic);
+      }
+      return writer;
+    },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): ValidateRedditTopicRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseValidateRedditTopicRequest();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): ValidateRedditTopicRequest {
+      const reader =
+        input instanceof BinaryReader ? input : new BinaryReader(input);
+      let end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseValidateRedditTopicRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.topic = reader.string();
+            continue;
           }
-
-          message.topic = reader.string();
-          continue;
         }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
       }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
+      return message;
+    },
+
+    fromJSON(object: any): ValidateRedditTopicRequest {
+      return {
+        topic: isSet(object.topic) ? globalThis.String(object.topic) : "",
+      };
+    },
+
+    toJSON(message: ValidateRedditTopicRequest): unknown {
+      const obj: any = {};
+      if (message.topic !== "") {
+        obj.topic = message.topic;
       }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
+      return obj;
+    },
 
-  fromJSON(object: any): ValidateRedditTopicRequest {
-    return { topic: isSet(object.topic) ? globalThis.String(object.topic) : "" };
-  },
-
-  toJSON(message: ValidateRedditTopicRequest): unknown {
-    const obj: any = {};
-    if (message.topic !== "") {
-      obj.topic = message.topic;
-    }
-    return obj;
-  },
-
-  create(base?: DeepPartial<ValidateRedditTopicRequest>): ValidateRedditTopicRequest {
-    return ValidateRedditTopicRequest.fromPartial(base ?? {});
-  },
-  fromPartial(object: DeepPartial<ValidateRedditTopicRequest>): ValidateRedditTopicRequest {
-    const message = createBaseValidateRedditTopicRequest();
-    message.topic = object.topic ?? "";
-    return message;
-  },
-};
+    create(
+      base?: DeepPartial<ValidateRedditTopicRequest>,
+    ): ValidateRedditTopicRequest {
+      return ValidateRedditTopicRequest.fromPartial(base ?? {});
+    },
+    fromPartial(
+      object: DeepPartial<ValidateRedditTopicRequest>,
+    ): ValidateRedditTopicRequest {
+      const message = createBaseValidateRedditTopicRequest();
+      message.topic = object.topic ?? "";
+      return message;
+    },
+  };
 
 function createBaseValidateRedditTopicResponse(): ValidateRedditTopicResponse {
-  return { platform: "", topic: "", exists: false, over18: false, quarantine: false };
+  return {
+    platform: "",
+    topic: "",
+    exists: false,
+    over18: false,
+    quarantine: false,
+  };
 }
 
-export const ValidateRedditTopicResponse: MessageFns<ValidateRedditTopicResponse> = {
-  encode(message: ValidateRedditTopicResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.platform !== "") {
-      writer.uint32(10).string(message.platform);
-    }
-    if (message.topic !== "") {
-      writer.uint32(18).string(message.topic);
-    }
-    if (message.exists !== false) {
-      writer.uint32(24).bool(message.exists);
-    }
-    if (message.over18 !== false) {
-      writer.uint32(32).bool(message.over18);
-    }
-    if (message.quarantine !== false) {
-      writer.uint32(40).bool(message.quarantine);
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): ValidateRedditTopicResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseValidateRedditTopicResponse();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.platform = reader.string();
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.topic = reader.string();
-          continue;
-        }
-        case 3: {
-          if (tag !== 24) {
-            break;
-          }
-
-          message.exists = reader.bool();
-          continue;
-        }
-        case 4: {
-          if (tag !== 32) {
-            break;
-          }
-
-          message.over18 = reader.bool();
-          continue;
-        }
-        case 5: {
-          if (tag !== 40) {
-            break;
-          }
-
-          message.quarantine = reader.bool();
-          continue;
-        }
+export const ValidateRedditTopicResponse: MessageFns<ValidateRedditTopicResponse> =
+  {
+    encode(
+      message: ValidateRedditTopicResponse,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      if (message.platform !== "") {
+        writer.uint32(10).string(message.platform);
       }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
+      if (message.topic !== "") {
+        writer.uint32(18).string(message.topic);
       }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
+      if (message.exists !== false) {
+        writer.uint32(24).bool(message.exists);
+      }
+      if (message.over18 !== false) {
+        writer.uint32(32).bool(message.over18);
+      }
+      if (message.quarantine !== false) {
+        writer.uint32(40).bool(message.quarantine);
+      }
+      return writer;
+    },
 
-  fromJSON(object: any): ValidateRedditTopicResponse {
-    return {
-      platform: isSet(object.platform) ? globalThis.String(object.platform) : "",
-      topic: isSet(object.topic) ? globalThis.String(object.topic) : "",
-      exists: isSet(object.exists) ? globalThis.Boolean(object.exists) : false,
-      over18: isSet(object.over18) ? globalThis.Boolean(object.over18) : false,
-      quarantine: isSet(object.quarantine) ? globalThis.Boolean(object.quarantine) : false,
-    };
-  },
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): ValidateRedditTopicResponse {
+      const reader =
+        input instanceof BinaryReader ? input : new BinaryReader(input);
+      let end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseValidateRedditTopicResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
 
-  toJSON(message: ValidateRedditTopicResponse): unknown {
-    const obj: any = {};
-    if (message.platform !== "") {
-      obj.platform = message.platform;
-    }
-    if (message.topic !== "") {
-      obj.topic = message.topic;
-    }
-    if (message.exists !== false) {
-      obj.exists = message.exists;
-    }
-    if (message.over18 !== false) {
-      obj.over18 = message.over18;
-    }
-    if (message.quarantine !== false) {
-      obj.quarantine = message.quarantine;
-    }
-    return obj;
-  },
+            message.platform = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
 
-  create(base?: DeepPartial<ValidateRedditTopicResponse>): ValidateRedditTopicResponse {
-    return ValidateRedditTopicResponse.fromPartial(base ?? {});
-  },
-  fromPartial(object: DeepPartial<ValidateRedditTopicResponse>): ValidateRedditTopicResponse {
-    const message = createBaseValidateRedditTopicResponse();
-    message.platform = object.platform ?? "";
-    message.topic = object.topic ?? "";
-    message.exists = object.exists ?? false;
-    message.over18 = object.over18 ?? false;
-    message.quarantine = object.quarantine ?? false;
-    return message;
-  },
-};
+            message.topic = reader.string();
+            continue;
+          }
+          case 3: {
+            if (tag !== 24) {
+              break;
+            }
+
+            message.exists = reader.bool();
+            continue;
+          }
+          case 4: {
+            if (tag !== 32) {
+              break;
+            }
+
+            message.over18 = reader.bool();
+            continue;
+          }
+          case 5: {
+            if (tag !== 40) {
+              break;
+            }
+
+            message.quarantine = reader.bool();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    },
+
+    fromJSON(object: any): ValidateRedditTopicResponse {
+      return {
+        platform: isSet(object.platform)
+          ? globalThis.String(object.platform)
+          : "",
+        topic: isSet(object.topic) ? globalThis.String(object.topic) : "",
+        exists: isSet(object.exists)
+          ? globalThis.Boolean(object.exists)
+          : false,
+        over18: isSet(object.over18)
+          ? globalThis.Boolean(object.over18)
+          : false,
+        quarantine: isSet(object.quarantine)
+          ? globalThis.Boolean(object.quarantine)
+          : false,
+      };
+    },
+
+    toJSON(message: ValidateRedditTopicResponse): unknown {
+      const obj: any = {};
+      if (message.platform !== "") {
+        obj.platform = message.platform;
+      }
+      if (message.topic !== "") {
+        obj.topic = message.topic;
+      }
+      if (message.exists !== false) {
+        obj.exists = message.exists;
+      }
+      if (message.over18 !== false) {
+        obj.over18 = message.over18;
+      }
+      if (message.quarantine !== false) {
+        obj.quarantine = message.quarantine;
+      }
+      return obj;
+    },
+
+    create(
+      base?: DeepPartial<ValidateRedditTopicResponse>,
+    ): ValidateRedditTopicResponse {
+      return ValidateRedditTopicResponse.fromPartial(base ?? {});
+    },
+    fromPartial(
+      object: DeepPartial<ValidateRedditTopicResponse>,
+    ): ValidateRedditTopicResponse {
+      const message = createBaseValidateRedditTopicResponse();
+      message.platform = object.platform ?? "";
+      message.topic = object.topic ?? "";
+      message.exists = object.exists ?? false;
+      message.over18 = object.over18 ?? false;
+      message.quarantine = object.quarantine ?? false;
+      return message;
+    },
+  };
 
 export type Sn13ServiceService = typeof Sn13ServiceService;
 export const Sn13ServiceService = {
@@ -464,9 +539,11 @@ export const Sn13ServiceService = {
     path: "/sn13.v1.Sn13Service/ListTopics",
     requestStream: false,
     responseStream: false,
-    requestSerialize: (value: ListTopicsRequest) => Buffer.from(ListTopicsRequest.encode(value).finish()),
+    requestSerialize: (value: ListTopicsRequest) =>
+      Buffer.from(ListTopicsRequest.encode(value).finish()),
     requestDeserialize: (value: Buffer) => ListTopicsRequest.decode(value),
-    responseSerialize: (value: ListTopicsResponse) => Buffer.from(ListTopicsResponse.encode(value).finish()),
+    responseSerialize: (value: ListTopicsResponse) =>
+      Buffer.from(ListTopicsResponse.encode(value).finish()),
     responseDeserialize: (value: Buffer) => ListTopicsResponse.decode(value),
   },
   validateRedditTopic: {
@@ -475,66 +552,107 @@ export const Sn13ServiceService = {
     responseStream: false,
     requestSerialize: (value: ValidateRedditTopicRequest) =>
       Buffer.from(ValidateRedditTopicRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer) => ValidateRedditTopicRequest.decode(value),
+    requestDeserialize: (value: Buffer) =>
+      ValidateRedditTopicRequest.decode(value),
     responseSerialize: (value: ValidateRedditTopicResponse) =>
       Buffer.from(ValidateRedditTopicResponse.encode(value).finish()),
-    responseDeserialize: (value: Buffer) => ValidateRedditTopicResponse.decode(value),
+    responseDeserialize: (value: Buffer) =>
+      ValidateRedditTopicResponse.decode(value),
   },
 } as const;
 
 export interface Sn13ServiceServer extends UntypedServiceImplementation {
   /** ListTopics is the RPC method for getting the top topics */
   listTopics: handleUnaryCall<ListTopicsRequest, ListTopicsResponse>;
-  validateRedditTopic: handleUnaryCall<ValidateRedditTopicRequest, ValidateRedditTopicResponse>;
+  validateRedditTopic: handleUnaryCall<
+    ValidateRedditTopicRequest,
+    ValidateRedditTopicResponse
+  >;
 }
 
 export interface Sn13ServiceClient extends Client {
   /** ListTopics is the RPC method for getting the top topics */
   listTopics(
     request: ListTopicsRequest,
-    callback: (error: ServiceError | null, response: ListTopicsResponse) => void,
+    callback: (
+      error: ServiceError | null,
+      response: ListTopicsResponse,
+    ) => void,
   ): ClientUnaryCall;
   listTopics(
     request: ListTopicsRequest,
     metadata: Metadata,
-    callback: (error: ServiceError | null, response: ListTopicsResponse) => void,
+    callback: (
+      error: ServiceError | null,
+      response: ListTopicsResponse,
+    ) => void,
   ): ClientUnaryCall;
   listTopics(
     request: ListTopicsRequest,
     metadata: Metadata,
     options: Partial<CallOptions>,
-    callback: (error: ServiceError | null, response: ListTopicsResponse) => void,
+    callback: (
+      error: ServiceError | null,
+      response: ListTopicsResponse,
+    ) => void,
   ): ClientUnaryCall;
   validateRedditTopic(
     request: ValidateRedditTopicRequest,
-    callback: (error: ServiceError | null, response: ValidateRedditTopicResponse) => void,
+    callback: (
+      error: ServiceError | null,
+      response: ValidateRedditTopicResponse,
+    ) => void,
   ): ClientUnaryCall;
   validateRedditTopic(
     request: ValidateRedditTopicRequest,
     metadata: Metadata,
-    callback: (error: ServiceError | null, response: ValidateRedditTopicResponse) => void,
+    callback: (
+      error: ServiceError | null,
+      response: ValidateRedditTopicResponse,
+    ) => void,
   ): ClientUnaryCall;
   validateRedditTopic(
     request: ValidateRedditTopicRequest,
     metadata: Metadata,
     options: Partial<CallOptions>,
-    callback: (error: ServiceError | null, response: ValidateRedditTopicResponse) => void,
+    callback: (
+      error: ServiceError | null,
+      response: ValidateRedditTopicResponse,
+    ) => void,
   ): ClientUnaryCall;
 }
 
-export const Sn13ServiceClient = makeGenericClientConstructor(Sn13ServiceService, "sn13.v1.Sn13Service") as unknown as {
-  new (address: string, credentials: ChannelCredentials, options?: Partial<ClientOptions>): Sn13ServiceClient;
+export const Sn13ServiceClient = makeGenericClientConstructor(
+  Sn13ServiceService,
+  "sn13.v1.Sn13Service",
+) as unknown as {
+  new (
+    address: string,
+    credentials: ChannelCredentials,
+    options?: Partial<ClientOptions>,
+  ): Sn13ServiceClient;
   service: typeof Sn13ServiceService;
   serviceName: string;
 };
 
-type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
+type Builtin =
+  | Date
+  | Function
+  | Uint8Array
+  | string
+  | number
+  | boolean
+  | undefined;
 
-export type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
-  : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
-  : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
-  : Partial<T>;
+export type DeepPartial<T> = T extends Builtin
+  ? T
+  : T extends globalThis.Array<infer U>
+    ? globalThis.Array<DeepPartial<U>>
+    : T extends ReadonlyArray<infer U>
+      ? ReadonlyArray<DeepPartial<U>>
+      : T extends {}
+        ? { [K in keyof T]?: DeepPartial<T[K]> }
+        : Partial<T>;
 
 function longToNumber(int64: { toString(): string }): number {
   const num = globalThis.Number(int64.toString());

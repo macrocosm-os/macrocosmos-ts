@@ -33,41 +33,23 @@ export interface ChatCompletionRequest {
   /** messages: the messages to generate completions for. */
   messages: ChatMessage[];
   /** seed: the seed to use for the completion. */
-  seed?:
-    | number
-    | undefined;
+  seed?: number | undefined;
   /** task: the task to generate completions for (e.g. "InferenceTask"). */
-  task?:
-    | string
-    | undefined;
+  task?: string | undefined;
   /** model: the LLM name to use for the completion. (optional, suggest leaving this empty as not all LLMs are supported) */
-  model?:
-    | string
-    | undefined;
+  model?: string | undefined;
   /** test_time_inference: whether to use test time inference. */
-  testTimeInference?:
-    | boolean
-    | undefined;
+  testTimeInference?: boolean | undefined;
   /** mixture: whether to use a mixture of miners to create a slower but better answer. */
-  mixture?:
-    | boolean
-    | undefined;
+  mixture?: boolean | undefined;
   /** sampling_parameters: the sampling parameters to use for the completion. */
-  samplingParameters?:
-    | SamplingParameters
-    | undefined;
+  samplingParameters?: SamplingParameters | undefined;
   /** inference_mode: the inference mode to use for the completion. */
-  inferenceMode?:
-    | string
-    | undefined;
+  inferenceMode?: string | undefined;
   /** json_format: whether to use JSON format for the completion. */
-  jsonFormat?:
-    | boolean
-    | undefined;
+  jsonFormat?: boolean | undefined;
   /** stream: whether to stream the completion. */
-  stream?:
-    | boolean
-    | undefined;
+  stream?: boolean | undefined;
   /** timeout: the timeout for the completion in seconds. */
   timeout?: number | undefined;
 }
@@ -82,9 +64,7 @@ export interface SamplingParameters {
   /** top_p: the top_p to use for the completion. */
   topP: number;
   /** top_k: the top_k to use for the completion. */
-  topK?:
-    | number
-    | undefined;
+  topK?: number | undefined;
   /** max_new_tokens: the max_new_tokens to use for the completion. */
   maxNewTokens: number;
   /** do_sample: whether to do sample for the completion. */
@@ -124,9 +104,7 @@ export interface Choice {
   /** index: the index of the choice. */
   index: number;
   /** logprobs: the logprobs of the choice. */
-  logprobs?:
-    | ChoiceLogprobs
-    | undefined;
+  logprobs?: ChoiceLogprobs | undefined;
   /** message: the message of the choice. */
   message?: ChatCompletionMessage | undefined;
 }
@@ -145,13 +123,9 @@ export interface ChatCompletionMessage {
   /** annotations: the annotations of the message. (not currently supported in Apex) */
   annotations: Annotation[];
   /** audio: the audio of the message. (not currently supported in Apex) */
-  audio?:
-    | ChatCompletionAudio
-    | undefined;
+  audio?: ChatCompletionAudio | undefined;
   /** function_call: the function call of the message. */
-  functionCall?:
-    | FunctionCall
-    | undefined;
+  functionCall?: FunctionCall | undefined;
   /** tool_calls: the tool calls of the message. */
   toolCalls: ChatCompletionMessageToolCall[];
 }
@@ -201,9 +175,7 @@ export interface ChatCompletionMessageToolCall {
   /** id: the id of the tool call. */
   id: string;
   /** function: the function object for the tool call. */
-  function?:
-    | FunctionMessage
-    | undefined;
+  function?: FunctionMessage | undefined;
   /** type: the type of the tool call. */
   type: string;
 }
@@ -259,9 +231,7 @@ export interface ChatMessage {
  */
 export interface ChunkChoice {
   /** delta: the delta of the choice. */
-  delta?:
-    | ChoiceDelta
-    | undefined;
+  delta?: ChoiceDelta | undefined;
   /** finish_reason: the finish reason of the choice. */
   finishReason: string;
   /** index: the index of the choice. */
@@ -289,9 +259,7 @@ export interface ChoiceDelta {
   /** content: the content of the delta. */
   content: string;
   /** function_call: the function call of the delta. */
-  functionCall?:
-    | ChoiceDeltaFunctionCall
-    | undefined;
+  functionCall?: ChoiceDeltaFunctionCall | undefined;
   /** refusal: the refusal of the delta. */
   refusal: string;
   /** role: the role of the delta. */
@@ -321,9 +289,7 @@ export interface ChoiceDeltaToolCall {
   /** id: the id of the tool call. */
   id: string;
   /** function: the function object for the tool call. */
-  function?:
-    | ChoiceDeltaToolCallFunction
-    | undefined;
+  function?: ChoiceDeltaToolCallFunction | undefined;
   /** type: the type of the tool call. */
   type: string;
 }
@@ -379,9 +345,7 @@ export interface CompletionUsage {
   /** total_tokens: the total tokens of the usage. */
   totalTokens: number;
   /** completion_tokens_details: the completion tokens details of the usage. */
-  completionTokensDetails?:
-    | CompletionTokensDetails
-    | undefined;
+  completionTokensDetails?: CompletionTokensDetails | undefined;
   /** prompt_tokens_details: the prompt tokens details of the usage. */
   promptTokensDetails?: PromptTokensDetails | undefined;
 }
@@ -422,17 +386,11 @@ export interface WebRetrievalRequest {
   /** search_query: the search query. */
   searchQuery: string;
   /** n_miners: the number of miners to use for the query. */
-  nMiners?:
-    | number
-    | undefined;
+  nMiners?: number | undefined;
   /** n_results: the number of results to return. */
-  nResults?:
-    | number
-    | undefined;
+  nResults?: number | undefined;
   /** max_response_time: the max response time to allow for the miners to respond in seconds. */
-  maxResponseTime?:
-    | number
-    | undefined;
+  maxResponseTime?: number | undefined;
   /** timeout: the timeout for the web retrieval in seconds. */
   timeout?: number | undefined;
 }
@@ -477,7 +435,10 @@ function createBaseChatCompletionRequest(): ChatCompletionRequest {
 }
 
 export const ChatCompletionRequest: MessageFns<ChatCompletionRequest> = {
-  encode(message: ChatCompletionRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: ChatCompletionRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     writer.uint32(10).fork();
     for (const v of message.uids) {
       writer.int64(v);
@@ -502,7 +463,10 @@ export const ChatCompletionRequest: MessageFns<ChatCompletionRequest> = {
       writer.uint32(56).bool(message.mixture);
     }
     if (message.samplingParameters !== undefined) {
-      SamplingParameters.encode(message.samplingParameters, writer.uint32(66).fork()).join();
+      SamplingParameters.encode(
+        message.samplingParameters,
+        writer.uint32(66).fork(),
+      ).join();
     }
     if (message.inferenceMode !== undefined) {
       writer.uint32(74).string(message.inferenceMode);
@@ -519,8 +483,12 @@ export const ChatCompletionRequest: MessageFns<ChatCompletionRequest> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): ChatCompletionRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): ChatCompletionRequest {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseChatCompletionRequest();
     while (reader.pos < end) {
@@ -597,7 +565,10 @@ export const ChatCompletionRequest: MessageFns<ChatCompletionRequest> = {
             break;
           }
 
-          message.samplingParameters = SamplingParameters.decode(reader, reader.uint32());
+          message.samplingParameters = SamplingParameters.decode(
+            reader,
+            reader.uint32(),
+          );
           continue;
         }
         case 9: {
@@ -643,32 +614,46 @@ export const ChatCompletionRequest: MessageFns<ChatCompletionRequest> = {
 
   fromJSON(object: any): ChatCompletionRequest {
     return {
-      uids: globalThis.Array.isArray(object?.uids) ? object.uids.map((e: any) => globalThis.Number(e)) : [],
+      uids: globalThis.Array.isArray(object?.uids)
+        ? object.uids.map((e: any) => globalThis.Number(e))
+        : [],
       messages: globalThis.Array.isArray(object?.messages)
         ? object.messages.map((e: any) => ChatMessage.fromJSON(e))
         : [],
       seed: isSet(object.seed) ? globalThis.Number(object.seed) : undefined,
       task: isSet(object.task) ? globalThis.String(object.task) : undefined,
       model: isSet(object.model) ? globalThis.String(object.model) : undefined,
-      testTimeInference: isSet(object.testTimeInference) ? globalThis.Boolean(object.testTimeInference) : undefined,
-      mixture: isSet(object.mixture) ? globalThis.Boolean(object.mixture) : undefined,
+      testTimeInference: isSet(object.testTimeInference)
+        ? globalThis.Boolean(object.testTimeInference)
+        : undefined,
+      mixture: isSet(object.mixture)
+        ? globalThis.Boolean(object.mixture)
+        : undefined,
       samplingParameters: isSet(object.samplingParameters)
         ? SamplingParameters.fromJSON(object.samplingParameters)
         : undefined,
-      inferenceMode: isSet(object.inferenceMode) ? globalThis.String(object.inferenceMode) : undefined,
-      jsonFormat: isSet(object.jsonFormat) ? globalThis.Boolean(object.jsonFormat) : undefined,
-      stream: isSet(object.stream) ? globalThis.Boolean(object.stream) : undefined,
-      timeout: isSet(object.timeout) ? globalThis.Number(object.timeout) : undefined,
+      inferenceMode: isSet(object.inferenceMode)
+        ? globalThis.String(object.inferenceMode)
+        : undefined,
+      jsonFormat: isSet(object.jsonFormat)
+        ? globalThis.Boolean(object.jsonFormat)
+        : undefined,
+      stream: isSet(object.stream)
+        ? globalThis.Boolean(object.stream)
+        : undefined,
+      timeout: isSet(object.timeout)
+        ? globalThis.Number(object.timeout)
+        : undefined,
     };
   },
 
   toJSON(message: ChatCompletionRequest): unknown {
     const obj: any = {};
     if (message.uids?.length) {
-      obj.uids = message.uids.map((e) => Math.round(e));
+      obj.uids = message.uids.map(e => Math.round(e));
     }
     if (message.messages?.length) {
-      obj.messages = message.messages.map((e) => ChatMessage.toJSON(e));
+      obj.messages = message.messages.map(e => ChatMessage.toJSON(e));
     }
     if (message.seed !== undefined) {
       obj.seed = Math.round(message.seed);
@@ -686,7 +671,9 @@ export const ChatCompletionRequest: MessageFns<ChatCompletionRequest> = {
       obj.mixture = message.mixture;
     }
     if (message.samplingParameters !== undefined) {
-      obj.samplingParameters = SamplingParameters.toJSON(message.samplingParameters);
+      obj.samplingParameters = SamplingParameters.toJSON(
+        message.samplingParameters,
+      );
     }
     if (message.inferenceMode !== undefined) {
       obj.inferenceMode = message.inferenceMode;
@@ -706,18 +693,23 @@ export const ChatCompletionRequest: MessageFns<ChatCompletionRequest> = {
   create(base?: DeepPartial<ChatCompletionRequest>): ChatCompletionRequest {
     return ChatCompletionRequest.fromPartial(base ?? {});
   },
-  fromPartial(object: DeepPartial<ChatCompletionRequest>): ChatCompletionRequest {
+  fromPartial(
+    object: DeepPartial<ChatCompletionRequest>,
+  ): ChatCompletionRequest {
     const message = createBaseChatCompletionRequest();
-    message.uids = object.uids?.map((e) => e) || [];
-    message.messages = object.messages?.map((e) => ChatMessage.fromPartial(e)) || [];
+    message.uids = object.uids?.map(e => e) || [];
+    message.messages =
+      object.messages?.map(e => ChatMessage.fromPartial(e)) || [];
     message.seed = object.seed ?? undefined;
     message.task = object.task ?? undefined;
     message.model = object.model ?? undefined;
     message.testTimeInference = object.testTimeInference ?? undefined;
     message.mixture = object.mixture ?? undefined;
-    message.samplingParameters = (object.samplingParameters !== undefined && object.samplingParameters !== null)
-      ? SamplingParameters.fromPartial(object.samplingParameters)
-      : undefined;
+    message.samplingParameters =
+      object.samplingParameters !== undefined &&
+      object.samplingParameters !== null
+        ? SamplingParameters.fromPartial(object.samplingParameters)
+        : undefined;
     message.inferenceMode = object.inferenceMode ?? undefined;
     message.jsonFormat = object.jsonFormat ?? undefined;
     message.stream = object.stream ?? undefined;
@@ -727,11 +719,20 @@ export const ChatCompletionRequest: MessageFns<ChatCompletionRequest> = {
 };
 
 function createBaseSamplingParameters(): SamplingParameters {
-  return { temperature: 0, topP: 0, topK: undefined, maxNewTokens: 0, doSample: false };
+  return {
+    temperature: 0,
+    topP: 0,
+    topK: undefined,
+    maxNewTokens: 0,
+    doSample: false,
+  };
 }
 
 export const SamplingParameters: MessageFns<SamplingParameters> = {
-  encode(message: SamplingParameters, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: SamplingParameters,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.temperature !== 0) {
       writer.uint32(9).double(message.temperature);
     }
@@ -750,8 +751,12 @@ export const SamplingParameters: MessageFns<SamplingParameters> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): SamplingParameters {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): SamplingParameters {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseSamplingParameters();
     while (reader.pos < end) {
@@ -808,11 +813,17 @@ export const SamplingParameters: MessageFns<SamplingParameters> = {
 
   fromJSON(object: any): SamplingParameters {
     return {
-      temperature: isSet(object.temperature) ? globalThis.Number(object.temperature) : 0,
+      temperature: isSet(object.temperature)
+        ? globalThis.Number(object.temperature)
+        : 0,
       topP: isSet(object.topP) ? globalThis.Number(object.topP) : 0,
       topK: isSet(object.topK) ? globalThis.Number(object.topK) : undefined,
-      maxNewTokens: isSet(object.maxNewTokens) ? globalThis.Number(object.maxNewTokens) : 0,
-      doSample: isSet(object.doSample) ? globalThis.Boolean(object.doSample) : false,
+      maxNewTokens: isSet(object.maxNewTokens)
+        ? globalThis.Number(object.maxNewTokens)
+        : 0,
+      doSample: isSet(object.doSample)
+        ? globalThis.Boolean(object.doSample)
+        : false,
     };
   },
 
@@ -864,7 +875,10 @@ function createBaseChatCompletionResponse(): ChatCompletionResponse {
 }
 
 export const ChatCompletionResponse: MessageFns<ChatCompletionResponse> = {
-  encode(message: ChatCompletionResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: ChatCompletionResponse,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.id !== "") {
       writer.uint32(10).string(message.id);
     }
@@ -892,8 +906,12 @@ export const ChatCompletionResponse: MessageFns<ChatCompletionResponse> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): ChatCompletionResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): ChatCompletionResponse {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseChatCompletionResponse();
     while (reader.pos < end) {
@@ -975,13 +993,21 @@ export const ChatCompletionResponse: MessageFns<ChatCompletionResponse> = {
   fromJSON(object: any): ChatCompletionResponse {
     return {
       id: isSet(object.id) ? globalThis.String(object.id) : "",
-      choices: globalThis.Array.isArray(object?.choices) ? object.choices.map((e: any) => Choice.fromJSON(e)) : [],
+      choices: globalThis.Array.isArray(object?.choices)
+        ? object.choices.map((e: any) => Choice.fromJSON(e))
+        : [],
       created: isSet(object.created) ? globalThis.Number(object.created) : 0,
       model: isSet(object.model) ? globalThis.String(object.model) : "",
       object: isSet(object.object) ? globalThis.String(object.object) : "",
-      serviceTier: isSet(object.serviceTier) ? globalThis.String(object.serviceTier) : "",
-      systemFingerprint: isSet(object.systemFingerprint) ? globalThis.String(object.systemFingerprint) : "",
-      usage: isSet(object.usage) ? CompletionUsage.fromJSON(object.usage) : undefined,
+      serviceTier: isSet(object.serviceTier)
+        ? globalThis.String(object.serviceTier)
+        : "",
+      systemFingerprint: isSet(object.systemFingerprint)
+        ? globalThis.String(object.systemFingerprint)
+        : "",
+      usage: isSet(object.usage)
+        ? CompletionUsage.fromJSON(object.usage)
+        : undefined,
     };
   },
 
@@ -991,7 +1017,7 @@ export const ChatCompletionResponse: MessageFns<ChatCompletionResponse> = {
       obj.id = message.id;
     }
     if (message.choices?.length) {
-      obj.choices = message.choices.map((e) => Choice.toJSON(e));
+      obj.choices = message.choices.map(e => Choice.toJSON(e));
     }
     if (message.created !== 0) {
       obj.created = Math.round(message.created);
@@ -1017,28 +1043,39 @@ export const ChatCompletionResponse: MessageFns<ChatCompletionResponse> = {
   create(base?: DeepPartial<ChatCompletionResponse>): ChatCompletionResponse {
     return ChatCompletionResponse.fromPartial(base ?? {});
   },
-  fromPartial(object: DeepPartial<ChatCompletionResponse>): ChatCompletionResponse {
+  fromPartial(
+    object: DeepPartial<ChatCompletionResponse>,
+  ): ChatCompletionResponse {
     const message = createBaseChatCompletionResponse();
     message.id = object.id ?? "";
-    message.choices = object.choices?.map((e) => Choice.fromPartial(e)) || [];
+    message.choices = object.choices?.map(e => Choice.fromPartial(e)) || [];
     message.created = object.created ?? 0;
     message.model = object.model ?? "";
     message.object = object.object ?? "";
     message.serviceTier = object.serviceTier ?? "";
     message.systemFingerprint = object.systemFingerprint ?? "";
-    message.usage = (object.usage !== undefined && object.usage !== null)
-      ? CompletionUsage.fromPartial(object.usage)
-      : undefined;
+    message.usage =
+      object.usage !== undefined && object.usage !== null
+        ? CompletionUsage.fromPartial(object.usage)
+        : undefined;
     return message;
   },
 };
 
 function createBaseChoice(): Choice {
-  return { finishReason: "", index: 0, logprobs: undefined, message: undefined };
+  return {
+    finishReason: "",
+    index: 0,
+    logprobs: undefined,
+    message: undefined,
+  };
 }
 
 export const Choice: MessageFns<Choice> = {
-  encode(message: Choice, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: Choice,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.finishReason !== "") {
       writer.uint32(10).string(message.finishReason);
     }
@@ -1049,13 +1086,17 @@ export const Choice: MessageFns<Choice> = {
       ChoiceLogprobs.encode(message.logprobs, writer.uint32(26).fork()).join();
     }
     if (message.message !== undefined) {
-      ChatCompletionMessage.encode(message.message, writer.uint32(34).fork()).join();
+      ChatCompletionMessage.encode(
+        message.message,
+        writer.uint32(34).fork(),
+      ).join();
     }
     return writer;
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): Choice {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseChoice();
     while (reader.pos < end) {
@@ -1090,7 +1131,10 @@ export const Choice: MessageFns<Choice> = {
             break;
           }
 
-          message.message = ChatCompletionMessage.decode(reader, reader.uint32());
+          message.message = ChatCompletionMessage.decode(
+            reader,
+            reader.uint32(),
+          );
           continue;
         }
       }
@@ -1104,10 +1148,16 @@ export const Choice: MessageFns<Choice> = {
 
   fromJSON(object: any): Choice {
     return {
-      finishReason: isSet(object.finishReason) ? globalThis.String(object.finishReason) : "",
+      finishReason: isSet(object.finishReason)
+        ? globalThis.String(object.finishReason)
+        : "",
       index: isSet(object.index) ? globalThis.Number(object.index) : 0,
-      logprobs: isSet(object.logprobs) ? ChoiceLogprobs.fromJSON(object.logprobs) : undefined,
-      message: isSet(object.message) ? ChatCompletionMessage.fromJSON(object.message) : undefined,
+      logprobs: isSet(object.logprobs)
+        ? ChoiceLogprobs.fromJSON(object.logprobs)
+        : undefined,
+      message: isSet(object.message)
+        ? ChatCompletionMessage.fromJSON(object.message)
+        : undefined,
     };
   },
 
@@ -1135,12 +1185,14 @@ export const Choice: MessageFns<Choice> = {
     const message = createBaseChoice();
     message.finishReason = object.finishReason ?? "";
     message.index = object.index ?? 0;
-    message.logprobs = (object.logprobs !== undefined && object.logprobs !== null)
-      ? ChoiceLogprobs.fromPartial(object.logprobs)
-      : undefined;
-    message.message = (object.message !== undefined && object.message !== null)
-      ? ChatCompletionMessage.fromPartial(object.message)
-      : undefined;
+    message.logprobs =
+      object.logprobs !== undefined && object.logprobs !== null
+        ? ChoiceLogprobs.fromPartial(object.logprobs)
+        : undefined;
+    message.message =
+      object.message !== undefined && object.message !== null
+        ? ChatCompletionMessage.fromPartial(object.message)
+        : undefined;
     return message;
   },
 };
@@ -1158,7 +1210,10 @@ function createBaseChatCompletionMessage(): ChatCompletionMessage {
 }
 
 export const ChatCompletionMessage: MessageFns<ChatCompletionMessage> = {
-  encode(message: ChatCompletionMessage, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: ChatCompletionMessage,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.content !== "") {
       writer.uint32(10).string(message.content);
     }
@@ -1172,10 +1227,16 @@ export const ChatCompletionMessage: MessageFns<ChatCompletionMessage> = {
       Annotation.encode(v!, writer.uint32(34).fork()).join();
     }
     if (message.audio !== undefined) {
-      ChatCompletionAudio.encode(message.audio, writer.uint32(42).fork()).join();
+      ChatCompletionAudio.encode(
+        message.audio,
+        writer.uint32(42).fork(),
+      ).join();
     }
     if (message.functionCall !== undefined) {
-      FunctionCall.encode(message.functionCall, writer.uint32(50).fork()).join();
+      FunctionCall.encode(
+        message.functionCall,
+        writer.uint32(50).fork(),
+      ).join();
     }
     for (const v of message.toolCalls) {
       ChatCompletionMessageToolCall.encode(v!, writer.uint32(58).fork()).join();
@@ -1183,8 +1244,12 @@ export const ChatCompletionMessage: MessageFns<ChatCompletionMessage> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): ChatCompletionMessage {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): ChatCompletionMessage {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseChatCompletionMessage();
     while (reader.pos < end) {
@@ -1243,7 +1308,9 @@ export const ChatCompletionMessage: MessageFns<ChatCompletionMessage> = {
             break;
           }
 
-          message.toolCalls.push(ChatCompletionMessageToolCall.decode(reader, reader.uint32()));
+          message.toolCalls.push(
+            ChatCompletionMessageToolCall.decode(reader, reader.uint32()),
+          );
           continue;
         }
       }
@@ -1263,10 +1330,16 @@ export const ChatCompletionMessage: MessageFns<ChatCompletionMessage> = {
       annotations: globalThis.Array.isArray(object?.annotations)
         ? object.annotations.map((e: any) => Annotation.fromJSON(e))
         : [],
-      audio: isSet(object.audio) ? ChatCompletionAudio.fromJSON(object.audio) : undefined,
-      functionCall: isSet(object.functionCall) ? FunctionCall.fromJSON(object.functionCall) : undefined,
+      audio: isSet(object.audio)
+        ? ChatCompletionAudio.fromJSON(object.audio)
+        : undefined,
+      functionCall: isSet(object.functionCall)
+        ? FunctionCall.fromJSON(object.functionCall)
+        : undefined,
       toolCalls: globalThis.Array.isArray(object?.toolCalls)
-        ? object.toolCalls.map((e: any) => ChatCompletionMessageToolCall.fromJSON(e))
+        ? object.toolCalls.map((e: any) =>
+            ChatCompletionMessageToolCall.fromJSON(e),
+          )
         : [],
     };
   },
@@ -1283,7 +1356,7 @@ export const ChatCompletionMessage: MessageFns<ChatCompletionMessage> = {
       obj.role = message.role;
     }
     if (message.annotations?.length) {
-      obj.annotations = message.annotations.map((e) => Annotation.toJSON(e));
+      obj.annotations = message.annotations.map(e => Annotation.toJSON(e));
     }
     if (message.audio !== undefined) {
       obj.audio = ChatCompletionAudio.toJSON(message.audio);
@@ -1292,7 +1365,9 @@ export const ChatCompletionMessage: MessageFns<ChatCompletionMessage> = {
       obj.functionCall = FunctionCall.toJSON(message.functionCall);
     }
     if (message.toolCalls?.length) {
-      obj.toolCalls = message.toolCalls.map((e) => ChatCompletionMessageToolCall.toJSON(e));
+      obj.toolCalls = message.toolCalls.map(e =>
+        ChatCompletionMessageToolCall.toJSON(e),
+      );
     }
     return obj;
   },
@@ -1300,19 +1375,27 @@ export const ChatCompletionMessage: MessageFns<ChatCompletionMessage> = {
   create(base?: DeepPartial<ChatCompletionMessage>): ChatCompletionMessage {
     return ChatCompletionMessage.fromPartial(base ?? {});
   },
-  fromPartial(object: DeepPartial<ChatCompletionMessage>): ChatCompletionMessage {
+  fromPartial(
+    object: DeepPartial<ChatCompletionMessage>,
+  ): ChatCompletionMessage {
     const message = createBaseChatCompletionMessage();
     message.content = object.content ?? "";
     message.refusal = object.refusal ?? "";
     message.role = object.role ?? "";
-    message.annotations = object.annotations?.map((e) => Annotation.fromPartial(e)) || [];
-    message.audio = (object.audio !== undefined && object.audio !== null)
-      ? ChatCompletionAudio.fromPartial(object.audio)
-      : undefined;
-    message.functionCall = (object.functionCall !== undefined && object.functionCall !== null)
-      ? FunctionCall.fromPartial(object.functionCall)
-      : undefined;
-    message.toolCalls = object.toolCalls?.map((e) => ChatCompletionMessageToolCall.fromPartial(e)) || [];
+    message.annotations =
+      object.annotations?.map(e => Annotation.fromPartial(e)) || [];
+    message.audio =
+      object.audio !== undefined && object.audio !== null
+        ? ChatCompletionAudio.fromPartial(object.audio)
+        : undefined;
+    message.functionCall =
+      object.functionCall !== undefined && object.functionCall !== null
+        ? FunctionCall.fromPartial(object.functionCall)
+        : undefined;
+    message.toolCalls =
+      object.toolCalls?.map(e =>
+        ChatCompletionMessageToolCall.fromPartial(e),
+      ) || [];
     return message;
   },
 };
@@ -1322,7 +1405,10 @@ function createBaseAnnotation(): Annotation {
 }
 
 export const Annotation: MessageFns<Annotation> = {
-  encode(message: Annotation, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: Annotation,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.content !== "") {
       writer.uint32(10).string(message.content);
     }
@@ -1333,7 +1419,8 @@ export const Annotation: MessageFns<Annotation> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): Annotation {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseAnnotation();
     while (reader.pos < end) {
@@ -1398,7 +1485,10 @@ function createBaseChatCompletionAudio(): ChatCompletionAudio {
 }
 
 export const ChatCompletionAudio: MessageFns<ChatCompletionAudio> = {
-  encode(message: ChatCompletionAudio, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: ChatCompletionAudio,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.id !== "") {
       writer.uint32(10).string(message.id);
     }
@@ -1414,8 +1504,12 @@ export const ChatCompletionAudio: MessageFns<ChatCompletionAudio> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): ChatCompletionAudio {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): ChatCompletionAudio {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseChatCompletionAudio();
     while (reader.pos < end) {
@@ -1466,8 +1560,12 @@ export const ChatCompletionAudio: MessageFns<ChatCompletionAudio> = {
     return {
       id: isSet(object.id) ? globalThis.String(object.id) : "",
       data: isSet(object.data) ? globalThis.String(object.data) : "",
-      expiresAt: isSet(object.expiresAt) ? globalThis.Number(object.expiresAt) : 0,
-      transcript: isSet(object.transcript) ? globalThis.String(object.transcript) : "",
+      expiresAt: isSet(object.expiresAt)
+        ? globalThis.Number(object.expiresAt)
+        : 0,
+      transcript: isSet(object.transcript)
+        ? globalThis.String(object.transcript)
+        : "",
     };
   },
 
@@ -1506,7 +1604,10 @@ function createBaseFunctionCall(): FunctionCall {
 }
 
 export const FunctionCall: MessageFns<FunctionCall> = {
-  encode(message: FunctionCall, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: FunctionCall,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     for (const v of message.arguments) {
       writer.uint32(10).string(v!);
     }
@@ -1517,7 +1618,8 @@ export const FunctionCall: MessageFns<FunctionCall> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): FunctionCall {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseFunctionCall();
     while (reader.pos < end) {
@@ -1573,7 +1675,7 @@ export const FunctionCall: MessageFns<FunctionCall> = {
   },
   fromPartial(object: DeepPartial<FunctionCall>): FunctionCall {
     const message = createBaseFunctionCall();
-    message.arguments = object.arguments?.map((e) => e) || [];
+    message.arguments = object.arguments?.map(e => e) || [];
     message.name = object.name ?? "";
     return message;
   },
@@ -1583,102 +1685,123 @@ function createBaseChatCompletionMessageToolCall(): ChatCompletionMessageToolCal
   return { id: "", function: undefined, type: "" };
 }
 
-export const ChatCompletionMessageToolCall: MessageFns<ChatCompletionMessageToolCall> = {
-  encode(message: ChatCompletionMessageToolCall, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.id !== "") {
-      writer.uint32(10).string(message.id);
-    }
-    if (message.function !== undefined) {
-      FunctionMessage.encode(message.function, writer.uint32(18).fork()).join();
-    }
-    if (message.type !== "") {
-      writer.uint32(26).string(message.type);
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): ChatCompletionMessageToolCall {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseChatCompletionMessageToolCall();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.id = reader.string();
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.function = FunctionMessage.decode(reader, reader.uint32());
-          continue;
-        }
-        case 3: {
-          if (tag !== 26) {
-            break;
-          }
-
-          message.type = reader.string();
-          continue;
-        }
+export const ChatCompletionMessageToolCall: MessageFns<ChatCompletionMessageToolCall> =
+  {
+    encode(
+      message: ChatCompletionMessageToolCall,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      if (message.id !== "") {
+        writer.uint32(10).string(message.id);
       }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
+      if (message.function !== undefined) {
+        FunctionMessage.encode(
+          message.function,
+          writer.uint32(18).fork(),
+        ).join();
       }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
+      if (message.type !== "") {
+        writer.uint32(26).string(message.type);
+      }
+      return writer;
+    },
 
-  fromJSON(object: any): ChatCompletionMessageToolCall {
-    return {
-      id: isSet(object.id) ? globalThis.String(object.id) : "",
-      function: isSet(object.function) ? FunctionMessage.fromJSON(object.function) : undefined,
-      type: isSet(object.type) ? globalThis.String(object.type) : "",
-    };
-  },
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): ChatCompletionMessageToolCall {
+      const reader =
+        input instanceof BinaryReader ? input : new BinaryReader(input);
+      let end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseChatCompletionMessageToolCall();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
 
-  toJSON(message: ChatCompletionMessageToolCall): unknown {
-    const obj: any = {};
-    if (message.id !== "") {
-      obj.id = message.id;
-    }
-    if (message.function !== undefined) {
-      obj.function = FunctionMessage.toJSON(message.function);
-    }
-    if (message.type !== "") {
-      obj.type = message.type;
-    }
-    return obj;
-  },
+            message.id = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
 
-  create(base?: DeepPartial<ChatCompletionMessageToolCall>): ChatCompletionMessageToolCall {
-    return ChatCompletionMessageToolCall.fromPartial(base ?? {});
-  },
-  fromPartial(object: DeepPartial<ChatCompletionMessageToolCall>): ChatCompletionMessageToolCall {
-    const message = createBaseChatCompletionMessageToolCall();
-    message.id = object.id ?? "";
-    message.function = (object.function !== undefined && object.function !== null)
-      ? FunctionMessage.fromPartial(object.function)
-      : undefined;
-    message.type = object.type ?? "";
-    return message;
-  },
-};
+            message.function = FunctionMessage.decode(reader, reader.uint32());
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.type = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    },
+
+    fromJSON(object: any): ChatCompletionMessageToolCall {
+      return {
+        id: isSet(object.id) ? globalThis.String(object.id) : "",
+        function: isSet(object.function)
+          ? FunctionMessage.fromJSON(object.function)
+          : undefined,
+        type: isSet(object.type) ? globalThis.String(object.type) : "",
+      };
+    },
+
+    toJSON(message: ChatCompletionMessageToolCall): unknown {
+      const obj: any = {};
+      if (message.id !== "") {
+        obj.id = message.id;
+      }
+      if (message.function !== undefined) {
+        obj.function = FunctionMessage.toJSON(message.function);
+      }
+      if (message.type !== "") {
+        obj.type = message.type;
+      }
+      return obj;
+    },
+
+    create(
+      base?: DeepPartial<ChatCompletionMessageToolCall>,
+    ): ChatCompletionMessageToolCall {
+      return ChatCompletionMessageToolCall.fromPartial(base ?? {});
+    },
+    fromPartial(
+      object: DeepPartial<ChatCompletionMessageToolCall>,
+    ): ChatCompletionMessageToolCall {
+      const message = createBaseChatCompletionMessageToolCall();
+      message.id = object.id ?? "";
+      message.function =
+        object.function !== undefined && object.function !== null
+          ? FunctionMessage.fromPartial(object.function)
+          : undefined;
+      message.type = object.type ?? "";
+      return message;
+    },
+  };
 
 function createBaseFunctionMessage(): FunctionMessage {
   return { arguments: [], name: "" };
 }
 
 export const FunctionMessage: MessageFns<FunctionMessage> = {
-  encode(message: FunctionMessage, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: FunctionMessage,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     for (const v of message.arguments) {
       writer.uint32(10).string(v!);
     }
@@ -1689,7 +1812,8 @@ export const FunctionMessage: MessageFns<FunctionMessage> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): FunctionMessage {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseFunctionMessage();
     while (reader.pos < end) {
@@ -1745,7 +1869,7 @@ export const FunctionMessage: MessageFns<FunctionMessage> = {
   },
   fromPartial(object: DeepPartial<FunctionMessage>): FunctionMessage {
     const message = createBaseFunctionMessage();
-    message.arguments = object.arguments?.map((e) => e) || [];
+    message.arguments = object.arguments?.map(e => e) || [];
     message.name = object.name ?? "";
     return message;
   },
@@ -1764,182 +1888,207 @@ function createBaseChatCompletionChunkResponse(): ChatCompletionChunkResponse {
   };
 }
 
-export const ChatCompletionChunkResponse: MessageFns<ChatCompletionChunkResponse> = {
-  encode(message: ChatCompletionChunkResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.id !== "") {
-      writer.uint32(10).string(message.id);
-    }
-    for (const v of message.choices) {
-      ChunkChoice.encode(v!, writer.uint32(18).fork()).join();
-    }
-    if (message.created !== 0) {
-      writer.uint32(24).int64(message.created);
-    }
-    if (message.model !== "") {
-      writer.uint32(34).string(message.model);
-    }
-    if (message.object !== "") {
-      writer.uint32(42).string(message.object);
-    }
-    if (message.serviceTier !== "") {
-      writer.uint32(50).string(message.serviceTier);
-    }
-    if (message.systemFingerprint !== "") {
-      writer.uint32(58).string(message.systemFingerprint);
-    }
-    if (message.usage !== undefined) {
-      CompletionUsage.encode(message.usage, writer.uint32(66).fork()).join();
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): ChatCompletionChunkResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseChatCompletionChunkResponse();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.id = reader.string();
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.choices.push(ChunkChoice.decode(reader, reader.uint32()));
-          continue;
-        }
-        case 3: {
-          if (tag !== 24) {
-            break;
-          }
-
-          message.created = longToNumber(reader.int64());
-          continue;
-        }
-        case 4: {
-          if (tag !== 34) {
-            break;
-          }
-
-          message.model = reader.string();
-          continue;
-        }
-        case 5: {
-          if (tag !== 42) {
-            break;
-          }
-
-          message.object = reader.string();
-          continue;
-        }
-        case 6: {
-          if (tag !== 50) {
-            break;
-          }
-
-          message.serviceTier = reader.string();
-          continue;
-        }
-        case 7: {
-          if (tag !== 58) {
-            break;
-          }
-
-          message.systemFingerprint = reader.string();
-          continue;
-        }
-        case 8: {
-          if (tag !== 66) {
-            break;
-          }
-
-          message.usage = CompletionUsage.decode(reader, reader.uint32());
-          continue;
-        }
+export const ChatCompletionChunkResponse: MessageFns<ChatCompletionChunkResponse> =
+  {
+    encode(
+      message: ChatCompletionChunkResponse,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      if (message.id !== "") {
+        writer.uint32(10).string(message.id);
       }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
+      for (const v of message.choices) {
+        ChunkChoice.encode(v!, writer.uint32(18).fork()).join();
       }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
+      if (message.created !== 0) {
+        writer.uint32(24).int64(message.created);
+      }
+      if (message.model !== "") {
+        writer.uint32(34).string(message.model);
+      }
+      if (message.object !== "") {
+        writer.uint32(42).string(message.object);
+      }
+      if (message.serviceTier !== "") {
+        writer.uint32(50).string(message.serviceTier);
+      }
+      if (message.systemFingerprint !== "") {
+        writer.uint32(58).string(message.systemFingerprint);
+      }
+      if (message.usage !== undefined) {
+        CompletionUsage.encode(message.usage, writer.uint32(66).fork()).join();
+      }
+      return writer;
+    },
 
-  fromJSON(object: any): ChatCompletionChunkResponse {
-    return {
-      id: isSet(object.id) ? globalThis.String(object.id) : "",
-      choices: globalThis.Array.isArray(object?.choices) ? object.choices.map((e: any) => ChunkChoice.fromJSON(e)) : [],
-      created: isSet(object.created) ? globalThis.Number(object.created) : 0,
-      model: isSet(object.model) ? globalThis.String(object.model) : "",
-      object: isSet(object.object) ? globalThis.String(object.object) : "",
-      serviceTier: isSet(object.serviceTier) ? globalThis.String(object.serviceTier) : "",
-      systemFingerprint: isSet(object.systemFingerprint) ? globalThis.String(object.systemFingerprint) : "",
-      usage: isSet(object.usage) ? CompletionUsage.fromJSON(object.usage) : undefined,
-    };
-  },
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): ChatCompletionChunkResponse {
+      const reader =
+        input instanceof BinaryReader ? input : new BinaryReader(input);
+      let end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseChatCompletionChunkResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
 
-  toJSON(message: ChatCompletionChunkResponse): unknown {
-    const obj: any = {};
-    if (message.id !== "") {
-      obj.id = message.id;
-    }
-    if (message.choices?.length) {
-      obj.choices = message.choices.map((e) => ChunkChoice.toJSON(e));
-    }
-    if (message.created !== 0) {
-      obj.created = Math.round(message.created);
-    }
-    if (message.model !== "") {
-      obj.model = message.model;
-    }
-    if (message.object !== "") {
-      obj.object = message.object;
-    }
-    if (message.serviceTier !== "") {
-      obj.serviceTier = message.serviceTier;
-    }
-    if (message.systemFingerprint !== "") {
-      obj.systemFingerprint = message.systemFingerprint;
-    }
-    if (message.usage !== undefined) {
-      obj.usage = CompletionUsage.toJSON(message.usage);
-    }
-    return obj;
-  },
+            message.id = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
 
-  create(base?: DeepPartial<ChatCompletionChunkResponse>): ChatCompletionChunkResponse {
-    return ChatCompletionChunkResponse.fromPartial(base ?? {});
-  },
-  fromPartial(object: DeepPartial<ChatCompletionChunkResponse>): ChatCompletionChunkResponse {
-    const message = createBaseChatCompletionChunkResponse();
-    message.id = object.id ?? "";
-    message.choices = object.choices?.map((e) => ChunkChoice.fromPartial(e)) || [];
-    message.created = object.created ?? 0;
-    message.model = object.model ?? "";
-    message.object = object.object ?? "";
-    message.serviceTier = object.serviceTier ?? "";
-    message.systemFingerprint = object.systemFingerprint ?? "";
-    message.usage = (object.usage !== undefined && object.usage !== null)
-      ? CompletionUsage.fromPartial(object.usage)
-      : undefined;
-    return message;
-  },
-};
+            message.choices.push(ChunkChoice.decode(reader, reader.uint32()));
+            continue;
+          }
+          case 3: {
+            if (tag !== 24) {
+              break;
+            }
+
+            message.created = longToNumber(reader.int64());
+            continue;
+          }
+          case 4: {
+            if (tag !== 34) {
+              break;
+            }
+
+            message.model = reader.string();
+            continue;
+          }
+          case 5: {
+            if (tag !== 42) {
+              break;
+            }
+
+            message.object = reader.string();
+            continue;
+          }
+          case 6: {
+            if (tag !== 50) {
+              break;
+            }
+
+            message.serviceTier = reader.string();
+            continue;
+          }
+          case 7: {
+            if (tag !== 58) {
+              break;
+            }
+
+            message.systemFingerprint = reader.string();
+            continue;
+          }
+          case 8: {
+            if (tag !== 66) {
+              break;
+            }
+
+            message.usage = CompletionUsage.decode(reader, reader.uint32());
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    },
+
+    fromJSON(object: any): ChatCompletionChunkResponse {
+      return {
+        id: isSet(object.id) ? globalThis.String(object.id) : "",
+        choices: globalThis.Array.isArray(object?.choices)
+          ? object.choices.map((e: any) => ChunkChoice.fromJSON(e))
+          : [],
+        created: isSet(object.created) ? globalThis.Number(object.created) : 0,
+        model: isSet(object.model) ? globalThis.String(object.model) : "",
+        object: isSet(object.object) ? globalThis.String(object.object) : "",
+        serviceTier: isSet(object.serviceTier)
+          ? globalThis.String(object.serviceTier)
+          : "",
+        systemFingerprint: isSet(object.systemFingerprint)
+          ? globalThis.String(object.systemFingerprint)
+          : "",
+        usage: isSet(object.usage)
+          ? CompletionUsage.fromJSON(object.usage)
+          : undefined,
+      };
+    },
+
+    toJSON(message: ChatCompletionChunkResponse): unknown {
+      const obj: any = {};
+      if (message.id !== "") {
+        obj.id = message.id;
+      }
+      if (message.choices?.length) {
+        obj.choices = message.choices.map(e => ChunkChoice.toJSON(e));
+      }
+      if (message.created !== 0) {
+        obj.created = Math.round(message.created);
+      }
+      if (message.model !== "") {
+        obj.model = message.model;
+      }
+      if (message.object !== "") {
+        obj.object = message.object;
+      }
+      if (message.serviceTier !== "") {
+        obj.serviceTier = message.serviceTier;
+      }
+      if (message.systemFingerprint !== "") {
+        obj.systemFingerprint = message.systemFingerprint;
+      }
+      if (message.usage !== undefined) {
+        obj.usage = CompletionUsage.toJSON(message.usage);
+      }
+      return obj;
+    },
+
+    create(
+      base?: DeepPartial<ChatCompletionChunkResponse>,
+    ): ChatCompletionChunkResponse {
+      return ChatCompletionChunkResponse.fromPartial(base ?? {});
+    },
+    fromPartial(
+      object: DeepPartial<ChatCompletionChunkResponse>,
+    ): ChatCompletionChunkResponse {
+      const message = createBaseChatCompletionChunkResponse();
+      message.id = object.id ?? "";
+      message.choices =
+        object.choices?.map(e => ChunkChoice.fromPartial(e)) || [];
+      message.created = object.created ?? 0;
+      message.model = object.model ?? "";
+      message.object = object.object ?? "";
+      message.serviceTier = object.serviceTier ?? "";
+      message.systemFingerprint = object.systemFingerprint ?? "";
+      message.usage =
+        object.usage !== undefined && object.usage !== null
+          ? CompletionUsage.fromPartial(object.usage)
+          : undefined;
+      return message;
+    },
+  };
 
 function createBaseChatMessage(): ChatMessage {
   return { role: "", content: "" };
 }
 
 export const ChatMessage: MessageFns<ChatMessage> = {
-  encode(message: ChatMessage, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: ChatMessage,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.role !== "") {
       writer.uint32(10).string(message.role);
     }
@@ -1950,7 +2099,8 @@ export const ChatMessage: MessageFns<ChatMessage> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): ChatMessage {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseChatMessage();
     while (reader.pos < end) {
@@ -2015,7 +2165,10 @@ function createBaseChunkChoice(): ChunkChoice {
 }
 
 export const ChunkChoice: MessageFns<ChunkChoice> = {
-  encode(message: ChunkChoice, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: ChunkChoice,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.delta !== undefined) {
       ChoiceDelta.encode(message.delta, writer.uint32(10).fork()).join();
     }
@@ -2032,7 +2185,8 @@ export const ChunkChoice: MessageFns<ChunkChoice> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): ChunkChoice {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseChunkChoice();
     while (reader.pos < end) {
@@ -2081,10 +2235,16 @@ export const ChunkChoice: MessageFns<ChunkChoice> = {
 
   fromJSON(object: any): ChunkChoice {
     return {
-      delta: isSet(object.delta) ? ChoiceDelta.fromJSON(object.delta) : undefined,
-      finishReason: isSet(object.finishReason) ? globalThis.String(object.finishReason) : "",
+      delta: isSet(object.delta)
+        ? ChoiceDelta.fromJSON(object.delta)
+        : undefined,
+      finishReason: isSet(object.finishReason)
+        ? globalThis.String(object.finishReason)
+        : "",
       index: isSet(object.index) ? globalThis.Number(object.index) : 0,
-      logprobs: isSet(object.logprobs) ? ChoiceLogprobs.fromJSON(object.logprobs) : undefined,
+      logprobs: isSet(object.logprobs)
+        ? ChoiceLogprobs.fromJSON(object.logprobs)
+        : undefined,
     };
   },
 
@@ -2110,14 +2270,16 @@ export const ChunkChoice: MessageFns<ChunkChoice> = {
   },
   fromPartial(object: DeepPartial<ChunkChoice>): ChunkChoice {
     const message = createBaseChunkChoice();
-    message.delta = (object.delta !== undefined && object.delta !== null)
-      ? ChoiceDelta.fromPartial(object.delta)
-      : undefined;
+    message.delta =
+      object.delta !== undefined && object.delta !== null
+        ? ChoiceDelta.fromPartial(object.delta)
+        : undefined;
     message.finishReason = object.finishReason ?? "";
     message.index = object.index ?? 0;
-    message.logprobs = (object.logprobs !== undefined && object.logprobs !== null)
-      ? ChoiceLogprobs.fromPartial(object.logprobs)
-      : undefined;
+    message.logprobs =
+      object.logprobs !== undefined && object.logprobs !== null
+        ? ChoiceLogprobs.fromPartial(object.logprobs)
+        : undefined;
     return message;
   },
 };
@@ -2127,7 +2289,10 @@ function createBaseChoiceLogprobs(): ChoiceLogprobs {
 }
 
 export const ChoiceLogprobs: MessageFns<ChoiceLogprobs> = {
-  encode(message: ChoiceLogprobs, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: ChoiceLogprobs,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     for (const v of message.content) {
       ChatCompletionTokenLogprob.encode(v!, writer.uint32(10).fork()).join();
     }
@@ -2138,7 +2303,8 @@ export const ChoiceLogprobs: MessageFns<ChoiceLogprobs> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): ChoiceLogprobs {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseChoiceLogprobs();
     while (reader.pos < end) {
@@ -2149,7 +2315,9 @@ export const ChoiceLogprobs: MessageFns<ChoiceLogprobs> = {
             break;
           }
 
-          message.content.push(ChatCompletionTokenLogprob.decode(reader, reader.uint32()));
+          message.content.push(
+            ChatCompletionTokenLogprob.decode(reader, reader.uint32()),
+          );
           continue;
         }
         case 2: {
@@ -2157,7 +2325,9 @@ export const ChoiceLogprobs: MessageFns<ChoiceLogprobs> = {
             break;
           }
 
-          message.refusal.push(ChatCompletionTokenLogprob.decode(reader, reader.uint32()));
+          message.refusal.push(
+            ChatCompletionTokenLogprob.decode(reader, reader.uint32()),
+          );
           continue;
         }
       }
@@ -2183,10 +2353,14 @@ export const ChoiceLogprobs: MessageFns<ChoiceLogprobs> = {
   toJSON(message: ChoiceLogprobs): unknown {
     const obj: any = {};
     if (message.content?.length) {
-      obj.content = message.content.map((e) => ChatCompletionTokenLogprob.toJSON(e));
+      obj.content = message.content.map(e =>
+        ChatCompletionTokenLogprob.toJSON(e),
+      );
     }
     if (message.refusal?.length) {
-      obj.refusal = message.refusal.map((e) => ChatCompletionTokenLogprob.toJSON(e));
+      obj.refusal = message.refusal.map(e =>
+        ChatCompletionTokenLogprob.toJSON(e),
+      );
     }
     return obj;
   },
@@ -2196,23 +2370,37 @@ export const ChoiceLogprobs: MessageFns<ChoiceLogprobs> = {
   },
   fromPartial(object: DeepPartial<ChoiceLogprobs>): ChoiceLogprobs {
     const message = createBaseChoiceLogprobs();
-    message.content = object.content?.map((e) => ChatCompletionTokenLogprob.fromPartial(e)) || [];
-    message.refusal = object.refusal?.map((e) => ChatCompletionTokenLogprob.fromPartial(e)) || [];
+    message.content =
+      object.content?.map(e => ChatCompletionTokenLogprob.fromPartial(e)) || [];
+    message.refusal =
+      object.refusal?.map(e => ChatCompletionTokenLogprob.fromPartial(e)) || [];
     return message;
   },
 };
 
 function createBaseChoiceDelta(): ChoiceDelta {
-  return { content: "", functionCall: undefined, refusal: "", role: "", toolCalls: [] };
+  return {
+    content: "",
+    functionCall: undefined,
+    refusal: "",
+    role: "",
+    toolCalls: [],
+  };
 }
 
 export const ChoiceDelta: MessageFns<ChoiceDelta> = {
-  encode(message: ChoiceDelta, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: ChoiceDelta,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.content !== "") {
       writer.uint32(10).string(message.content);
     }
     if (message.functionCall !== undefined) {
-      ChoiceDeltaFunctionCall.encode(message.functionCall, writer.uint32(18).fork()).join();
+      ChoiceDeltaFunctionCall.encode(
+        message.functionCall,
+        writer.uint32(18).fork(),
+      ).join();
     }
     if (message.refusal !== "") {
       writer.uint32(26).string(message.refusal);
@@ -2227,7 +2415,8 @@ export const ChoiceDelta: MessageFns<ChoiceDelta> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): ChoiceDelta {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseChoiceDelta();
     while (reader.pos < end) {
@@ -2246,7 +2435,10 @@ export const ChoiceDelta: MessageFns<ChoiceDelta> = {
             break;
           }
 
-          message.functionCall = ChoiceDeltaFunctionCall.decode(reader, reader.uint32());
+          message.functionCall = ChoiceDeltaFunctionCall.decode(
+            reader,
+            reader.uint32(),
+          );
           continue;
         }
         case 3: {
@@ -2270,7 +2462,9 @@ export const ChoiceDelta: MessageFns<ChoiceDelta> = {
             break;
           }
 
-          message.toolCalls.push(ChoiceDeltaToolCall.decode(reader, reader.uint32()));
+          message.toolCalls.push(
+            ChoiceDeltaToolCall.decode(reader, reader.uint32()),
+          );
           continue;
         }
       }
@@ -2285,7 +2479,9 @@ export const ChoiceDelta: MessageFns<ChoiceDelta> = {
   fromJSON(object: any): ChoiceDelta {
     return {
       content: isSet(object.content) ? globalThis.String(object.content) : "",
-      functionCall: isSet(object.functionCall) ? ChoiceDeltaFunctionCall.fromJSON(object.functionCall) : undefined,
+      functionCall: isSet(object.functionCall)
+        ? ChoiceDeltaFunctionCall.fromJSON(object.functionCall)
+        : undefined,
       refusal: isSet(object.refusal) ? globalThis.String(object.refusal) : "",
       role: isSet(object.role) ? globalThis.String(object.role) : "",
       toolCalls: globalThis.Array.isArray(object?.toolCalls)
@@ -2309,7 +2505,7 @@ export const ChoiceDelta: MessageFns<ChoiceDelta> = {
       obj.role = message.role;
     }
     if (message.toolCalls?.length) {
-      obj.toolCalls = message.toolCalls.map((e) => ChoiceDeltaToolCall.toJSON(e));
+      obj.toolCalls = message.toolCalls.map(e => ChoiceDeltaToolCall.toJSON(e));
     }
     return obj;
   },
@@ -2320,12 +2516,14 @@ export const ChoiceDelta: MessageFns<ChoiceDelta> = {
   fromPartial(object: DeepPartial<ChoiceDelta>): ChoiceDelta {
     const message = createBaseChoiceDelta();
     message.content = object.content ?? "";
-    message.functionCall = (object.functionCall !== undefined && object.functionCall !== null)
-      ? ChoiceDeltaFunctionCall.fromPartial(object.functionCall)
-      : undefined;
+    message.functionCall =
+      object.functionCall !== undefined && object.functionCall !== null
+        ? ChoiceDeltaFunctionCall.fromPartial(object.functionCall)
+        : undefined;
     message.refusal = object.refusal ?? "";
     message.role = object.role ?? "";
-    message.toolCalls = object.toolCalls?.map((e) => ChoiceDeltaToolCall.fromPartial(e)) || [];
+    message.toolCalls =
+      object.toolCalls?.map(e => ChoiceDeltaToolCall.fromPartial(e)) || [];
     return message;
   },
 };
@@ -2335,7 +2533,10 @@ function createBaseChoiceDeltaFunctionCall(): ChoiceDeltaFunctionCall {
 }
 
 export const ChoiceDeltaFunctionCall: MessageFns<ChoiceDeltaFunctionCall> = {
-  encode(message: ChoiceDeltaFunctionCall, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: ChoiceDeltaFunctionCall,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     for (const v of message.arguments) {
       writer.uint32(10).string(v!);
     }
@@ -2345,8 +2546,12 @@ export const ChoiceDeltaFunctionCall: MessageFns<ChoiceDeltaFunctionCall> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): ChoiceDeltaFunctionCall {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): ChoiceDeltaFunctionCall {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseChoiceDeltaFunctionCall();
     while (reader.pos < end) {
@@ -2400,9 +2605,11 @@ export const ChoiceDeltaFunctionCall: MessageFns<ChoiceDeltaFunctionCall> = {
   create(base?: DeepPartial<ChoiceDeltaFunctionCall>): ChoiceDeltaFunctionCall {
     return ChoiceDeltaFunctionCall.fromPartial(base ?? {});
   },
-  fromPartial(object: DeepPartial<ChoiceDeltaFunctionCall>): ChoiceDeltaFunctionCall {
+  fromPartial(
+    object: DeepPartial<ChoiceDeltaFunctionCall>,
+  ): ChoiceDeltaFunctionCall {
     const message = createBaseChoiceDeltaFunctionCall();
-    message.arguments = object.arguments?.map((e) => e) || [];
+    message.arguments = object.arguments?.map(e => e) || [];
     message.name = object.name ?? "";
     return message;
   },
@@ -2413,7 +2620,10 @@ function createBaseChoiceDeltaToolCall(): ChoiceDeltaToolCall {
 }
 
 export const ChoiceDeltaToolCall: MessageFns<ChoiceDeltaToolCall> = {
-  encode(message: ChoiceDeltaToolCall, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: ChoiceDeltaToolCall,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.index !== 0) {
       writer.uint32(8).int64(message.index);
     }
@@ -2421,7 +2631,10 @@ export const ChoiceDeltaToolCall: MessageFns<ChoiceDeltaToolCall> = {
       writer.uint32(18).string(message.id);
     }
     if (message.function !== undefined) {
-      ChoiceDeltaToolCallFunction.encode(message.function, writer.uint32(26).fork()).join();
+      ChoiceDeltaToolCallFunction.encode(
+        message.function,
+        writer.uint32(26).fork(),
+      ).join();
     }
     if (message.type !== "") {
       writer.uint32(34).string(message.type);
@@ -2429,8 +2642,12 @@ export const ChoiceDeltaToolCall: MessageFns<ChoiceDeltaToolCall> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): ChoiceDeltaToolCall {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): ChoiceDeltaToolCall {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseChoiceDeltaToolCall();
     while (reader.pos < end) {
@@ -2457,7 +2674,10 @@ export const ChoiceDeltaToolCall: MessageFns<ChoiceDeltaToolCall> = {
             break;
           }
 
-          message.function = ChoiceDeltaToolCallFunction.decode(reader, reader.uint32());
+          message.function = ChoiceDeltaToolCallFunction.decode(
+            reader,
+            reader.uint32(),
+          );
           continue;
         }
         case 4: {
@@ -2481,7 +2701,9 @@ export const ChoiceDeltaToolCall: MessageFns<ChoiceDeltaToolCall> = {
     return {
       index: isSet(object.index) ? globalThis.Number(object.index) : 0,
       id: isSet(object.id) ? globalThis.String(object.id) : "",
-      function: isSet(object.function) ? ChoiceDeltaToolCallFunction.fromJSON(object.function) : undefined,
+      function: isSet(object.function)
+        ? ChoiceDeltaToolCallFunction.fromJSON(object.function)
+        : undefined,
       type: isSet(object.type) ? globalThis.String(object.type) : "",
     };
   },
@@ -2510,9 +2732,10 @@ export const ChoiceDeltaToolCall: MessageFns<ChoiceDeltaToolCall> = {
     const message = createBaseChoiceDeltaToolCall();
     message.index = object.index ?? 0;
     message.id = object.id ?? "";
-    message.function = (object.function !== undefined && object.function !== null)
-      ? ChoiceDeltaToolCallFunction.fromPartial(object.function)
-      : undefined;
+    message.function =
+      object.function !== undefined && object.function !== null
+        ? ChoiceDeltaToolCallFunction.fromPartial(object.function)
+        : undefined;
     message.type = object.type ?? "";
     return message;
   },
@@ -2522,208 +2745,240 @@ function createBaseChoiceDeltaToolCallFunction(): ChoiceDeltaToolCallFunction {
   return { arguments: [], name: "" };
 }
 
-export const ChoiceDeltaToolCallFunction: MessageFns<ChoiceDeltaToolCallFunction> = {
-  encode(message: ChoiceDeltaToolCallFunction, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    for (const v of message.arguments) {
-      writer.uint32(10).string(v!);
-    }
-    if (message.name !== "") {
-      writer.uint32(18).string(message.name);
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): ChoiceDeltaToolCallFunction {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseChoiceDeltaToolCallFunction();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.arguments.push(reader.string());
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.name = reader.string();
-          continue;
-        }
+export const ChoiceDeltaToolCallFunction: MessageFns<ChoiceDeltaToolCallFunction> =
+  {
+    encode(
+      message: ChoiceDeltaToolCallFunction,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      for (const v of message.arguments) {
+        writer.uint32(10).string(v!);
       }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
+      if (message.name !== "") {
+        writer.uint32(18).string(message.name);
       }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
+      return writer;
+    },
 
-  fromJSON(object: any): ChoiceDeltaToolCallFunction {
-    return {
-      arguments: globalThis.Array.isArray(object?.arguments)
-        ? object.arguments.map((e: any) => globalThis.String(e))
-        : [],
-      name: isSet(object.name) ? globalThis.String(object.name) : "",
-    };
-  },
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): ChoiceDeltaToolCallFunction {
+      const reader =
+        input instanceof BinaryReader ? input : new BinaryReader(input);
+      let end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseChoiceDeltaToolCallFunction();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
 
-  toJSON(message: ChoiceDeltaToolCallFunction): unknown {
-    const obj: any = {};
-    if (message.arguments?.length) {
-      obj.arguments = message.arguments;
-    }
-    if (message.name !== "") {
-      obj.name = message.name;
-    }
-    return obj;
-  },
+            message.arguments.push(reader.string());
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
 
-  create(base?: DeepPartial<ChoiceDeltaToolCallFunction>): ChoiceDeltaToolCallFunction {
-    return ChoiceDeltaToolCallFunction.fromPartial(base ?? {});
-  },
-  fromPartial(object: DeepPartial<ChoiceDeltaToolCallFunction>): ChoiceDeltaToolCallFunction {
-    const message = createBaseChoiceDeltaToolCallFunction();
-    message.arguments = object.arguments?.map((e) => e) || [];
-    message.name = object.name ?? "";
-    return message;
-  },
-};
+            message.name = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    },
+
+    fromJSON(object: any): ChoiceDeltaToolCallFunction {
+      return {
+        arguments: globalThis.Array.isArray(object?.arguments)
+          ? object.arguments.map((e: any) => globalThis.String(e))
+          : [],
+        name: isSet(object.name) ? globalThis.String(object.name) : "",
+      };
+    },
+
+    toJSON(message: ChoiceDeltaToolCallFunction): unknown {
+      const obj: any = {};
+      if (message.arguments?.length) {
+        obj.arguments = message.arguments;
+      }
+      if (message.name !== "") {
+        obj.name = message.name;
+      }
+      return obj;
+    },
+
+    create(
+      base?: DeepPartial<ChoiceDeltaToolCallFunction>,
+    ): ChoiceDeltaToolCallFunction {
+      return ChoiceDeltaToolCallFunction.fromPartial(base ?? {});
+    },
+    fromPartial(
+      object: DeepPartial<ChoiceDeltaToolCallFunction>,
+    ): ChoiceDeltaToolCallFunction {
+      const message = createBaseChoiceDeltaToolCallFunction();
+      message.arguments = object.arguments?.map(e => e) || [];
+      message.name = object.name ?? "";
+      return message;
+    },
+  };
 
 function createBaseChatCompletionTokenLogprob(): ChatCompletionTokenLogprob {
   return { token: "", bytes: [], logprob: 0, topLogprobs: [] };
 }
 
-export const ChatCompletionTokenLogprob: MessageFns<ChatCompletionTokenLogprob> = {
-  encode(message: ChatCompletionTokenLogprob, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.token !== "") {
-      writer.uint32(10).string(message.token);
-    }
-    writer.uint32(18).fork();
-    for (const v of message.bytes) {
-      writer.int64(v);
-    }
-    writer.join();
-    if (message.logprob !== 0) {
-      writer.uint32(25).double(message.logprob);
-    }
-    for (const v of message.topLogprobs) {
-      TopLogprob.encode(v!, writer.uint32(34).fork()).join();
-    }
-    return writer;
-  },
+export const ChatCompletionTokenLogprob: MessageFns<ChatCompletionTokenLogprob> =
+  {
+    encode(
+      message: ChatCompletionTokenLogprob,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      if (message.token !== "") {
+        writer.uint32(10).string(message.token);
+      }
+      writer.uint32(18).fork();
+      for (const v of message.bytes) {
+        writer.int64(v);
+      }
+      writer.join();
+      if (message.logprob !== 0) {
+        writer.uint32(25).double(message.logprob);
+      }
+      for (const v of message.topLogprobs) {
+        TopLogprob.encode(v!, writer.uint32(34).fork()).join();
+      }
+      return writer;
+    },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): ChatCompletionTokenLogprob {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseChatCompletionTokenLogprob();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.token = reader.string();
-          continue;
-        }
-        case 2: {
-          if (tag === 16) {
-            message.bytes.push(longToNumber(reader.int64()));
-
-            continue;
-          }
-
-          if (tag === 18) {
-            const end2 = reader.uint32() + reader.pos;
-            while (reader.pos < end2) {
-              message.bytes.push(longToNumber(reader.int64()));
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): ChatCompletionTokenLogprob {
+      const reader =
+        input instanceof BinaryReader ? input : new BinaryReader(input);
+      let end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseChatCompletionTokenLogprob();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
             }
 
+            message.token = reader.string();
             continue;
           }
+          case 2: {
+            if (tag === 16) {
+              message.bytes.push(longToNumber(reader.int64()));
 
+              continue;
+            }
+
+            if (tag === 18) {
+              const end2 = reader.uint32() + reader.pos;
+              while (reader.pos < end2) {
+                message.bytes.push(longToNumber(reader.int64()));
+              }
+
+              continue;
+            }
+
+            break;
+          }
+          case 3: {
+            if (tag !== 25) {
+              break;
+            }
+
+            message.logprob = reader.double();
+            continue;
+          }
+          case 4: {
+            if (tag !== 34) {
+              break;
+            }
+
+            message.topLogprobs.push(
+              TopLogprob.decode(reader, reader.uint32()),
+            );
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
           break;
         }
-        case 3: {
-          if (tag !== 25) {
-            break;
-          }
-
-          message.logprob = reader.double();
-          continue;
-        }
-        case 4: {
-          if (tag !== 34) {
-            break;
-          }
-
-          message.topLogprobs.push(TopLogprob.decode(reader, reader.uint32()));
-          continue;
-        }
+        reader.skip(tag & 7);
       }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
+      return message;
+    },
+
+    fromJSON(object: any): ChatCompletionTokenLogprob {
+      return {
+        token: isSet(object.token) ? globalThis.String(object.token) : "",
+        bytes: globalThis.Array.isArray(object?.bytes)
+          ? object.bytes.map((e: any) => globalThis.Number(e))
+          : [],
+        logprob: isSet(object.logprob) ? globalThis.Number(object.logprob) : 0,
+        topLogprobs: globalThis.Array.isArray(object?.topLogprobs)
+          ? object.topLogprobs.map((e: any) => TopLogprob.fromJSON(e))
+          : [],
+      };
+    },
+
+    toJSON(message: ChatCompletionTokenLogprob): unknown {
+      const obj: any = {};
+      if (message.token !== "") {
+        obj.token = message.token;
       }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
+      if (message.bytes?.length) {
+        obj.bytes = message.bytes.map(e => Math.round(e));
+      }
+      if (message.logprob !== 0) {
+        obj.logprob = message.logprob;
+      }
+      if (message.topLogprobs?.length) {
+        obj.topLogprobs = message.topLogprobs.map(e => TopLogprob.toJSON(e));
+      }
+      return obj;
+    },
 
-  fromJSON(object: any): ChatCompletionTokenLogprob {
-    return {
-      token: isSet(object.token) ? globalThis.String(object.token) : "",
-      bytes: globalThis.Array.isArray(object?.bytes) ? object.bytes.map((e: any) => globalThis.Number(e)) : [],
-      logprob: isSet(object.logprob) ? globalThis.Number(object.logprob) : 0,
-      topLogprobs: globalThis.Array.isArray(object?.topLogprobs)
-        ? object.topLogprobs.map((e: any) => TopLogprob.fromJSON(e))
-        : [],
-    };
-  },
-
-  toJSON(message: ChatCompletionTokenLogprob): unknown {
-    const obj: any = {};
-    if (message.token !== "") {
-      obj.token = message.token;
-    }
-    if (message.bytes?.length) {
-      obj.bytes = message.bytes.map((e) => Math.round(e));
-    }
-    if (message.logprob !== 0) {
-      obj.logprob = message.logprob;
-    }
-    if (message.topLogprobs?.length) {
-      obj.topLogprobs = message.topLogprobs.map((e) => TopLogprob.toJSON(e));
-    }
-    return obj;
-  },
-
-  create(base?: DeepPartial<ChatCompletionTokenLogprob>): ChatCompletionTokenLogprob {
-    return ChatCompletionTokenLogprob.fromPartial(base ?? {});
-  },
-  fromPartial(object: DeepPartial<ChatCompletionTokenLogprob>): ChatCompletionTokenLogprob {
-    const message = createBaseChatCompletionTokenLogprob();
-    message.token = object.token ?? "";
-    message.bytes = object.bytes?.map((e) => e) || [];
-    message.logprob = object.logprob ?? 0;
-    message.topLogprobs = object.topLogprobs?.map((e) => TopLogprob.fromPartial(e)) || [];
-    return message;
-  },
-};
+    create(
+      base?: DeepPartial<ChatCompletionTokenLogprob>,
+    ): ChatCompletionTokenLogprob {
+      return ChatCompletionTokenLogprob.fromPartial(base ?? {});
+    },
+    fromPartial(
+      object: DeepPartial<ChatCompletionTokenLogprob>,
+    ): ChatCompletionTokenLogprob {
+      const message = createBaseChatCompletionTokenLogprob();
+      message.token = object.token ?? "";
+      message.bytes = object.bytes?.map(e => e) || [];
+      message.logprob = object.logprob ?? 0;
+      message.topLogprobs =
+        object.topLogprobs?.map(e => TopLogprob.fromPartial(e)) || [];
+      return message;
+    },
+  };
 
 function createBaseTopLogprob(): TopLogprob {
   return { token: "", bytes: [], logprob: 0 };
 }
 
 export const TopLogprob: MessageFns<TopLogprob> = {
-  encode(message: TopLogprob, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: TopLogprob,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.token !== "") {
       writer.uint32(10).string(message.token);
     }
@@ -2739,7 +2994,8 @@ export const TopLogprob: MessageFns<TopLogprob> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): TopLogprob {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseTopLogprob();
     while (reader.pos < end) {
@@ -2791,7 +3047,9 @@ export const TopLogprob: MessageFns<TopLogprob> = {
   fromJSON(object: any): TopLogprob {
     return {
       token: isSet(object.token) ? globalThis.String(object.token) : "",
-      bytes: globalThis.Array.isArray(object?.bytes) ? object.bytes.map((e: any) => globalThis.Number(e)) : [],
+      bytes: globalThis.Array.isArray(object?.bytes)
+        ? object.bytes.map((e: any) => globalThis.Number(e))
+        : [],
       logprob: isSet(object.logprob) ? globalThis.Number(object.logprob) : 0,
     };
   },
@@ -2802,7 +3060,7 @@ export const TopLogprob: MessageFns<TopLogprob> = {
       obj.token = message.token;
     }
     if (message.bytes?.length) {
-      obj.bytes = message.bytes.map((e) => Math.round(e));
+      obj.bytes = message.bytes.map(e => Math.round(e));
     }
     if (message.logprob !== 0) {
       obj.logprob = message.logprob;
@@ -2816,7 +3074,7 @@ export const TopLogprob: MessageFns<TopLogprob> = {
   fromPartial(object: DeepPartial<TopLogprob>): TopLogprob {
     const message = createBaseTopLogprob();
     message.token = object.token ?? "";
-    message.bytes = object.bytes?.map((e) => e) || [];
+    message.bytes = object.bytes?.map(e => e) || [];
     message.logprob = object.logprob ?? 0;
     return message;
   },
@@ -2833,7 +3091,10 @@ function createBaseCompletionUsage(): CompletionUsage {
 }
 
 export const CompletionUsage: MessageFns<CompletionUsage> = {
-  encode(message: CompletionUsage, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: CompletionUsage,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.completionTokens !== 0) {
       writer.uint32(8).int64(message.completionTokens);
     }
@@ -2844,16 +3105,23 @@ export const CompletionUsage: MessageFns<CompletionUsage> = {
       writer.uint32(24).int64(message.totalTokens);
     }
     if (message.completionTokensDetails !== undefined) {
-      CompletionTokensDetails.encode(message.completionTokensDetails, writer.uint32(34).fork()).join();
+      CompletionTokensDetails.encode(
+        message.completionTokensDetails,
+        writer.uint32(34).fork(),
+      ).join();
     }
     if (message.promptTokensDetails !== undefined) {
-      PromptTokensDetails.encode(message.promptTokensDetails, writer.uint32(42).fork()).join();
+      PromptTokensDetails.encode(
+        message.promptTokensDetails,
+        writer.uint32(42).fork(),
+      ).join();
     }
     return writer;
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): CompletionUsage {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCompletionUsage();
     while (reader.pos < end) {
@@ -2888,7 +3156,10 @@ export const CompletionUsage: MessageFns<CompletionUsage> = {
             break;
           }
 
-          message.completionTokensDetails = CompletionTokensDetails.decode(reader, reader.uint32());
+          message.completionTokensDetails = CompletionTokensDetails.decode(
+            reader,
+            reader.uint32(),
+          );
           continue;
         }
         case 5: {
@@ -2896,7 +3167,10 @@ export const CompletionUsage: MessageFns<CompletionUsage> = {
             break;
           }
 
-          message.promptTokensDetails = PromptTokensDetails.decode(reader, reader.uint32());
+          message.promptTokensDetails = PromptTokensDetails.decode(
+            reader,
+            reader.uint32(),
+          );
           continue;
         }
       }
@@ -2910,9 +3184,15 @@ export const CompletionUsage: MessageFns<CompletionUsage> = {
 
   fromJSON(object: any): CompletionUsage {
     return {
-      completionTokens: isSet(object.completionTokens) ? globalThis.Number(object.completionTokens) : 0,
-      promptTokens: isSet(object.promptTokens) ? globalThis.Number(object.promptTokens) : 0,
-      totalTokens: isSet(object.totalTokens) ? globalThis.Number(object.totalTokens) : 0,
+      completionTokens: isSet(object.completionTokens)
+        ? globalThis.Number(object.completionTokens)
+        : 0,
+      promptTokens: isSet(object.promptTokens)
+        ? globalThis.Number(object.promptTokens)
+        : 0,
+      totalTokens: isSet(object.totalTokens)
+        ? globalThis.Number(object.totalTokens)
+        : 0,
       completionTokensDetails: isSet(object.completionTokensDetails)
         ? CompletionTokensDetails.fromJSON(object.completionTokensDetails)
         : undefined,
@@ -2934,10 +3214,14 @@ export const CompletionUsage: MessageFns<CompletionUsage> = {
       obj.totalTokens = Math.round(message.totalTokens);
     }
     if (message.completionTokensDetails !== undefined) {
-      obj.completionTokensDetails = CompletionTokensDetails.toJSON(message.completionTokensDetails);
+      obj.completionTokensDetails = CompletionTokensDetails.toJSON(
+        message.completionTokensDetails,
+      );
     }
     if (message.promptTokensDetails !== undefined) {
-      obj.promptTokensDetails = PromptTokensDetails.toJSON(message.promptTokensDetails);
+      obj.promptTokensDetails = PromptTokensDetails.toJSON(
+        message.promptTokensDetails,
+      );
     }
     return obj;
   },
@@ -2951,22 +3235,33 @@ export const CompletionUsage: MessageFns<CompletionUsage> = {
     message.promptTokens = object.promptTokens ?? 0;
     message.totalTokens = object.totalTokens ?? 0;
     message.completionTokensDetails =
-      (object.completionTokensDetails !== undefined && object.completionTokensDetails !== null)
+      object.completionTokensDetails !== undefined &&
+      object.completionTokensDetails !== null
         ? CompletionTokensDetails.fromPartial(object.completionTokensDetails)
         : undefined;
-    message.promptTokensDetails = (object.promptTokensDetails !== undefined && object.promptTokensDetails !== null)
-      ? PromptTokensDetails.fromPartial(object.promptTokensDetails)
-      : undefined;
+    message.promptTokensDetails =
+      object.promptTokensDetails !== undefined &&
+      object.promptTokensDetails !== null
+        ? PromptTokensDetails.fromPartial(object.promptTokensDetails)
+        : undefined;
     return message;
   },
 };
 
 function createBaseCompletionTokensDetails(): CompletionTokensDetails {
-  return { acceptedPredictionTokens: 0, audioTokens: 0, reasoningTokens: 0, rejectedPredictionTokens: 0 };
+  return {
+    acceptedPredictionTokens: 0,
+    audioTokens: 0,
+    reasoningTokens: 0,
+    rejectedPredictionTokens: 0,
+  };
 }
 
 export const CompletionTokensDetails: MessageFns<CompletionTokensDetails> = {
-  encode(message: CompletionTokensDetails, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: CompletionTokensDetails,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.acceptedPredictionTokens !== 0) {
       writer.uint32(8).int64(message.acceptedPredictionTokens);
     }
@@ -2982,8 +3277,12 @@ export const CompletionTokensDetails: MessageFns<CompletionTokensDetails> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): CompletionTokensDetails {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): CompletionTokensDetails {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCompletionTokensDetails();
     while (reader.pos < end) {
@@ -3035,8 +3334,12 @@ export const CompletionTokensDetails: MessageFns<CompletionTokensDetails> = {
       acceptedPredictionTokens: isSet(object.acceptedPredictionTokens)
         ? globalThis.Number(object.acceptedPredictionTokens)
         : 0,
-      audioTokens: isSet(object.audioTokens) ? globalThis.Number(object.audioTokens) : 0,
-      reasoningTokens: isSet(object.reasoningTokens) ? globalThis.Number(object.reasoningTokens) : 0,
+      audioTokens: isSet(object.audioTokens)
+        ? globalThis.Number(object.audioTokens)
+        : 0,
+      reasoningTokens: isSet(object.reasoningTokens)
+        ? globalThis.Number(object.reasoningTokens)
+        : 0,
       rejectedPredictionTokens: isSet(object.rejectedPredictionTokens)
         ? globalThis.Number(object.rejectedPredictionTokens)
         : 0,
@@ -3046,7 +3349,9 @@ export const CompletionTokensDetails: MessageFns<CompletionTokensDetails> = {
   toJSON(message: CompletionTokensDetails): unknown {
     const obj: any = {};
     if (message.acceptedPredictionTokens !== 0) {
-      obj.acceptedPredictionTokens = Math.round(message.acceptedPredictionTokens);
+      obj.acceptedPredictionTokens = Math.round(
+        message.acceptedPredictionTokens,
+      );
     }
     if (message.audioTokens !== 0) {
       obj.audioTokens = Math.round(message.audioTokens);
@@ -3055,7 +3360,9 @@ export const CompletionTokensDetails: MessageFns<CompletionTokensDetails> = {
       obj.reasoningTokens = Math.round(message.reasoningTokens);
     }
     if (message.rejectedPredictionTokens !== 0) {
-      obj.rejectedPredictionTokens = Math.round(message.rejectedPredictionTokens);
+      obj.rejectedPredictionTokens = Math.round(
+        message.rejectedPredictionTokens,
+      );
     }
     return obj;
   },
@@ -3063,7 +3370,9 @@ export const CompletionTokensDetails: MessageFns<CompletionTokensDetails> = {
   create(base?: DeepPartial<CompletionTokensDetails>): CompletionTokensDetails {
     return CompletionTokensDetails.fromPartial(base ?? {});
   },
-  fromPartial(object: DeepPartial<CompletionTokensDetails>): CompletionTokensDetails {
+  fromPartial(
+    object: DeepPartial<CompletionTokensDetails>,
+  ): CompletionTokensDetails {
     const message = createBaseCompletionTokensDetails();
     message.acceptedPredictionTokens = object.acceptedPredictionTokens ?? 0;
     message.audioTokens = object.audioTokens ?? 0;
@@ -3078,7 +3387,10 @@ function createBasePromptTokensDetails(): PromptTokensDetails {
 }
 
 export const PromptTokensDetails: MessageFns<PromptTokensDetails> = {
-  encode(message: PromptTokensDetails, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: PromptTokensDetails,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.audioTokens !== 0) {
       writer.uint32(8).int64(message.audioTokens);
     }
@@ -3088,8 +3400,12 @@ export const PromptTokensDetails: MessageFns<PromptTokensDetails> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): PromptTokensDetails {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): PromptTokensDetails {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBasePromptTokensDetails();
     while (reader.pos < end) {
@@ -3122,8 +3438,12 @@ export const PromptTokensDetails: MessageFns<PromptTokensDetails> = {
 
   fromJSON(object: any): PromptTokensDetails {
     return {
-      audioTokens: isSet(object.audioTokens) ? globalThis.Number(object.audioTokens) : 0,
-      cachedTokens: isSet(object.cachedTokens) ? globalThis.Number(object.cachedTokens) : 0,
+      audioTokens: isSet(object.audioTokens)
+        ? globalThis.Number(object.audioTokens)
+        : 0,
+      cachedTokens: isSet(object.cachedTokens)
+        ? globalThis.Number(object.cachedTokens)
+        : 0,
     };
   },
 
@@ -3161,7 +3481,10 @@ function createBaseWebRetrievalRequest(): WebRetrievalRequest {
 }
 
 export const WebRetrievalRequest: MessageFns<WebRetrievalRequest> = {
-  encode(message: WebRetrievalRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: WebRetrievalRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     writer.uint32(10).fork();
     for (const v of message.uids) {
       writer.int64(v);
@@ -3185,8 +3508,12 @@ export const WebRetrievalRequest: MessageFns<WebRetrievalRequest> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): WebRetrievalRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): WebRetrievalRequest {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseWebRetrievalRequest();
     while (reader.pos < end) {
@@ -3261,19 +3588,31 @@ export const WebRetrievalRequest: MessageFns<WebRetrievalRequest> = {
 
   fromJSON(object: any): WebRetrievalRequest {
     return {
-      uids: globalThis.Array.isArray(object?.uids) ? object.uids.map((e: any) => globalThis.Number(e)) : [],
-      searchQuery: isSet(object.searchQuery) ? globalThis.String(object.searchQuery) : "",
-      nMiners: isSet(object.nMiners) ? globalThis.Number(object.nMiners) : undefined,
-      nResults: isSet(object.nResults) ? globalThis.Number(object.nResults) : undefined,
-      maxResponseTime: isSet(object.maxResponseTime) ? globalThis.Number(object.maxResponseTime) : undefined,
-      timeout: isSet(object.timeout) ? globalThis.Number(object.timeout) : undefined,
+      uids: globalThis.Array.isArray(object?.uids)
+        ? object.uids.map((e: any) => globalThis.Number(e))
+        : [],
+      searchQuery: isSet(object.searchQuery)
+        ? globalThis.String(object.searchQuery)
+        : "",
+      nMiners: isSet(object.nMiners)
+        ? globalThis.Number(object.nMiners)
+        : undefined,
+      nResults: isSet(object.nResults)
+        ? globalThis.Number(object.nResults)
+        : undefined,
+      maxResponseTime: isSet(object.maxResponseTime)
+        ? globalThis.Number(object.maxResponseTime)
+        : undefined,
+      timeout: isSet(object.timeout)
+        ? globalThis.Number(object.timeout)
+        : undefined,
     };
   },
 
   toJSON(message: WebRetrievalRequest): unknown {
     const obj: any = {};
     if (message.uids?.length) {
-      obj.uids = message.uids.map((e) => Math.round(e));
+      obj.uids = message.uids.map(e => Math.round(e));
     }
     if (message.searchQuery !== "") {
       obj.searchQuery = message.searchQuery;
@@ -3298,7 +3637,7 @@ export const WebRetrievalRequest: MessageFns<WebRetrievalRequest> = {
   },
   fromPartial(object: DeepPartial<WebRetrievalRequest>): WebRetrievalRequest {
     const message = createBaseWebRetrievalRequest();
-    message.uids = object.uids?.map((e) => e) || [];
+    message.uids = object.uids?.map(e => e) || [];
     message.searchQuery = object.searchQuery ?? "";
     message.nMiners = object.nMiners ?? undefined;
     message.nResults = object.nResults ?? undefined;
@@ -3313,7 +3652,10 @@ function createBaseWebSearchResult(): WebSearchResult {
 }
 
 export const WebSearchResult: MessageFns<WebSearchResult> = {
-  encode(message: WebSearchResult, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: WebSearchResult,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.url !== "") {
       writer.uint32(10).string(message.url);
     }
@@ -3327,7 +3669,8 @@ export const WebSearchResult: MessageFns<WebSearchResult> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): WebSearchResult {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseWebSearchResult();
     while (reader.pos < end) {
@@ -3370,7 +3713,9 @@ export const WebSearchResult: MessageFns<WebSearchResult> = {
     return {
       url: isSet(object.url) ? globalThis.String(object.url) : "",
       content: isSet(object.content) ? globalThis.String(object.content) : "",
-      relevant: isSet(object.relevant) ? globalThis.String(object.relevant) : "",
+      relevant: isSet(object.relevant)
+        ? globalThis.String(object.relevant)
+        : "",
     };
   },
 
@@ -3405,15 +3750,22 @@ function createBaseWebRetrievalResponse(): WebRetrievalResponse {
 }
 
 export const WebRetrievalResponse: MessageFns<WebRetrievalResponse> = {
-  encode(message: WebRetrievalResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: WebRetrievalResponse,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     for (const v of message.results) {
       WebSearchResult.encode(v!, writer.uint32(10).fork()).join();
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): WebRetrievalResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): WebRetrievalResponse {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseWebRetrievalResponse();
     while (reader.pos < end) {
@@ -3447,7 +3799,7 @@ export const WebRetrievalResponse: MessageFns<WebRetrievalResponse> = {
   toJSON(message: WebRetrievalResponse): unknown {
     const obj: any = {};
     if (message.results?.length) {
-      obj.results = message.results.map((e) => WebSearchResult.toJSON(e));
+      obj.results = message.results.map(e => WebSearchResult.toJSON(e));
     }
     return obj;
   },
@@ -3457,7 +3809,8 @@ export const WebRetrievalResponse: MessageFns<WebRetrievalResponse> = {
   },
   fromPartial(object: DeepPartial<WebRetrievalResponse>): WebRetrievalResponse {
     const message = createBaseWebRetrievalResponse();
-    message.results = object.results?.map((e) => WebSearchResult.fromPartial(e)) || [];
+    message.results =
+      object.results?.map(e => WebSearchResult.fromPartial(e)) || [];
     return message;
   },
 };
@@ -3469,39 +3822,52 @@ export const ApexServiceService = {
     path: "/apex.v1.ApexService/ChatCompletion",
     requestStream: false,
     responseStream: false,
-    requestSerialize: (value: ChatCompletionRequest) => Buffer.from(ChatCompletionRequest.encode(value).finish()),
+    requestSerialize: (value: ChatCompletionRequest) =>
+      Buffer.from(ChatCompletionRequest.encode(value).finish()),
     requestDeserialize: (value: Buffer) => ChatCompletionRequest.decode(value),
-    responseSerialize: (value: ChatCompletionResponse) => Buffer.from(ChatCompletionResponse.encode(value).finish()),
-    responseDeserialize: (value: Buffer) => ChatCompletionResponse.decode(value),
+    responseSerialize: (value: ChatCompletionResponse) =>
+      Buffer.from(ChatCompletionResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer) =>
+      ChatCompletionResponse.decode(value),
   },
   /** ChatCompletionStream generates a stream of completions for a given request. */
   chatCompletionStream: {
     path: "/apex.v1.ApexService/ChatCompletionStream",
     requestStream: false,
     responseStream: true,
-    requestSerialize: (value: ChatCompletionRequest) => Buffer.from(ChatCompletionRequest.encode(value).finish()),
+    requestSerialize: (value: ChatCompletionRequest) =>
+      Buffer.from(ChatCompletionRequest.encode(value).finish()),
     requestDeserialize: (value: Buffer) => ChatCompletionRequest.decode(value),
     responseSerialize: (value: ChatCompletionChunkResponse) =>
       Buffer.from(ChatCompletionChunkResponse.encode(value).finish()),
-    responseDeserialize: (value: Buffer) => ChatCompletionChunkResponse.decode(value),
+    responseDeserialize: (value: Buffer) =>
+      ChatCompletionChunkResponse.decode(value),
   },
   /** WebRetrieval retrieves web search results for a given request. */
   webRetrieval: {
     path: "/apex.v1.ApexService/WebRetrieval",
     requestStream: false,
     responseStream: false,
-    requestSerialize: (value: WebRetrievalRequest) => Buffer.from(WebRetrievalRequest.encode(value).finish()),
+    requestSerialize: (value: WebRetrievalRequest) =>
+      Buffer.from(WebRetrievalRequest.encode(value).finish()),
     requestDeserialize: (value: Buffer) => WebRetrievalRequest.decode(value),
-    responseSerialize: (value: WebRetrievalResponse) => Buffer.from(WebRetrievalResponse.encode(value).finish()),
+    responseSerialize: (value: WebRetrievalResponse) =>
+      Buffer.from(WebRetrievalResponse.encode(value).finish()),
     responseDeserialize: (value: Buffer) => WebRetrievalResponse.decode(value),
   },
 } as const;
 
 export interface ApexServiceServer extends UntypedServiceImplementation {
   /** ChatCompletion generates a completion for a given request. */
-  chatCompletion: handleUnaryCall<ChatCompletionRequest, ChatCompletionResponse>;
+  chatCompletion: handleUnaryCall<
+    ChatCompletionRequest,
+    ChatCompletionResponse
+  >;
   /** ChatCompletionStream generates a stream of completions for a given request. */
-  chatCompletionStream: handleServerStreamingCall<ChatCompletionRequest, ChatCompletionChunkResponse>;
+  chatCompletionStream: handleServerStreamingCall<
+    ChatCompletionRequest,
+    ChatCompletionChunkResponse
+  >;
   /** WebRetrieval retrieves web search results for a given request. */
   webRetrieval: handleUnaryCall<WebRetrievalRequest, WebRetrievalResponse>;
 }
@@ -3510,18 +3876,27 @@ export interface ApexServiceClient extends Client {
   /** ChatCompletion generates a completion for a given request. */
   chatCompletion(
     request: ChatCompletionRequest,
-    callback: (error: ServiceError | null, response: ChatCompletionResponse) => void,
+    callback: (
+      error: ServiceError | null,
+      response: ChatCompletionResponse,
+    ) => void,
   ): ClientUnaryCall;
   chatCompletion(
     request: ChatCompletionRequest,
     metadata: Metadata,
-    callback: (error: ServiceError | null, response: ChatCompletionResponse) => void,
+    callback: (
+      error: ServiceError | null,
+      response: ChatCompletionResponse,
+    ) => void,
   ): ClientUnaryCall;
   chatCompletion(
     request: ChatCompletionRequest,
     metadata: Metadata,
     options: Partial<CallOptions>,
-    callback: (error: ServiceError | null, response: ChatCompletionResponse) => void,
+    callback: (
+      error: ServiceError | null,
+      response: ChatCompletionResponse,
+    ) => void,
   ): ClientUnaryCall;
   /** ChatCompletionStream generates a stream of completions for a given request. */
   chatCompletionStream(
@@ -3536,34 +3911,61 @@ export interface ApexServiceClient extends Client {
   /** WebRetrieval retrieves web search results for a given request. */
   webRetrieval(
     request: WebRetrievalRequest,
-    callback: (error: ServiceError | null, response: WebRetrievalResponse) => void,
+    callback: (
+      error: ServiceError | null,
+      response: WebRetrievalResponse,
+    ) => void,
   ): ClientUnaryCall;
   webRetrieval(
     request: WebRetrievalRequest,
     metadata: Metadata,
-    callback: (error: ServiceError | null, response: WebRetrievalResponse) => void,
+    callback: (
+      error: ServiceError | null,
+      response: WebRetrievalResponse,
+    ) => void,
   ): ClientUnaryCall;
   webRetrieval(
     request: WebRetrievalRequest,
     metadata: Metadata,
     options: Partial<CallOptions>,
-    callback: (error: ServiceError | null, response: WebRetrievalResponse) => void,
+    callback: (
+      error: ServiceError | null,
+      response: WebRetrievalResponse,
+    ) => void,
   ): ClientUnaryCall;
 }
 
-export const ApexServiceClient = makeGenericClientConstructor(ApexServiceService, "apex.v1.ApexService") as unknown as {
-  new (address: string, credentials: ChannelCredentials, options?: Partial<ClientOptions>): ApexServiceClient;
+export const ApexServiceClient = makeGenericClientConstructor(
+  ApexServiceService,
+  "apex.v1.ApexService",
+) as unknown as {
+  new (
+    address: string,
+    credentials: ChannelCredentials,
+    options?: Partial<ClientOptions>,
+  ): ApexServiceClient;
   service: typeof ApexServiceService;
   serviceName: string;
 };
 
-type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
+type Builtin =
+  | Date
+  | Function
+  | Uint8Array
+  | string
+  | number
+  | boolean
+  | undefined;
 
-export type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
-  : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
-  : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
-  : Partial<T>;
+export type DeepPartial<T> = T extends Builtin
+  ? T
+  : T extends globalThis.Array<infer U>
+    ? globalThis.Array<DeepPartial<U>>
+    : T extends ReadonlyArray<infer U>
+      ? ReadonlyArray<DeepPartial<U>>
+      : T extends {}
+        ? { [K in keyof T]?: DeepPartial<T[K]> }
+        : Partial<T>;
 
 function longToNumber(int64: { toString(): string }): number {
   const num = globalThis.Number(int64.toString());

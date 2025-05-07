@@ -58,7 +58,10 @@ function createBaseGetUsageRequest(): GetUsageRequest {
 }
 
 export const GetUsageRequest: MessageFns<GetUsageRequest> = {
-  encode(message: GetUsageRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: GetUsageRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.productType !== undefined) {
       writer.uint32(10).string(message.productType);
     }
@@ -66,7 +69,8 @@ export const GetUsageRequest: MessageFns<GetUsageRequest> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): GetUsageRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseGetUsageRequest();
     while (reader.pos < end) {
@@ -90,7 +94,11 @@ export const GetUsageRequest: MessageFns<GetUsageRequest> = {
   },
 
   fromJSON(object: any): GetUsageRequest {
-    return { productType: isSet(object.productType) ? globalThis.String(object.productType) : undefined };
+    return {
+      productType: isSet(object.productType)
+        ? globalThis.String(object.productType)
+        : undefined,
+    };
   },
 
   toJSON(message: GetUsageRequest): unknown {
@@ -112,11 +120,20 @@ export const GetUsageRequest: MessageFns<GetUsageRequest> = {
 };
 
 function createBaseBillingRate(): BillingRate {
-  return { rateType: "", unitSize: 0, unitType: "", pricePerUnit: 0, currency: "" };
+  return {
+    rateType: "",
+    unitSize: 0,
+    unitType: "",
+    pricePerUnit: 0,
+    currency: "",
+  };
 }
 
 export const BillingRate: MessageFns<BillingRate> = {
-  encode(message: BillingRate, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: BillingRate,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.rateType !== "") {
       writer.uint32(10).string(message.rateType);
     }
@@ -136,7 +153,8 @@ export const BillingRate: MessageFns<BillingRate> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): BillingRate {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseBillingRate();
     while (reader.pos < end) {
@@ -193,11 +211,19 @@ export const BillingRate: MessageFns<BillingRate> = {
 
   fromJSON(object: any): BillingRate {
     return {
-      rateType: isSet(object.rateType) ? globalThis.String(object.rateType) : "",
+      rateType: isSet(object.rateType)
+        ? globalThis.String(object.rateType)
+        : "",
       unitSize: isSet(object.unitSize) ? globalThis.Number(object.unitSize) : 0,
-      unitType: isSet(object.unitType) ? globalThis.String(object.unitType) : "",
-      pricePerUnit: isSet(object.pricePerUnit) ? globalThis.Number(object.pricePerUnit) : 0,
-      currency: isSet(object.currency) ? globalThis.String(object.currency) : "",
+      unitType: isSet(object.unitType)
+        ? globalThis.String(object.unitType)
+        : "",
+      pricePerUnit: isSet(object.pricePerUnit)
+        ? globalThis.Number(object.pricePerUnit)
+        : 0,
+      currency: isSet(object.currency)
+        ? globalThis.String(object.currency)
+        : "",
     };
   },
 
@@ -236,11 +262,19 @@ export const BillingRate: MessageFns<BillingRate> = {
 };
 
 function createBaseGetUsageResponse(): GetUsageResponse {
-  return { availableCredits: 0, usedCredits: 0, remainingCredits: 0, billingRates: [] };
+  return {
+    availableCredits: 0,
+    usedCredits: 0,
+    remainingCredits: 0,
+    billingRates: [],
+  };
 }
 
 export const GetUsageResponse: MessageFns<GetUsageResponse> = {
-  encode(message: GetUsageResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: GetUsageResponse,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.availableCredits !== 0) {
       writer.uint32(13).float(message.availableCredits);
     }
@@ -257,7 +291,8 @@ export const GetUsageResponse: MessageFns<GetUsageResponse> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): GetUsageResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseGetUsageResponse();
     while (reader.pos < end) {
@@ -292,7 +327,9 @@ export const GetUsageResponse: MessageFns<GetUsageResponse> = {
             break;
           }
 
-          message.billingRates.push(BillingRate.decode(reader, reader.uint32()));
+          message.billingRates.push(
+            BillingRate.decode(reader, reader.uint32()),
+          );
           continue;
         }
       }
@@ -306,9 +343,15 @@ export const GetUsageResponse: MessageFns<GetUsageResponse> = {
 
   fromJSON(object: any): GetUsageResponse {
     return {
-      availableCredits: isSet(object.availableCredits) ? globalThis.Number(object.availableCredits) : 0,
-      usedCredits: isSet(object.usedCredits) ? globalThis.Number(object.usedCredits) : 0,
-      remainingCredits: isSet(object.remainingCredits) ? globalThis.Number(object.remainingCredits) : 0,
+      availableCredits: isSet(object.availableCredits)
+        ? globalThis.Number(object.availableCredits)
+        : 0,
+      usedCredits: isSet(object.usedCredits)
+        ? globalThis.Number(object.usedCredits)
+        : 0,
+      remainingCredits: isSet(object.remainingCredits)
+        ? globalThis.Number(object.remainingCredits)
+        : 0,
       billingRates: globalThis.Array.isArray(object?.billingRates)
         ? object.billingRates.map((e: any) => BillingRate.fromJSON(e))
         : [],
@@ -327,7 +370,7 @@ export const GetUsageResponse: MessageFns<GetUsageResponse> = {
       obj.remainingCredits = message.remainingCredits;
     }
     if (message.billingRates?.length) {
-      obj.billingRates = message.billingRates.map((e) => BillingRate.toJSON(e));
+      obj.billingRates = message.billingRates.map(e => BillingRate.toJSON(e));
     }
     return obj;
   },
@@ -340,7 +383,8 @@ export const GetUsageResponse: MessageFns<GetUsageResponse> = {
     message.availableCredits = object.availableCredits ?? 0;
     message.usedCredits = object.usedCredits ?? 0;
     message.remainingCredits = object.remainingCredits ?? 0;
-    message.billingRates = object.billingRates?.map((e) => BillingRate.fromPartial(e)) || [];
+    message.billingRates =
+      object.billingRates?.map(e => BillingRate.fromPartial(e)) || [];
     return message;
   },
 };
@@ -352,9 +396,11 @@ export const BillingServiceService = {
     path: "/billing.v1.BillingService/GetUsage",
     requestStream: false,
     responseStream: false,
-    requestSerialize: (value: GetUsageRequest) => Buffer.from(GetUsageRequest.encode(value).finish()),
+    requestSerialize: (value: GetUsageRequest) =>
+      Buffer.from(GetUsageRequest.encode(value).finish()),
     requestDeserialize: (value: Buffer) => GetUsageRequest.decode(value),
-    responseSerialize: (value: GetUsageResponse) => Buffer.from(GetUsageResponse.encode(value).finish()),
+    responseSerialize: (value: GetUsageResponse) =>
+      Buffer.from(GetUsageResponse.encode(value).finish()),
     responseDeserialize: (value: Buffer) => GetUsageResponse.decode(value),
   },
 } as const;
@@ -387,18 +433,33 @@ export const BillingServiceClient = makeGenericClientConstructor(
   BillingServiceService,
   "billing.v1.BillingService",
 ) as unknown as {
-  new (address: string, credentials: ChannelCredentials, options?: Partial<ClientOptions>): BillingServiceClient;
+  new (
+    address: string,
+    credentials: ChannelCredentials,
+    options?: Partial<ClientOptions>,
+  ): BillingServiceClient;
   service: typeof BillingServiceService;
   serviceName: string;
 };
 
-type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
+type Builtin =
+  | Date
+  | Function
+  | Uint8Array
+  | string
+  | number
+  | boolean
+  | undefined;
 
-export type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
-  : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
-  : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
-  : Partial<T>;
+export type DeepPartial<T> = T extends Builtin
+  ? T
+  : T extends globalThis.Array<infer U>
+    ? globalThis.Array<DeepPartial<U>>
+    : T extends ReadonlyArray<infer U>
+      ? ReadonlyArray<DeepPartial<U>>
+      : T extends {}
+        ? { [K in keyof T]?: DeepPartial<T[K]> }
+        : Partial<T>;
 
 function longToNumber(int64: { toString(): string }): number {
   const num = globalThis.Number(int64.toString());
