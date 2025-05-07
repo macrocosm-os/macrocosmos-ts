@@ -15,6 +15,13 @@ import {
   CancelGravityTaskResponse,
   CancelDatasetRequest,
   CancelDatasetResponse,
+  Crawler,
+  CrawlerCriteria,
+  CrawlerNotification,
+  HfRepo,
+  CrawlerState,
+  GravityTaskState,
+  NotificationRequest,
 } from "../../generated/gravity/v1/gravity";
 import { BaseClient, BaseClientOptions } from "../BaseClient";
 import { MarkFieldsOptional } from "../util.types";
@@ -47,6 +54,13 @@ export type {
   CancelGravityTaskResponse,
   CancelDatasetRequest,
   CancelDatasetResponse,
+  Crawler,
+  CrawlerCriteria,
+  CrawlerNotification,
+  HfRepo,
+  CrawlerState,
+  GravityTaskState,
+  NotificationRequest,
 };
 
 /**
