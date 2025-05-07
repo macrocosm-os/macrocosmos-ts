@@ -1,4 +1,5 @@
 import { GravityClient } from "macrocosmos";
+import { GravityServiceClient } from "macrocosmos/generated/gravity/v1/gravity";
 
 // Only mock the gRPC service client, not the proto loading
 jest.mock("@grpc/grpc-js", () => {
@@ -20,26 +21,21 @@ jest.mock("@grpc/grpc-js", () => {
 describe("GravityClient", () => {
   let client: GravityClient;
   interface MockGrpcClient {
-    GetGravityTasks: jest.Mock;
-    GetCrawler: jest.Mock;
-    CreateGravityTask: jest.Mock;
-    BuildDataset: jest.Mock;
-    GetDataset: jest.Mock;
-    CancelGravityTask: jest.Mock;
-    CancelDataset: jest.Mock;
+    getGravityTasks: jest.Mock;
+    getCrawler: jest.Mock;
+    createGravityTask: jest.Mock;
+    buildDataset: jest.Mock;
+    getDataset: jest.Mock;
+    cancelGravityTask: jest.Mock;
+    cancelDataset: jest.Mock;
   }
   let mockGrpcClient: MockGrpcClient;
 
   beforeEach(() => {
     // Create a client with mock options
-    client = new GravityClient({
-      apiKey: "test-api-key",
-      appName: "test-app",
-    });
-
     // Create a mock gRPC client for testing
     mockGrpcClient = {
-      GetGravityTasks: jest.fn(
+      getGravityTasks: jest.fn(
         (
           params: { includeCrawlers: boolean },
           callback: (
@@ -51,7 +47,7 @@ describe("GravityClient", () => {
             gravityTaskStates: [] as { id: string; status: string }[],
           }),
       ),
-      GetCrawler: jest.fn(
+      getCrawler: jest.fn(
         (
           params: { crawlerId: string },
           callback: (
@@ -60,7 +56,7 @@ describe("GravityClient", () => {
           ) => void,
         ) => callback(null, { crawler: {} }),
       ),
-      CreateGravityTask: jest.fn(
+      createGravityTask: jest.fn(
         (
           params: {
             gravityTasks: { platform: string; topic: string }[];
@@ -72,7 +68,7 @@ describe("GravityClient", () => {
           ) => void,
         ) => callback(null, { gravityTaskId: "test-id" }),
       ),
-      BuildDataset: jest.fn(
+      buildDataset: jest.fn(
         (
           params: Record<string, unknown>,
           callback: (
@@ -81,7 +77,7 @@ describe("GravityClient", () => {
           ) => void,
         ) => callback(null, { datasetId: "test-id", dataset: {} }),
       ),
-      GetDataset: jest.fn(
+      getDataset: jest.fn(
         (
           params: { datasetId: string },
           callback: (
@@ -90,7 +86,7 @@ describe("GravityClient", () => {
           ) => void,
         ) => callback(null, { dataset: {} }),
       ),
-      CancelGravityTask: jest.fn(
+      cancelGravityTask: jest.fn(
         (
           params: { gravityTaskId: string },
           callback: (
@@ -99,7 +95,7 @@ describe("GravityClient", () => {
           ) => void,
         ) => callback(null, { message: "Cancelled" }),
       ),
-      CancelDataset: jest.fn(
+      cancelDataset: jest.fn(
         (
           params: { datasetId: string },
           callback: (
@@ -110,13 +106,15 @@ describe("GravityClient", () => {
       ),
     };
 
-    // Replace the createGrpcClient method to return our mock
-    jest
-      .spyOn(
-        client as unknown as { createGrpcClient: () => typeof mockGrpcClient },
-        "createGrpcClient",
-      )
-      .mockReturnValue(mockGrpcClient);
+    client = new GravityClient(
+      {
+        apiKey: "test-api-key",
+        appName: "test-app",
+      },
+      mockGrpcClient as unknown as GravityServiceClient,
+    );
+
+    // Patch the prototype method so all instances use the mock
   });
 
   afterEach(() => {
@@ -127,7 +125,7 @@ describe("GravityClient", () => {
     it("should call the GetGravityTasks method on the gRPC client", async () => {
       const result = await client.getGravityTasks({ includeCrawlers: true });
 
-      expect(mockGrpcClient.GetGravityTasks).toHaveBeenCalledWith(
+      expect(mockGrpcClient.getGravityTasks).toHaveBeenCalledWith(
         { includeCrawlers: true },
         expect.any(Function),
       );
@@ -135,7 +133,7 @@ describe("GravityClient", () => {
     });
 
     it("should handle errors", async () => {
-      mockGrpcClient.GetGravityTasks.mockImplementationOnce(
+      mockGrpcClient.getGravityTasks.mockImplementationOnce(
         (
           params: { includeCrawlers: boolean },
           callback: (
@@ -155,7 +153,7 @@ describe("GravityClient", () => {
     it("should call the GetCrawler method on the gRPC client", async () => {
       const result = await client.getCrawler({ crawlerId: "test-id" });
 
-      expect(mockGrpcClient.GetCrawler).toHaveBeenCalledWith(
+      expect(mockGrpcClient.getCrawler).toHaveBeenCalledWith(
         { crawlerId: "test-id" },
         expect.any(Function),
       );
@@ -172,7 +170,7 @@ describe("GravityClient", () => {
 
       const result = await client.createGravityTask(params);
 
-      expect(mockGrpcClient.CreateGravityTask).toHaveBeenCalledWith(
+      expect(mockGrpcClient.createGravityTask).toHaveBeenCalledWith(
         params,
         expect.any(Function),
       );
@@ -189,7 +187,7 @@ describe("GravityClient", () => {
 
       const result = await client.buildDataset(params);
 
-      expect(mockGrpcClient.BuildDataset).toHaveBeenCalledWith(
+      expect(mockGrpcClient.buildDataset).toHaveBeenCalledWith(
         params,
         expect.any(Function),
       );
@@ -201,7 +199,7 @@ describe("GravityClient", () => {
     it("should call the GetDataset method on the gRPC client", async () => {
       const result = await client.getDataset({ datasetId: "test-id" });
 
-      expect(mockGrpcClient.GetDataset).toHaveBeenCalledWith(
+      expect(mockGrpcClient.getDataset).toHaveBeenCalledWith(
         { datasetId: "test-id" },
         expect.any(Function),
       );
@@ -215,7 +213,7 @@ describe("GravityClient", () => {
         gravityTaskId: "test-id",
       });
 
-      expect(mockGrpcClient.CancelGravityTask).toHaveBeenCalledWith(
+      expect(mockGrpcClient.cancelGravityTask).toHaveBeenCalledWith(
         { gravityTaskId: "test-id" },
         expect.any(Function),
       );
@@ -227,7 +225,7 @@ describe("GravityClient", () => {
     it("should call the CancelDataset method on the gRPC client", async () => {
       const result = await client.cancelDataset({ datasetId: "test-id" });
 
-      expect(mockGrpcClient.CancelDataset).toHaveBeenCalledWith(
+      expect(mockGrpcClient.cancelDataset).toHaveBeenCalledWith(
         { datasetId: "test-id" },
         expect.any(Function),
       );
