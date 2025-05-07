@@ -7,7 +7,8 @@
   "scripts": {
     "clean": "rimraf dist",
     "build": "npm run clean && npm run gen:proto && tsc",
-    "pack": "npm pack && tar -tf macrocosmos-$(node -p \"require('./package.json').version\").tgz",
+    "pack": "npm pack && tar -tf macrocosmos-$(node -p \"require('./package.json').version\").tgz && open macrocosmos-$(node -p \"require('./package.json').version\").tgz",
+    "pack:rm": "rm macrocosmos-$(node -p \"require('./package.json').version\").tgz && rm -rf package",
     "ts-check": "tsc --noEmit",
     "test": "jest",
     "test:watch": "jest --watch",
