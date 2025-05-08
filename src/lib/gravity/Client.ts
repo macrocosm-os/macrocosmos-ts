@@ -25,6 +25,7 @@ import {
   Dataset,
   DatasetFile,
   DatasetStep,
+  Nebula,
 } from "../../generated/gravity/v1/gravity";
 import { BaseClient, BaseClientOptions } from "../BaseClient";
 import { MarkFieldsOptional } from "../util.types";
@@ -67,6 +68,7 @@ export type {
   Dataset,
   DatasetFile,
   DatasetStep,
+  Nebula,
 };
 
 /**
