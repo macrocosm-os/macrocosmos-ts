@@ -22,6 +22,9 @@ import {
   CrawlerState,
   GravityTaskState,
   NotificationRequest,
+  Dataset,
+  DatasetFile,
+  DatasetStep,
 } from "../../generated/gravity/v1/gravity";
 import { BaseClient, BaseClientOptions } from "../BaseClient";
 import { MarkFieldsOptional } from "../util.types";
@@ -61,6 +64,9 @@ export type {
   CrawlerState,
   GravityTaskState,
   NotificationRequest,
+  Dataset,
+  DatasetFile,
+  DatasetStep,
 };
 
 /**
