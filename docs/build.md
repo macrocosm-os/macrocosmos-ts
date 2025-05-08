@@ -2,7 +2,7 @@
 
 ## How to check what you're building before you publish
 
-There's a script in [package.json](../package.json) that creates the package as it'll be published and puts it in the root directory. 
+There's a script in [package.json](../package.json) that creates the package as it'll be published and puts it in the root directory.
 
 ```bash
 npm run pack
