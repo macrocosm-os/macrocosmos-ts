@@ -4,18 +4,19 @@ import {
   GravityClient,
 } from "macrocosmos";
 import { GravityServiceClient } from "macrocosmos/generated/gravity/v1/gravity";
+import { vi } from "vitest";
 
 describe("GravityClient", () => {
   let client: GravityClient;
 
   interface MockGrpcClient {
-    getGravityTasks: jest.Mock;
-    getCrawler: jest.Mock;
-    createGravityTask: jest.Mock;
-    buildDataset: jest.Mock;
-    getDataset: jest.Mock;
-    cancelGravityTask: jest.Mock;
-    cancelDataset: jest.Mock;
+    getGravityTasks: ReturnType<typeof vi.fn>;
+    getCrawler: ReturnType<typeof vi.fn>;
+    createGravityTask: ReturnType<typeof vi.fn>;
+    buildDataset: ReturnType<typeof vi.fn>;
+    getDataset: ReturnType<typeof vi.fn>;
+    cancelGravityTask: ReturnType<typeof vi.fn>;
+    cancelDataset: ReturnType<typeof vi.fn>;
   }
 
   let mockGrpcClient: MockGrpcClient;
@@ -24,7 +25,7 @@ describe("GravityClient", () => {
     // Create a client with mock options
     // Create a mock gRPC client for testing
     mockGrpcClient = {
-      getGravityTasks: jest.fn(
+      getGravityTasks: vi.fn(
         (
           params: { includeCrawlers: boolean },
           callback: (
@@ -36,7 +37,7 @@ describe("GravityClient", () => {
             gravityTaskStates: [] as { id: string; status: string }[],
           }),
       ),
-      getCrawler: jest.fn(
+      getCrawler: vi.fn(
         (
           params: { crawlerId: string },
           callback: (
@@ -45,7 +46,7 @@ describe("GravityClient", () => {
           ) => void,
         ) => callback(null, { crawler: {} }),
       ),
-      createGravityTask: jest.fn(
+      createGravityTask: vi.fn(
         (
           params: {
             gravityTasks: { platform: string; topic: string }[];
@@ -57,7 +58,7 @@ describe("GravityClient", () => {
           ) => void,
         ) => callback(null, { gravityTaskId: "test-id" }),
       ),
-      buildDataset: jest.fn(
+      buildDataset: vi.fn(
         (
           params: Record<string, unknown>,
           callback: (
@@ -66,7 +67,7 @@ describe("GravityClient", () => {
           ) => void,
         ) => callback(null, { datasetId: "test-id", dataset: {} }),
       ),
-      getDataset: jest.fn(
+      getDataset: vi.fn(
         (
           params: { datasetId: string },
           callback: (
@@ -75,7 +76,7 @@ describe("GravityClient", () => {
           ) => void,
         ) => callback(null, { dataset: {} }),
       ),
-      cancelGravityTask: jest.fn(
+      cancelGravityTask: vi.fn(
         (
           params: { gravityTaskId: string },
           callback: (
@@ -84,7 +85,7 @@ describe("GravityClient", () => {
           ) => void,
         ) => callback(null, { message: "Cancelled" }),
       ),
-      cancelDataset: jest.fn(
+      cancelDataset: vi.fn(
         (
           params: { datasetId: string },
           callback: (
@@ -107,7 +108,7 @@ describe("GravityClient", () => {
   });
 
   afterEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   describe("getGravityTasks", () => {
