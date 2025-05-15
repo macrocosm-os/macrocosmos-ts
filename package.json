@@ -4,6 +4,11 @@
   "description": "TypeScript SDK package for Macrocosmos",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "files": [
+    "dist/",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "clean": "rimraf dist",
     "build": "npm run clean && npm run gen:proto && tsc",
