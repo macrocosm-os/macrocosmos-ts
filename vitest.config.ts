@@ -13,7 +13,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      macrocosmos: path.resolve(__dirname, "src"), // or wherever your entry point is
+      macrocosmos: path.resolve(__dirname, "src"),
     },
   },
 });
