@@ -90,3 +90,25 @@ const cancelDataset = await client.cancelDataset({
   datasetId: 'dataset-id'
 });
 ```
+
+### SN13 Client
+
+The SN13 client provides an interface for the SN13 Validator API.
+
+```typescript
+import { Sn13Client } from 'macrocosmos';
+
+// Initialize the client
+const client = new Sn13Client({apiKey: 'your-api-key'});
+
+// Get the onDemandData response
+const response = await client.onDemandData({  
+  source: 'x',
+  usernames: ['nasa', 'spacex'],
+  keywords: ['photo', 'space', 'mars'],
+  startDate: '2024-04-01',
+  endDate: '2025-04-25',
+  limit: 3
+});
+
+```
