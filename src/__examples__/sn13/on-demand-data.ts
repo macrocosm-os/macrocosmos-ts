@@ -11,9 +11,9 @@ async function main() {
     // Create Sn13Client
     const client = new Sn13Client({
       apiKey: API_KEY,
-      appName: "sn13-examples"
+      appName: "sn13/on-demand-data.ts",
     });
-    
+
     // Create request
     const request: OnDemandDataRequest = {
       source: "x",
