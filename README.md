@@ -33,6 +33,26 @@ const response = await client.chat.completions.create({
 const webResults = await client.webRetrieval({
   query: 'latest news about AI'
 });
+
+// Deep Researcher
+
+// Create DeepResearch instance
+const deepResearch = new DeepResearch(client);
+
+// Deep Researcher: Job submission
+const submittedResponse = await deepResearch.createJob({
+      messages: [
+      { role: "user",
+        content: `Can you propose a mechanism by which a decentralized network 
+        of AI agents could achieve provable alignment on abstract ethical principles 
+        without relying on human-defined ontologies or centralized arbitration?`},
+    ],
+    });
+
+// Deep Researcher: Job result collection
+const polledResponse = await deepResearch.getJobResults(
+          submittedResponse.jobId);
+
 ```
 
 ### Gravity Client
