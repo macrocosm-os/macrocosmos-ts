@@ -23,7 +23,8 @@
     "format:check": "prettier --check \"src/**/*.{ts,js,json,md}\"",
     "format:write": "prettier --write \"src/**/*.{ts,js,json,md}\"",
     "gen:proto": "npx protoc --plugin=protoc-gen-ts_proto=./node_modules/.bin/protoc-gen-ts_proto --ts_proto_out=./src/generated --ts_proto_opt=outputServices=grpc-js,useOptionals=messages,useExactTypes=false,esModuleInterop=true,forceLong=number -I ./protos $(find ./protos -name \"*.proto\") && prettier --write \"src/generated/**/*.{ts,js,json,md}\" ",
-    "example:sn13:list-topics": "ts-node src/__examples__/sn13/list-topics.ts"
+    "example:sn13:list-topics": "ts-node src/__examples__/sn13/list-topics.ts",
+    "example:sn13:on-demand-data": "ts-node src/__examples__/sn13/on-demand-data.ts"
   },
   "keywords": [],
   "author": "",
