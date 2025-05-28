@@ -55,7 +55,6 @@ async function demoDeepResearchPolling(): Promise<void> {
     const client = new ApexClient({
       apiKey: API_KEY,
       appName: "apex-examples",
-      baseURL: "constellation-branch-main.api.cloud.macrocosmos.ai",
     });
 
     // Create DeepResearch instance
