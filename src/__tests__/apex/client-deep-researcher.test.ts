@@ -95,5 +95,5 @@ describe("DeepResearch", () => {
 
     // Log response for debugging
     console.log("Get Job Results Response:", response);
-  }, 30000); // Longer timeout for this test as it involves multiple API calls
+  }, 60000); // Longer timeout for this test as it involves multiple API calls
 });
