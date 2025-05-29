@@ -62,6 +62,7 @@ describe("Sn13Client", () => {
     expect(response).toBeDefined();
     expect(typeof response.status).toBe("string");
     expect(Array.isArray(response.data)).toBe(true);
+    expect(response.data.length).toBeLessThanOrEqual(request.limit as number);
     expect(response.meta).toBeDefined();
 
     // Log response for debugging
