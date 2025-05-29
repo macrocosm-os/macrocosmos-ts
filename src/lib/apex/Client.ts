@@ -6,6 +6,9 @@ import {
   WebRetrievalRequest as GeneratedWebRetrievalRequest,
   WebRetrievalResponse,
   ChatMessage,
+  SubmitDeepResearcherJobResponse,
+  GetDeepResearcherJobRequest,
+  GetDeepResearcherJobResponse,
 } from "../../generated/apex/v1/apex";
 import * as grpc from "@grpc/grpc-js";
 import { BaseClient, BaseClientOptions } from "../BaseClient";
@@ -29,6 +32,9 @@ export {
   WebRetrievalResponse,
   ChatCompletionRequest,
   ChatMessage,
+  SubmitDeepResearcherJobResponse,
+  GetDeepResearcherJobRequest,
+  GetDeepResearcherJobResponse,
 };
 
 // Client options
@@ -170,6 +176,47 @@ export class ApexClient extends BaseClient {
           resolve(response);
         },
       );
+    });
+  };
+
+  /**
+   * Submit a deep researcher job
+   */
+  submitDeepResearcherJob = async (
+    params: ChatCompletionRequest,
+  ): Promise<SubmitDeepResearcherJobResponse> => {
+    const client = this.createGrpcClient();
+
+    return new Promise<SubmitDeepResearcherJobResponse>((resolve, reject) => {
+      client.submitDeepResearcherJob(
+        { ...params, uids: params.uids ?? [] },
+        (error, response) => {
+          if (error) {
+            reject(error);
+            return;
+          }
+          resolve(response);
+        },
+      );
+    });
+  };
+
+  /**
+   * Get a deep researcher job
+   */
+  getDeepResearcherJob = async (
+    params: GetDeepResearcherJobRequest,
+  ): Promise<GetDeepResearcherJobResponse> => {
+    const client = this.createGrpcClient();
+
+    return new Promise<GetDeepResearcherJobResponse>((resolve, reject) => {
+      client.getDeepResearcherJob(params, (error, response) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+        resolve(response);
+      });
     });
   };
 }
