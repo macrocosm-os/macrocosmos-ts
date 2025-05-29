@@ -15,7 +15,7 @@ npm install macrocosmos
 The Apex client provides an interface for accessing the Apex API for chat completions and web search.
 
 ```typescript
-import { ApexClient } from 'macrocosmos';
+import { ApexClient, DeepResearch } from 'macrocosmos';
 
 // Initialize the client
 const client = new ApexClient({ apiKey: 'your-api-key' });
@@ -39,7 +39,7 @@ const webResults = await client.webRetrieval({
 // Create DeepResearch instance
 const deepResearch = new DeepResearch(client);
 
-// Deep Researcher: Job submission
+// Submit a deep research job
 const submittedResponse = await deepResearch.createJob({
       messages: [
       { role: "user",
@@ -49,10 +49,8 @@ const submittedResponse = await deepResearch.createJob({
     ],
     });
 
-// Deep Researcher: Job result collection
-const polledResponse = await deepResearch.getJobResults(
-          submittedResponse.jobId);
-
+// Get the results of a deep research job
+const polledResponse = await deepResearch.getJobResults(submittedResponse.jobId);
 ```
 
 ### Gravity Client
