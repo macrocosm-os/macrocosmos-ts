@@ -5,6 +5,8 @@ import {
   ListTopicsResponseDetail,
   ValidateRedditTopicRequest,
   ValidateRedditTopicResponse,
+  OnDemandDataRequest,
+  OnDemandDataResponse,
 } from "../../generated/sn13/v1/sn13_validator";
 import * as grpc from "@grpc/grpc-js";
 import { BaseClient, BaseClientOptions } from "../BaseClient";
@@ -16,6 +18,8 @@ export type {
   ListTopicsResponseDetail,
   ValidateRedditTopicRequest,
   ValidateRedditTopicResponse,
+  OnDemandDataRequest,
+  OnDemandDataResponse,
 };
 
 /**
@@ -92,6 +96,24 @@ export class Sn13Client extends BaseClient {
     const client = this.createGrpcClient();
     return new Promise<ValidateRedditTopicResponse>((resolve, reject) => {
       client.validateRedditTopic(params, (error, response) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+        resolve(response);
+      });
+    });
+  };
+
+  /**
+   * Retrieve on-demand data from the SN13 API service
+   */
+  onDemandData = async (
+    params: OnDemandDataRequest,
+  ): Promise<OnDemandDataResponse> => {
+    const client = this.createGrpcClient();
+    return new Promise<OnDemandDataResponse>((resolve, reject) => {
+      client.onDemandData(params, (error, response) => {
         if (error) {
           reject(error);
           return;
