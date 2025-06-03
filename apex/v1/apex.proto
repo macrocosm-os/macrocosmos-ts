@@ -4,6 +4,7 @@ package apex.v1;
 
 option go_package = "macrocosm-os/rift/constellation_api/gen/apex/v1";
 import "google/protobuf/timestamp.proto";
+import "google/protobuf/struct.proto";
 import "google/protobuf/empty.proto";
 
 
@@ -26,8 +27,14 @@ service ApexService {
   // GetChatSessions retrieves a user's chats
   rpc GetChatSessions(google.protobuf.Empty) returns (GetChatSessionsResponse);
 
+  // GetStoredChatCompletions retrieves a chat's completions
+  rpc GetStoredChatCompletions(GetStoredChatCompletionsRequest) returns (GetStoredChatCompletionsResponse);
+
   // UpdateChatAttribute updates attribute after asking LLM for one
   rpc UpdateChatAttribute(UpdateChatAttributeRequest) returns (UpdateChatAttributeResponse); 
+
+  // DeleteChats removes chats based on the specified chat_ids
+  rpc DeleteChats(DeleteChatsRequest) returns (DeleteChatsResponse);
 }
 
 // A request to generate completions following Apex CompletionsRequest format.
@@ -436,6 +443,40 @@ message GetChatSessionsResponse {
   repeated ChatSession chat_sessions = 1;
 }
 
+// A GetStoredChatCompletionRequest request message
+message GetStoredChatCompletionsRequest {
+  // chat_id: a unique identifier for a chat
+  string chat_id = 1;
+}
+
+
+// A StoredChatCompletion message repeated in GetStoredChatCompletionsResponse
+message StoredChatCompletion {
+  // id: chat completion id
+  string id = 1;
+  // chat_id: chat id
+  string chat_id = 2;
+  // completion_type: type of completion
+  string completion_type = 3;  
+  // created_at: when the chat was created
+  google.protobuf.Timestamp created_at = 4;
+  // completed_at: when the chat was updated
+  google.protobuf.Timestamp completed_at = 5;
+  // user_prompt_text: user_prompt_text of chat
+  string user_prompt_text = 6;
+  // completion_text: completion_text of chat
+  string completion_text = 7;  
+  // metadata: metadata json blob
+  google.protobuf.Struct metadata = 8;
+  // error_message: error_message if any
+  string error_message = 9;    
+}
+
+// A GetChatStoredChatCompletionResponse response
+message GetStoredChatCompletionsResponse {
+  // chat_completions: the chat completions
+  repeated StoredChatCompletion chat_completions = 1;
+}
 // Directly model the attributes as a map
 message UpdateChatAttributeRequest {
   // chat_id: the unique id associated to a users chat message
@@ -444,7 +485,20 @@ message UpdateChatAttributeRequest {
   map<string, string> attributes = 2;
 }
 
+// A UpdateChatAttribute response
 message UpdateChatAttributeResponse {
   // success: indicates if an attribute update was successful
+  bool success = 1;
+}
+
+// A DeleteChats request
+message DeleteChatsRequest{
+  // chat_ids: the unique ids associated to user chat messages that should be deleted
+  repeated string chat_ids = 1;
+}
+
+// A DeleteChats response
+message DeleteChatsResponse {
+  // success: indicates if the deletion was successful
   bool success = 1;
 }
