@@ -243,6 +243,3 @@ export class ApexClient extends BaseClient {
     });
   };
 }
-
-
-
