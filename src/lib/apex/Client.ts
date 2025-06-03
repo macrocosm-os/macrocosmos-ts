@@ -224,26 +224,25 @@ export class ApexClient extends BaseClient {
     });
   };
 
-    /**
+  /**
    * Get completions of a chat
    */
-    getStoredChatCompletions = async (
-      params: GetStoredChatCompletionsRequest,
-    ): Promise<GetStoredChatCompletionsResponse> => {
-      const client = this.createGrpcClient();
-  
-      return new Promise<GetStoredChatCompletionsResponse>((resolve, reject) => {
-        client.getStoredChatCompletions(params, (error, response) => {
-          if (error) {
-            reject(error);
-            return;
-          }
-          resolve(response);
-        });
-      });
-    };
-}
+  getStoredChatCompletions = async (
+    params: GetStoredChatCompletionsRequest,
+  ): Promise<GetStoredChatCompletionsResponse> => {
+    const client = this.createGrpcClient();
 
+    return new Promise<GetStoredChatCompletionsResponse>((resolve, reject) => {
+      client.getStoredChatCompletions(params, (error, response) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+        resolve(response);
+      });
+    });
+  };
+}
 
 
 
