@@ -9,6 +9,8 @@ import {
   SubmitDeepResearcherJobResponse,
   GetDeepResearcherJobRequest,
   GetDeepResearcherJobResponse,
+  GetStoredChatCompletionsRequest,
+  GetStoredChatCompletionsResponse,
 } from "../../generated/apex/v1/apex";
 import * as grpc from "@grpc/grpc-js";
 import { BaseClient, BaseClientOptions } from "../BaseClient";
@@ -35,6 +37,8 @@ export {
   SubmitDeepResearcherJobResponse,
   GetDeepResearcherJobRequest,
   GetDeepResearcherJobResponse,
+  GetStoredChatCompletionsRequest,
+  GetStoredChatCompletionsResponse,
 };
 
 // Client options
@@ -219,4 +223,27 @@ export class ApexClient extends BaseClient {
       });
     });
   };
+
+    /**
+   * Get completions of a chat
+   */
+    getStoredChatCompletions = async (
+      params: GetStoredChatCompletionsRequest,
+    ): Promise<GetStoredChatCompletionsResponse> => {
+      const client = this.createGrpcClient();
+  
+      return new Promise<GetStoredChatCompletionsResponse>((resolve, reject) => {
+        client.getStoredChatCompletions(params, (error, response) => {
+          if (error) {
+            reject(error);
+            return;
+          }
+          resolve(response);
+        });
+      });
+    };
 }
+
+
+
+
