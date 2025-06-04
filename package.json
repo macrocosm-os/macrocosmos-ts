@@ -1,6 +1,6 @@
 {
   "name": "macrocosmos",
-  "version": "1.2.14",
+  "version": "1.2.15",
   "description": "TypeScript SDK package for Macrocosmos",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
