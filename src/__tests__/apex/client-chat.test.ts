@@ -71,4 +71,25 @@ describe("ApexClient", () => {
       "paris",
     );
   }, 30000); // Increase timeout to 30 seconds
+
+  it("should retrieve stored chat completions", async () => {
+    // Create ApexClient
+    const client = new ApexClient({
+      apiKey: API_KEY,
+      appName: "apex-client.test.ts",
+    });
+
+    // chat ID for testing
+    const chatId = "test-chat-id";
+
+    // Get stored chat completions
+    const result = await client.getStoredChatCompletions({ chatId });
+
+    // Verify the response structure
+    console.log("Stored chat completions:", result);
+    expect(result).toBeDefined();
+    expect(Array.isArray(result.chatCompletions)).toBe(true);
+    // chat id doesn't exist so check first element is an empty object
+    expect(Object.keys(result.chatCompletions[0] || {}).length).toBe(0);
+  }, 30000);
 });
