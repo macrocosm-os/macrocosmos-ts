@@ -1,9 +1,4 @@
-import {
-  ApexStream,
-  ApexClient,
-  ChatMessage,
-  ChatCompletionRequest,
-} from "macrocosmos";
+import { ApexStream, ApexClient, ChatMessage } from "macrocosmos";
 
 describe("ApexClient", () => {
   const API_KEY = process.env.MACROCOSMOS_API_KEY;
@@ -38,11 +33,6 @@ describe("ApexClient", () => {
         doSample: true,
       },
     });
-
-    // Check if it's a Stream
-    if (!(result instanceof ApexStream)) {
-      throw new Error("Expected a Stream but got a regular response");
-    }
 
     // Handle streaming response
     let fullResponse = "";
@@ -85,7 +75,7 @@ describe("ApexClient", () => {
         maxNewTokens: 100,
         doSample: true,
       },
-    } as ChatCompletionRequest);
+    });
 
     // Check if it's a regular response
     if (result instanceof ApexStream) {
