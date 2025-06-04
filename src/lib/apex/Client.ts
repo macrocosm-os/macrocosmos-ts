@@ -54,10 +54,12 @@ export interface ApexProtoClient {
 export interface ChatCompletionsCreate {
   (
     params: ChatCompletionRequest & { stream: true },
+    /** options are not used, but are accepted for compatibility with the OpenAI API */
     _options?: unknown,
   ): Promise<ApexStream<ChatCompletionChunkResponse>>;
   (
     params: ChatCompletionRequest & { stream?: false | undefined },
+    /** options are not used, but are accepted for compatibility with the OpenAI API */
     _options?: unknown,
   ): Promise<ChatCompletionResponse>;
 }
@@ -65,6 +67,7 @@ export interface ChatCompletionsCreate {
 function chatCompletionsCreate(
   this: ApexClient,
   params: ChatCompletionRequest & { stream: true },
+  /** options are not used, but are accepted for compatibility with the OpenAI API */
   _options?: unknown,
 ): Promise<ApexStream<ChatCompletionChunkResponse>>;
 function chatCompletionsCreate(
