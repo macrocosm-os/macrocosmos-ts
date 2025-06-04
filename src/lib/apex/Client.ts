@@ -25,13 +25,10 @@ type WebRetrievalRequest = MarkFieldsOptional<
   "uids"
 >;
 
-type ApexStreamResponse = ApexStream<ChatCompletionChunkResponse>;
-
 // re-export the types for use in the package
 export {
   ApexStream,
   ChatCompletionChunkResponse,
-  ApexStreamResponse,
   WebRetrievalRequest,
   WebRetrievalResponse,
   ChatCompletionRequest,
@@ -60,7 +57,7 @@ export interface ChatCompletionsCreate {
     params: ChatCompletionRequest & { stream: true },
     /** options are not used, but are accepted for compatibility with the OpenAI API */
     _options?: unknown,
-  ): Promise<ApexStreamResponse>;
+  ): Promise<ApexStream<ChatCompletionChunkResponse>>;
   (
     params: ChatCompletionRequest & { stream?: false | undefined },
     /** options are not used, but are accepted for compatibility with the OpenAI API */
@@ -73,7 +70,7 @@ function chatCompletionsCreate(
   params: ChatCompletionRequest & { stream: true },
   /** options are not used, but are accepted for compatibility with the OpenAI API */
   _options?: unknown,
-): Promise<ApexStreamResponse>;
+): Promise<ApexStream<ChatCompletionChunkResponse>>;
 function chatCompletionsCreate(
   this: ApexClient,
   params: ChatCompletionRequest & { stream?: false | undefined },
@@ -83,7 +80,7 @@ function chatCompletionsCreate(
   this: ApexClient,
   params: ChatCompletionRequest,
   _options?: unknown,
-): Promise<ApexStreamResponse | ChatCompletionResponse> {
+): Promise<ApexStream<ChatCompletionChunkResponse> | ChatCompletionResponse> {
   const client = this.createGrpcClient();
   const requestParams = {
     ...params,
