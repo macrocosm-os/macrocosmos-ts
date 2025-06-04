@@ -121,6 +121,5 @@ describe("ApexClient", () => {
     expect(Array.isArray(result.chatCompletions)).toBe(true);
     // chat id doesn't exist so check first element is an empty object
     expect(Object.keys(result.chatCompletions[0] || {}).length).toBe(0);
-
   }, 30000);
 });
