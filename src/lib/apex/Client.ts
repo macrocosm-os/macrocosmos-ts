@@ -42,7 +42,6 @@ export {
   GetStoredChatCompletionsResponse,
 };
 
-// Client options
 interface ApexClientOptions extends BaseClientOptions {
   timeout?: number;
 }
@@ -119,7 +118,6 @@ function chatCompletionsCreate(
  */
 export class ApexClient extends BaseClient {
   private _grpcClient?: ApexServiceClient;
-
   private defaultTimeout: number;
 
   constructor(options: ApexClientOptions, grpcClient?: ApexServiceClient) {
@@ -201,29 +199,35 @@ export class ApexClient extends BaseClient {
   };
 
   /**
-   * Submit a deep researcher job
+   * Submit a deep researcher job with proper defaults
    */
   submitDeepResearcherJob = async (
     params: ChatCompletionRequest,
   ): Promise<SubmitDeepResearcherJobResponse> => {
     const client = this.createGrpcClient();
+    const request: GeneratedChatCompletionRequest = {
+      ...params,
+      uids: params.uids ?? [],
+      // Required internal fields for Deep Researcher
+      task: "InferenceTask",
+      mixture: false,
+      inferenceMode: "Chain-of-Thought",
+      stream: true,
+    };
 
     return new Promise<SubmitDeepResearcherJobResponse>((resolve, reject) => {
-      client.submitDeepResearcherJob(
-        { ...params, uids: params.uids ?? [] },
-        (error, response) => {
-          if (error) {
-            reject(error);
-            return;
-          }
-          resolve(response);
-        },
-      );
+      client.submitDeepResearcherJob(request, (error, response) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+        resolve(response);
+      });
     });
   };
 
   /**
-   * Get a deep researcher job
+   * Get the status and results of a deep research job
    */
   getDeepResearcherJob = async (
     params: GetDeepResearcherJobRequest,
