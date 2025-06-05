@@ -42,7 +42,6 @@ export {
   GetStoredChatCompletionsResponse,
 };
 
-// Client options
 interface ApexClientOptions extends BaseClientOptions {
   timeout?: number;
 }
