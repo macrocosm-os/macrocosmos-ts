@@ -131,7 +131,7 @@ describe("ApexClient", () => {
     const jobId = createResponse.jobId;
 
     // Then get the results
-    const response = await client.getDeepResearcherJob({ jobId });
+    const response = await client.getDeepResearcherJob({ jobId: jobId });
 
     // Verify response structure
     expect(response).toBeDefined();
