@@ -82,12 +82,6 @@ describe("ApexClient", () => {
   }, 30000); // Increase timeout to 30 seconds
 
   it("should retrieve stored chat completions", async () => {
-    // Create ApexClient
-    const client = new ApexClient({
-      apiKey: API_KEY,
-      appName: "apex-client.test.ts",
-    });
-
     // chat ID for testing
     const chatId = "test-chat-id";
 
@@ -104,12 +98,6 @@ describe("ApexClient", () => {
 
   // Deep Researcher Tests
   it("should create a deep research job", async () => {
-    // Create ApexClient
-    const client = new ApexClient({
-      apiKey: API_KEY,
-      appName: "apex-client.test.ts",
-    });
-
     // Create test parameters
     const params = {
       messages: deepResearchMessages,
@@ -134,12 +122,6 @@ describe("ApexClient", () => {
   }, 30000);
 
   it("should get deep researcher job results", async () => {
-    // Create ApexClient
-    const client = new ApexClient({
-      apiKey: API_KEY,
-      appName: "apex-client.test.ts",
-    });
-
     // First create a job. Use simple inputs as job creation is tested in the previous test.
     const createParams = {
       messages: deepResearchMessages,
