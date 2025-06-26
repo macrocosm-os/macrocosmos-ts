@@ -168,6 +168,32 @@ describe("GravityClient", () => {
     });
   });
 
+  // TODO: Uncomment this test when the backend is updated to support keyword and datetimes
+  // describe("createGravityTask", () => {
+  //   it("should call the CreateGravityTask method on the gRPC client, using keyword and datetimes", async () => {
+  //     const params: CreateGravityTaskRequest = {
+  //       gravityTasks: [
+  //         {
+  //           platform: "x",
+  //           topic: "#ai",
+  //           keyword: "data",
+  //           postStartDatetime: new Date("2025-01-01T00:00:00Z"),
+  //           postEndDatetime: new Date("2025-06-01T00:00:00Z"),
+  //         },
+  //       ],
+  //       name: "Test Task",
+  //     };
+
+  //     const result = await client.createGravityTask(params);
+
+  //     expect(mockGrpcClient.createGravityTask).toHaveBeenCalledWith(
+  //       params,
+  //       expect.any(Function),
+  //     );
+  //     expect(result).toEqual({ gravityTaskId: "test-id" });
+  //   });
+  // });
+
   describe("buildDataset", () => {
     it("should call the BuildDataset method on the gRPC client", async () => {
       const params: BuildDatasetRequest = {
