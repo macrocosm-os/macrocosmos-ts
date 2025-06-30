@@ -146,22 +146,23 @@ describe("ApexClient", () => {
     console.log("Get Job Results Response:", response);
   }, 60000); // Longer timeout for this test as it involves multiple API calls
 
-  it("should retrieve a user's completions based on the search term", async () => {
-    const searchTerm = "France?";
-    // Get stored chat completions
-    const result = await client.searchChatIdsByPromptAndCompletionText({
-      searchTerm: searchTerm,
-    });
-
-    // Verify the response structure
-    console.log("Stored chats:", result);
-    expect(result).toBeDefined();
-    expect(Array.isArray(result.chatIds)).toBe(true);
-    // chat id doesn't exist so check first element is an empty object
-    expect(Object.keys(result.chatIds[0] || {}).length).toBe(0);
-  }, 30000);
-
   // TODO: Uncomment this when delete chat is available, so we can remove all test chats first
+
+  // it("should retrieve a user's completions based on the search term", async () => {
+  //   const searchTerm = "France?";
+  //   // Get stored chat completions
+  //   const result = await client.searchChatIdsByPromptAndCompletionText({
+  //     searchTerm: searchTerm,
+  //   });
+
+  //   // Verify the response structure
+  //   console.log("Stored chats:", result);
+  //   expect(result).toBeDefined();
+  //   expect(Array.isArray(result.chatIds)).toBe(true);
+  //   // chat id doesn't exist so check first element is an empty object
+  //   expect(Object.keys(result.chatIds[0] || {}).length).toBe(0);
+  // }, 30000);
+
   // it("should create a chat and completion for a user", async () => {
   //   const result = await client.createChatAndCompletion({
   //     userPrompt: "This is a test chat, how are you?",
