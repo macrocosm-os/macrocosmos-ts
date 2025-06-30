@@ -47,6 +47,12 @@ service ApexService {
 
   // SearchChatIdsByPromptAndCompletionText searches for completions where the parent chat has the user's ID and either user_prompt_text OR completion_text matches the search_term
   rpc SearchChatIdsByPromptAndCompletionText(SearchChatIdsByPromptAndCompletionTextRequest) returns (SearchChatIdsByPromptAndCompletionTextResponse);
+
+  //UpdateCompletionAttributes updates attribute for a given chat completion
+  rpc UpdateCompletionAttributes(UpdateCompletionAttributesRequest) returns (UpdateCompletionAttributesResponse);
+
+  //GetCompletionsWithDeepResearcherEntry returns a list of completions that contain metadata on deep researcher
+  rpc GetCompletionsWithDeepResearcherEntry(google.protobuf.Empty) returns (GetCompletionsWithDeepResearcherEntryResponse);
 }
 
 // A request to generate completions following Apex CompletionsRequest format.
@@ -604,4 +610,26 @@ message SearchChatIdsByPromptAndCompletionTextRequest {
 message SearchChatIdsByPromptAndCompletionTextResponse {
   // chat_ids: a list of chat_ids which adhere to the search criteria
   repeated string chat_ids = 1;
+}
+
+// An UpdateCompletionAttributes request
+message UpdateCompletionAttributesRequest {
+  // completion_id: the chat completion id
+  string completion_id = 1;
+  // completion_text: the user's completion text (optional)
+  optional string completion_text = 2;
+  // metadata: metadata json blob (optional)
+  google.protobuf.Struct metadata = 3;
+}
+
+// An UpdateCompletionAttributes response
+message UpdateCompletionAttributesResponse {
+  // completion: the chat completion that has been updated
+  StoredChatCompletion completion = 1;
+}
+
+// A GetCompletionsWithDeepResearcherEntry response (request is not required)
+message GetCompletionsWithDeepResearcherEntryResponse {
+  // completions: a list of completion objects containing deep researcher metadata
+  repeated ParsedCompletion completions = 1;
 }
