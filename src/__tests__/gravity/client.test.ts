@@ -155,7 +155,7 @@ describe("GravityClient", () => {
     it("should call the CreateGravityTask method on the gRPC client", async () => {
       const params: CreateGravityTaskRequest = {
         gravityTasks: [{ platform: "x", topic: "#ai" }],
-        name: "Test Task",
+        name: "Test Task from typescript SDK",
       };
 
       const result = await client.createGravityTask(params);
