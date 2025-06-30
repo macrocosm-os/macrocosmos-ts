@@ -146,18 +146,6 @@ describe("ApexClient", () => {
     console.log("Get Job Results Response:", response);
   }, 60000); // Longer timeout for this test as it involves multiple API calls
 
-  it("should retrieve a user's stored chats", async () => {
-    // Get stored chat completions
-    const result = await client.getChatSessions();
-
-    // Verify the response structure
-    console.log("Stored chats:", result);
-    expect(result).toBeDefined();
-    expect(Array.isArray(result.chatSessions)).toBe(true);
-    // chat id doesn't exist so check first element is an empty object
-    expect(Object.keys(result.chatSessions[0] || {}).length).toBe(0);
-  }, 30000);
-
   it("should retrieve a user's completions based on the search term", async () => {
     const searchTerm = "France?";
     // Get stored chat completions
@@ -173,32 +161,45 @@ describe("ApexClient", () => {
     expect(Object.keys(result.chatIds[0] || {}).length).toBe(0);
   }, 30000);
 
-  it("should create a chat and completion for a user", async () => {
-    const result = await client.createChatAndCompletion({
-      userPrompt: "This is a test chat, how are you?",
-      chatType: "apex",
-      completionType: "basic",
-      title: "Test Chat",
-    });
+  // TODO: Uncomment this when delete chat is available, so we can remove all test chats first
+  // it("should create a chat and completion for a user", async () => {
+  //   const result = await client.createChatAndCompletion({
+  //     userPrompt: "This is a test chat, how are you?",
+  //     chatType: "apex",
+  //     completionType: "basic",
+  //     title: "Test Chat",
+  //   });
 
-    // Verify the response structure
-    console.log("Create chat and completion response:", result);
-    expect(result).toBeDefined();
-    // Check ParsedChat
-    expect(result.parsedChat).toBeDefined();
-    expect(result.parsedChat!.id).toBeDefined();
-    expect(result.parsedChat!.title).toBe("Test Chat");
-    expect(result.parsedChat!.chatType).toBe("apex");
-    expect(result.parsedChat!.createdAt).toBeDefined();
-    // Check ParsedCompletion
-    expect(result.parsedCompletion).toBeDefined();
-    expect(result.parsedCompletion!.id).toBeDefined();
-    expect(result.parsedCompletion!.chatId).toBe(result.parsedChat!.id);
-    expect(result.parsedCompletion!.completionType).toBe("basic");
-    expect(result.parsedCompletion!.userPromptText).toBe(
-      "This is a test chat, how are you?",
-    );
-    expect(result.parsedCompletion!.completionText).toBeDefined();
-    expect(result.parsedCompletion!.createdAt).toBeDefined();
-  }, 30000);
+  //   // Verify the response structure
+  //   console.log("Create chat and completion response:", result);
+  //   expect(result).toBeDefined();
+  //   // Check ParsedChat
+  //   expect(result.parsedChat).toBeDefined();
+  //   expect(result.parsedChat!.id).toBeDefined();
+  //   expect(result.parsedChat!.title).toBe("Test Chat");
+  //   expect(result.parsedChat!.chatType).toBe("apex");
+  //   expect(result.parsedChat!.createdAt).toBeDefined();
+  //   // Check ParsedCompletion
+  //   expect(result.parsedCompletion).toBeDefined();
+  //   expect(result.parsedCompletion!.id).toBeDefined();
+  //   expect(result.parsedCompletion!.chatId).toBe(result.parsedChat!.id);
+  //   expect(result.parsedCompletion!.completionType).toBe("basic");
+  //   expect(result.parsedCompletion!.userPromptText).toBe(
+  //     "This is a test chat, how are you?",
+  //   );
+  //   expect(result.parsedCompletion!.completionText).toBeDefined();
+  //   expect(result.parsedCompletion!.createdAt).toBeDefined();
+  // }, 30000);
+
+  // it("should retrieve a user's stored chats", async () => {
+  //   // Get stored chat completions
+  //   const result = await client.getChatSessions();
+
+  //   // Verify the response structure
+  //   console.log("Stored chats:", result);
+  //   expect(result).toBeDefined();
+  //   expect(Array.isArray(result.chatSessions)).toBe(true);
+  //   // chat id doesn't exist so check first element is an empty object
+  //   expect(Object.keys(result.chatSessions[0] || {}).length).toBe(0);
+  // }, 30000);
 });

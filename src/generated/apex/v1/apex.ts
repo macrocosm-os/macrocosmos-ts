@@ -639,6 +639,28 @@ export interface SearchChatIdsByPromptAndCompletionTextResponse {
   chatIds: string[];
 }
 
+/** An UpdateCompletionAttributes request */
+export interface UpdateCompletionAttributesRequest {
+  /** completion_id: the chat completion id */
+  completionId: string;
+  /** completion_text: the user's completion text (optional) */
+  completionText?: string | undefined;
+  /** metadata: metadata json blob (optional) */
+  metadata?: { [key: string]: any } | undefined;
+}
+
+/** An UpdateCompletionAttributes response */
+export interface UpdateCompletionAttributesResponse {
+  /** completion: the chat completion that has been updated */
+  completion?: StoredChatCompletion | undefined;
+}
+
+/** A GetCompletionsWithDeepResearcherEntry response (request is not required) */
+export interface GetCompletionsWithDeepResearcherEntryResponse {
+  /** completions: a list of completion objects containing deep researcher metadata */
+  completions: ParsedCompletion[];
+}
+
 function createBaseChatCompletionRequest(): ChatCompletionRequest {
   return {
     uids: [],
@@ -6573,6 +6595,283 @@ export const SearchChatIdsByPromptAndCompletionTextResponse: MessageFns<SearchCh
     },
   };
 
+function createBaseUpdateCompletionAttributesRequest(): UpdateCompletionAttributesRequest {
+  return { completionId: "", completionText: undefined, metadata: undefined };
+}
+
+export const UpdateCompletionAttributesRequest: MessageFns<UpdateCompletionAttributesRequest> =
+  {
+    encode(
+      message: UpdateCompletionAttributesRequest,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      if (message.completionId !== "") {
+        writer.uint32(10).string(message.completionId);
+      }
+      if (message.completionText !== undefined) {
+        writer.uint32(18).string(message.completionText);
+      }
+      if (message.metadata !== undefined) {
+        Struct.encode(
+          Struct.wrap(message.metadata),
+          writer.uint32(26).fork(),
+        ).join();
+      }
+      return writer;
+    },
+
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): UpdateCompletionAttributesRequest {
+      const reader =
+        input instanceof BinaryReader ? input : new BinaryReader(input);
+      let end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseUpdateCompletionAttributesRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.completionId = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.completionText = reader.string();
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.metadata = Struct.unwrap(
+              Struct.decode(reader, reader.uint32()),
+            );
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    },
+
+    fromJSON(object: any): UpdateCompletionAttributesRequest {
+      return {
+        completionId: isSet(object.completionId)
+          ? globalThis.String(object.completionId)
+          : "",
+        completionText: isSet(object.completionText)
+          ? globalThis.String(object.completionText)
+          : undefined,
+        metadata: isObject(object.metadata) ? object.metadata : undefined,
+      };
+    },
+
+    toJSON(message: UpdateCompletionAttributesRequest): unknown {
+      const obj: any = {};
+      if (message.completionId !== "") {
+        obj.completionId = message.completionId;
+      }
+      if (message.completionText !== undefined) {
+        obj.completionText = message.completionText;
+      }
+      if (message.metadata !== undefined) {
+        obj.metadata = message.metadata;
+      }
+      return obj;
+    },
+
+    create(
+      base?: DeepPartial<UpdateCompletionAttributesRequest>,
+    ): UpdateCompletionAttributesRequest {
+      return UpdateCompletionAttributesRequest.fromPartial(base ?? {});
+    },
+    fromPartial(
+      object: DeepPartial<UpdateCompletionAttributesRequest>,
+    ): UpdateCompletionAttributesRequest {
+      const message = createBaseUpdateCompletionAttributesRequest();
+      message.completionId = object.completionId ?? "";
+      message.completionText = object.completionText ?? undefined;
+      message.metadata = object.metadata ?? undefined;
+      return message;
+    },
+  };
+
+function createBaseUpdateCompletionAttributesResponse(): UpdateCompletionAttributesResponse {
+  return { completion: undefined };
+}
+
+export const UpdateCompletionAttributesResponse: MessageFns<UpdateCompletionAttributesResponse> =
+  {
+    encode(
+      message: UpdateCompletionAttributesResponse,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      if (message.completion !== undefined) {
+        StoredChatCompletion.encode(
+          message.completion,
+          writer.uint32(10).fork(),
+        ).join();
+      }
+      return writer;
+    },
+
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): UpdateCompletionAttributesResponse {
+      const reader =
+        input instanceof BinaryReader ? input : new BinaryReader(input);
+      let end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseUpdateCompletionAttributesResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.completion = StoredChatCompletion.decode(
+              reader,
+              reader.uint32(),
+            );
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    },
+
+    fromJSON(object: any): UpdateCompletionAttributesResponse {
+      return {
+        completion: isSet(object.completion)
+          ? StoredChatCompletion.fromJSON(object.completion)
+          : undefined,
+      };
+    },
+
+    toJSON(message: UpdateCompletionAttributesResponse): unknown {
+      const obj: any = {};
+      if (message.completion !== undefined) {
+        obj.completion = StoredChatCompletion.toJSON(message.completion);
+      }
+      return obj;
+    },
+
+    create(
+      base?: DeepPartial<UpdateCompletionAttributesResponse>,
+    ): UpdateCompletionAttributesResponse {
+      return UpdateCompletionAttributesResponse.fromPartial(base ?? {});
+    },
+    fromPartial(
+      object: DeepPartial<UpdateCompletionAttributesResponse>,
+    ): UpdateCompletionAttributesResponse {
+      const message = createBaseUpdateCompletionAttributesResponse();
+      message.completion =
+        object.completion !== undefined && object.completion !== null
+          ? StoredChatCompletion.fromPartial(object.completion)
+          : undefined;
+      return message;
+    },
+  };
+
+function createBaseGetCompletionsWithDeepResearcherEntryResponse(): GetCompletionsWithDeepResearcherEntryResponse {
+  return { completions: [] };
+}
+
+export const GetCompletionsWithDeepResearcherEntryResponse: MessageFns<GetCompletionsWithDeepResearcherEntryResponse> =
+  {
+    encode(
+      message: GetCompletionsWithDeepResearcherEntryResponse,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      for (const v of message.completions) {
+        ParsedCompletion.encode(v!, writer.uint32(10).fork()).join();
+      }
+      return writer;
+    },
+
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): GetCompletionsWithDeepResearcherEntryResponse {
+      const reader =
+        input instanceof BinaryReader ? input : new BinaryReader(input);
+      let end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseGetCompletionsWithDeepResearcherEntryResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.completions.push(
+              ParsedCompletion.decode(reader, reader.uint32()),
+            );
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    },
+
+    fromJSON(object: any): GetCompletionsWithDeepResearcherEntryResponse {
+      return {
+        completions: globalThis.Array.isArray(object?.completions)
+          ? object.completions.map((e: any) => ParsedCompletion.fromJSON(e))
+          : [],
+      };
+    },
+
+    toJSON(message: GetCompletionsWithDeepResearcherEntryResponse): unknown {
+      const obj: any = {};
+      if (message.completions?.length) {
+        obj.completions = message.completions.map(e =>
+          ParsedCompletion.toJSON(e),
+        );
+      }
+      return obj;
+    },
+
+    create(
+      base?: DeepPartial<GetCompletionsWithDeepResearcherEntryResponse>,
+    ): GetCompletionsWithDeepResearcherEntryResponse {
+      return GetCompletionsWithDeepResearcherEntryResponse.fromPartial(
+        base ?? {},
+      );
+    },
+    fromPartial(
+      object: DeepPartial<GetCompletionsWithDeepResearcherEntryResponse>,
+    ): GetCompletionsWithDeepResearcherEntryResponse {
+      const message = createBaseGetCompletionsWithDeepResearcherEntryResponse();
+      message.completions =
+        object.completions?.map(e => ParsedCompletion.fromPartial(e)) || [];
+      return message;
+    },
+  };
+
 export type ApexServiceService = typeof ApexServiceService;
 export const ApexServiceService = {
   /** ChatCompletion generates a completion for a given request. */
@@ -6755,6 +7054,35 @@ export const ApexServiceService = {
     responseDeserialize: (value: Buffer) =>
       SearchChatIdsByPromptAndCompletionTextResponse.decode(value),
   },
+  /** UpdateCompletionAttributes updates attribute for a given chat completion */
+  updateCompletionAttributes: {
+    path: "/apex.v1.ApexService/UpdateCompletionAttributes",
+    requestStream: false,
+    responseStream: false,
+    requestSerialize: (value: UpdateCompletionAttributesRequest) =>
+      Buffer.from(UpdateCompletionAttributesRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer) =>
+      UpdateCompletionAttributesRequest.decode(value),
+    responseSerialize: (value: UpdateCompletionAttributesResponse) =>
+      Buffer.from(UpdateCompletionAttributesResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer) =>
+      UpdateCompletionAttributesResponse.decode(value),
+  },
+  /** GetCompletionsWithDeepResearcherEntry returns a list of completions that contain metadata on deep researcher */
+  getCompletionsWithDeepResearcherEntry: {
+    path: "/apex.v1.ApexService/GetCompletionsWithDeepResearcherEntry",
+    requestStream: false,
+    responseStream: false,
+    requestSerialize: (value: Empty) =>
+      Buffer.from(Empty.encode(value).finish()),
+    requestDeserialize: (value: Buffer) => Empty.decode(value),
+    responseSerialize: (value: GetCompletionsWithDeepResearcherEntryResponse) =>
+      Buffer.from(
+        GetCompletionsWithDeepResearcherEntryResponse.encode(value).finish(),
+      ),
+    responseDeserialize: (value: Buffer) =>
+      GetCompletionsWithDeepResearcherEntryResponse.decode(value),
+  },
 } as const;
 
 export interface ApexServiceServer extends UntypedServiceImplementation {
@@ -6813,6 +7141,16 @@ export interface ApexServiceServer extends UntypedServiceImplementation {
   searchChatIdsByPromptAndCompletionText: handleUnaryCall<
     SearchChatIdsByPromptAndCompletionTextRequest,
     SearchChatIdsByPromptAndCompletionTextResponse
+  >;
+  /** UpdateCompletionAttributes updates attribute for a given chat completion */
+  updateCompletionAttributes: handleUnaryCall<
+    UpdateCompletionAttributesRequest,
+    UpdateCompletionAttributesResponse
+  >;
+  /** GetCompletionsWithDeepResearcherEntry returns a list of completions that contain metadata on deep researcher */
+  getCompletionsWithDeepResearcherEntry: handleUnaryCall<
+    Empty,
+    GetCompletionsWithDeepResearcherEntryResponse
   >;
 }
 
@@ -7125,6 +7463,56 @@ export interface ApexServiceClient extends Client {
     callback: (
       error: ServiceError | null,
       response: SearchChatIdsByPromptAndCompletionTextResponse,
+    ) => void,
+  ): ClientUnaryCall;
+  /** UpdateCompletionAttributes updates attribute for a given chat completion */
+  updateCompletionAttributes(
+    request: UpdateCompletionAttributesRequest,
+    callback: (
+      error: ServiceError | null,
+      response: UpdateCompletionAttributesResponse,
+    ) => void,
+  ): ClientUnaryCall;
+  updateCompletionAttributes(
+    request: UpdateCompletionAttributesRequest,
+    metadata: Metadata,
+    callback: (
+      error: ServiceError | null,
+      response: UpdateCompletionAttributesResponse,
+    ) => void,
+  ): ClientUnaryCall;
+  updateCompletionAttributes(
+    request: UpdateCompletionAttributesRequest,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (
+      error: ServiceError | null,
+      response: UpdateCompletionAttributesResponse,
+    ) => void,
+  ): ClientUnaryCall;
+  /** GetCompletionsWithDeepResearcherEntry returns a list of completions that contain metadata on deep researcher */
+  getCompletionsWithDeepResearcherEntry(
+    request: Empty,
+    callback: (
+      error: ServiceError | null,
+      response: GetCompletionsWithDeepResearcherEntryResponse,
+    ) => void,
+  ): ClientUnaryCall;
+  getCompletionsWithDeepResearcherEntry(
+    request: Empty,
+    metadata: Metadata,
+    callback: (
+      error: ServiceError | null,
+      response: GetCompletionsWithDeepResearcherEntryResponse,
+    ) => void,
+  ): ClientUnaryCall;
+  getCompletionsWithDeepResearcherEntry(
+    request: Empty,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (
+      error: ServiceError | null,
+      response: GetCompletionsWithDeepResearcherEntryResponse,
     ) => void,
   ): ClientUnaryCall;
 }
