@@ -21,6 +21,7 @@ import {
   type UntypedServiceImplementation,
 } from "@grpc/grpc-js";
 import { Empty } from "../../google/protobuf/empty";
+import { Struct } from "../../google/protobuf/struct";
 import { Timestamp } from "../../google/protobuf/timestamp";
 
 export const protobufPackage = "apex.v1";
@@ -483,6 +484,40 @@ export interface GetChatSessionsResponse {
   chatSessions: ChatSession[];
 }
 
+/** A GetStoredChatCompletionRequest request message */
+export interface GetStoredChatCompletionsRequest {
+  /** chat_id: a unique identifier for a chat */
+  chatId: string;
+}
+
+/** A StoredChatCompletion message repeated in GetStoredChatCompletionsResponse */
+export interface StoredChatCompletion {
+  /** id: chat completion id */
+  id: string;
+  /** chat_id: chat id */
+  chatId: string;
+  /** completion_type: type of completion */
+  completionType: string;
+  /** created_at: when the chat was created */
+  createdAt?: Date | undefined;
+  /** completed_at: when the chat was updated */
+  completedAt?: Date | undefined;
+  /** user_prompt_text: user_prompt_text of chat */
+  userPromptText: string;
+  /** completion_text: completion_text of chat */
+  completionText: string;
+  /** metadata: metadata json blob */
+  metadata?: { [key: string]: any } | undefined;
+  /** error_message: error_message if any */
+  errorMessage: string;
+}
+
+/** A GetChatStoredChatCompletionResponse response */
+export interface GetStoredChatCompletionsResponse {
+  /** chat_completions: the chat completions */
+  chatCompletions: StoredChatCompletion[];
+}
+
 /** Directly model the attributes as a map */
 export interface UpdateChatAttributeRequest {
   /** chat_id: the unique id associated to a users chat message */
@@ -496,8 +531,21 @@ export interface UpdateChatAttributeRequest_AttributesEntry {
   value: string;
 }
 
+/** A UpdateChatAttribute response */
 export interface UpdateChatAttributeResponse {
   /** success: indicates if an attribute update was successful */
+  success: boolean;
+}
+
+/** A DeleteChats request */
+export interface DeleteChatsRequest {
+  /** chat_ids: the unique ids associated to user chat messages that should be deleted */
+  chatIds: string[];
+}
+
+/** A DeleteChats response */
+export interface DeleteChatsResponse {
+  /** success: indicates if the deletion was successful */
   success: boolean;
 }
 
@@ -4596,6 +4644,392 @@ export const GetChatSessionsResponse: MessageFns<GetChatSessionsResponse> = {
   },
 };
 
+function createBaseGetStoredChatCompletionsRequest(): GetStoredChatCompletionsRequest {
+  return { chatId: "" };
+}
+
+export const GetStoredChatCompletionsRequest: MessageFns<GetStoredChatCompletionsRequest> =
+  {
+    encode(
+      message: GetStoredChatCompletionsRequest,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      if (message.chatId !== "") {
+        writer.uint32(10).string(message.chatId);
+      }
+      return writer;
+    },
+
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): GetStoredChatCompletionsRequest {
+      const reader =
+        input instanceof BinaryReader ? input : new BinaryReader(input);
+      let end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseGetStoredChatCompletionsRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.chatId = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    },
+
+    fromJSON(object: any): GetStoredChatCompletionsRequest {
+      return {
+        chatId: isSet(object.chatId) ? globalThis.String(object.chatId) : "",
+      };
+    },
+
+    toJSON(message: GetStoredChatCompletionsRequest): unknown {
+      const obj: any = {};
+      if (message.chatId !== "") {
+        obj.chatId = message.chatId;
+      }
+      return obj;
+    },
+
+    create(
+      base?: DeepPartial<GetStoredChatCompletionsRequest>,
+    ): GetStoredChatCompletionsRequest {
+      return GetStoredChatCompletionsRequest.fromPartial(base ?? {});
+    },
+    fromPartial(
+      object: DeepPartial<GetStoredChatCompletionsRequest>,
+    ): GetStoredChatCompletionsRequest {
+      const message = createBaseGetStoredChatCompletionsRequest();
+      message.chatId = object.chatId ?? "";
+      return message;
+    },
+  };
+
+function createBaseStoredChatCompletion(): StoredChatCompletion {
+  return {
+    id: "",
+    chatId: "",
+    completionType: "",
+    createdAt: undefined,
+    completedAt: undefined,
+    userPromptText: "",
+    completionText: "",
+    metadata: undefined,
+    errorMessage: "",
+  };
+}
+
+export const StoredChatCompletion: MessageFns<StoredChatCompletion> = {
+  encode(
+    message: StoredChatCompletion,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
+    if (message.id !== "") {
+      writer.uint32(10).string(message.id);
+    }
+    if (message.chatId !== "") {
+      writer.uint32(18).string(message.chatId);
+    }
+    if (message.completionType !== "") {
+      writer.uint32(26).string(message.completionType);
+    }
+    if (message.createdAt !== undefined) {
+      Timestamp.encode(
+        toTimestamp(message.createdAt),
+        writer.uint32(34).fork(),
+      ).join();
+    }
+    if (message.completedAt !== undefined) {
+      Timestamp.encode(
+        toTimestamp(message.completedAt),
+        writer.uint32(42).fork(),
+      ).join();
+    }
+    if (message.userPromptText !== "") {
+      writer.uint32(50).string(message.userPromptText);
+    }
+    if (message.completionText !== "") {
+      writer.uint32(58).string(message.completionText);
+    }
+    if (message.metadata !== undefined) {
+      Struct.encode(
+        Struct.wrap(message.metadata),
+        writer.uint32(66).fork(),
+      ).join();
+    }
+    if (message.errorMessage !== "") {
+      writer.uint32(74).string(message.errorMessage);
+    }
+    return writer;
+  },
+
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): StoredChatCompletion {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseStoredChatCompletion();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.id = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.chatId = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.completionType = reader.string();
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.createdAt = fromTimestamp(
+            Timestamp.decode(reader, reader.uint32()),
+          );
+          continue;
+        }
+        case 5: {
+          if (tag !== 42) {
+            break;
+          }
+
+          message.completedAt = fromTimestamp(
+            Timestamp.decode(reader, reader.uint32()),
+          );
+          continue;
+        }
+        case 6: {
+          if (tag !== 50) {
+            break;
+          }
+
+          message.userPromptText = reader.string();
+          continue;
+        }
+        case 7: {
+          if (tag !== 58) {
+            break;
+          }
+
+          message.completionText = reader.string();
+          continue;
+        }
+        case 8: {
+          if (tag !== 66) {
+            break;
+          }
+
+          message.metadata = Struct.unwrap(
+            Struct.decode(reader, reader.uint32()),
+          );
+          continue;
+        }
+        case 9: {
+          if (tag !== 74) {
+            break;
+          }
+
+          message.errorMessage = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): StoredChatCompletion {
+    return {
+      id: isSet(object.id) ? globalThis.String(object.id) : "",
+      chatId: isSet(object.chatId) ? globalThis.String(object.chatId) : "",
+      completionType: isSet(object.completionType)
+        ? globalThis.String(object.completionType)
+        : "",
+      createdAt: isSet(object.createdAt)
+        ? fromJsonTimestamp(object.createdAt)
+        : undefined,
+      completedAt: isSet(object.completedAt)
+        ? fromJsonTimestamp(object.completedAt)
+        : undefined,
+      userPromptText: isSet(object.userPromptText)
+        ? globalThis.String(object.userPromptText)
+        : "",
+      completionText: isSet(object.completionText)
+        ? globalThis.String(object.completionText)
+        : "",
+      metadata: isObject(object.metadata) ? object.metadata : undefined,
+      errorMessage: isSet(object.errorMessage)
+        ? globalThis.String(object.errorMessage)
+        : "",
+    };
+  },
+
+  toJSON(message: StoredChatCompletion): unknown {
+    const obj: any = {};
+    if (message.id !== "") {
+      obj.id = message.id;
+    }
+    if (message.chatId !== "") {
+      obj.chatId = message.chatId;
+    }
+    if (message.completionType !== "") {
+      obj.completionType = message.completionType;
+    }
+    if (message.createdAt !== undefined) {
+      obj.createdAt = message.createdAt.toISOString();
+    }
+    if (message.completedAt !== undefined) {
+      obj.completedAt = message.completedAt.toISOString();
+    }
+    if (message.userPromptText !== "") {
+      obj.userPromptText = message.userPromptText;
+    }
+    if (message.completionText !== "") {
+      obj.completionText = message.completionText;
+    }
+    if (message.metadata !== undefined) {
+      obj.metadata = message.metadata;
+    }
+    if (message.errorMessage !== "") {
+      obj.errorMessage = message.errorMessage;
+    }
+    return obj;
+  },
+
+  create(base?: DeepPartial<StoredChatCompletion>): StoredChatCompletion {
+    return StoredChatCompletion.fromPartial(base ?? {});
+  },
+  fromPartial(object: DeepPartial<StoredChatCompletion>): StoredChatCompletion {
+    const message = createBaseStoredChatCompletion();
+    message.id = object.id ?? "";
+    message.chatId = object.chatId ?? "";
+    message.completionType = object.completionType ?? "";
+    message.createdAt = object.createdAt ?? undefined;
+    message.completedAt = object.completedAt ?? undefined;
+    message.userPromptText = object.userPromptText ?? "";
+    message.completionText = object.completionText ?? "";
+    message.metadata = object.metadata ?? undefined;
+    message.errorMessage = object.errorMessage ?? "";
+    return message;
+  },
+};
+
+function createBaseGetStoredChatCompletionsResponse(): GetStoredChatCompletionsResponse {
+  return { chatCompletions: [] };
+}
+
+export const GetStoredChatCompletionsResponse: MessageFns<GetStoredChatCompletionsResponse> =
+  {
+    encode(
+      message: GetStoredChatCompletionsResponse,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      for (const v of message.chatCompletions) {
+        StoredChatCompletion.encode(v!, writer.uint32(10).fork()).join();
+      }
+      return writer;
+    },
+
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): GetStoredChatCompletionsResponse {
+      const reader =
+        input instanceof BinaryReader ? input : new BinaryReader(input);
+      let end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseGetStoredChatCompletionsResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.chatCompletions.push(
+              StoredChatCompletion.decode(reader, reader.uint32()),
+            );
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    },
+
+    fromJSON(object: any): GetStoredChatCompletionsResponse {
+      return {
+        chatCompletions: globalThis.Array.isArray(object?.chatCompletions)
+          ? object.chatCompletions.map((e: any) =>
+              StoredChatCompletion.fromJSON(e),
+            )
+          : [],
+      };
+    },
+
+    toJSON(message: GetStoredChatCompletionsResponse): unknown {
+      const obj: any = {};
+      if (message.chatCompletions?.length) {
+        obj.chatCompletions = message.chatCompletions.map(e =>
+          StoredChatCompletion.toJSON(e),
+        );
+      }
+      return obj;
+    },
+
+    create(
+      base?: DeepPartial<GetStoredChatCompletionsResponse>,
+    ): GetStoredChatCompletionsResponse {
+      return GetStoredChatCompletionsResponse.fromPartial(base ?? {});
+    },
+    fromPartial(
+      object: DeepPartial<GetStoredChatCompletionsResponse>,
+    ): GetStoredChatCompletionsResponse {
+      const message = createBaseGetStoredChatCompletionsResponse();
+      message.chatCompletions =
+        object.chatCompletions?.map(e => StoredChatCompletion.fromPartial(e)) ||
+        [];
+      return message;
+    },
+  };
+
 function createBaseUpdateChatAttributeRequest(): UpdateChatAttributeRequest {
   return { chatId: "", attributes: {} };
 }
@@ -4876,6 +5310,144 @@ export const UpdateChatAttributeResponse: MessageFns<UpdateChatAttributeResponse
     },
   };
 
+function createBaseDeleteChatsRequest(): DeleteChatsRequest {
+  return { chatIds: [] };
+}
+
+export const DeleteChatsRequest: MessageFns<DeleteChatsRequest> = {
+  encode(
+    message: DeleteChatsRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
+    for (const v of message.chatIds) {
+      writer.uint32(10).string(v!);
+    }
+    return writer;
+  },
+
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): DeleteChatsRequest {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseDeleteChatsRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.chatIds.push(reader.string());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): DeleteChatsRequest {
+    return {
+      chatIds: globalThis.Array.isArray(object?.chatIds)
+        ? object.chatIds.map((e: any) => globalThis.String(e))
+        : [],
+    };
+  },
+
+  toJSON(message: DeleteChatsRequest): unknown {
+    const obj: any = {};
+    if (message.chatIds?.length) {
+      obj.chatIds = message.chatIds;
+    }
+    return obj;
+  },
+
+  create(base?: DeepPartial<DeleteChatsRequest>): DeleteChatsRequest {
+    return DeleteChatsRequest.fromPartial(base ?? {});
+  },
+  fromPartial(object: DeepPartial<DeleteChatsRequest>): DeleteChatsRequest {
+    const message = createBaseDeleteChatsRequest();
+    message.chatIds = object.chatIds?.map(e => e) || [];
+    return message;
+  },
+};
+
+function createBaseDeleteChatsResponse(): DeleteChatsResponse {
+  return { success: false };
+}
+
+export const DeleteChatsResponse: MessageFns<DeleteChatsResponse> = {
+  encode(
+    message: DeleteChatsResponse,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
+    if (message.success !== false) {
+      writer.uint32(8).bool(message.success);
+    }
+    return writer;
+  },
+
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): DeleteChatsResponse {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseDeleteChatsResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 8) {
+            break;
+          }
+
+          message.success = reader.bool();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): DeleteChatsResponse {
+    return {
+      success: isSet(object.success)
+        ? globalThis.Boolean(object.success)
+        : false,
+    };
+  },
+
+  toJSON(message: DeleteChatsResponse): unknown {
+    const obj: any = {};
+    if (message.success !== false) {
+      obj.success = message.success;
+    }
+    return obj;
+  },
+
+  create(base?: DeepPartial<DeleteChatsResponse>): DeleteChatsResponse {
+    return DeleteChatsResponse.fromPartial(base ?? {});
+  },
+  fromPartial(object: DeepPartial<DeleteChatsResponse>): DeleteChatsResponse {
+    const message = createBaseDeleteChatsResponse();
+    message.success = object.success ?? false;
+    return message;
+  },
+};
+
 export type ApexServiceService = typeof ApexServiceService;
 export const ApexServiceService = {
   /** ChatCompletion generates a completion for a given request. */
@@ -4956,6 +5528,20 @@ export const ApexServiceService = {
     responseDeserialize: (value: Buffer) =>
       GetChatSessionsResponse.decode(value),
   },
+  /** GetStoredChatCompletions retrieves a chat's completions */
+  getStoredChatCompletions: {
+    path: "/apex.v1.ApexService/GetStoredChatCompletions",
+    requestStream: false,
+    responseStream: false,
+    requestSerialize: (value: GetStoredChatCompletionsRequest) =>
+      Buffer.from(GetStoredChatCompletionsRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer) =>
+      GetStoredChatCompletionsRequest.decode(value),
+    responseSerialize: (value: GetStoredChatCompletionsResponse) =>
+      Buffer.from(GetStoredChatCompletionsResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer) =>
+      GetStoredChatCompletionsResponse.decode(value),
+  },
   /** UpdateChatAttribute updates attribute after asking LLM for one */
   updateChatAttribute: {
     path: "/apex.v1.ApexService/UpdateChatAttribute",
@@ -4969,6 +5555,18 @@ export const ApexServiceService = {
       Buffer.from(UpdateChatAttributeResponse.encode(value).finish()),
     responseDeserialize: (value: Buffer) =>
       UpdateChatAttributeResponse.decode(value),
+  },
+  /** DeleteChats removes chats based on the specified chat_ids */
+  deleteChats: {
+    path: "/apex.v1.ApexService/DeleteChats",
+    requestStream: false,
+    responseStream: false,
+    requestSerialize: (value: DeleteChatsRequest) =>
+      Buffer.from(DeleteChatsRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer) => DeleteChatsRequest.decode(value),
+    responseSerialize: (value: DeleteChatsResponse) =>
+      Buffer.from(DeleteChatsResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer) => DeleteChatsResponse.decode(value),
   },
 } as const;
 
@@ -4997,11 +5595,18 @@ export interface ApexServiceServer extends UntypedServiceImplementation {
   >;
   /** GetChatSessions retrieves a user's chats */
   getChatSessions: handleUnaryCall<Empty, GetChatSessionsResponse>;
+  /** GetStoredChatCompletions retrieves a chat's completions */
+  getStoredChatCompletions: handleUnaryCall<
+    GetStoredChatCompletionsRequest,
+    GetStoredChatCompletionsResponse
+  >;
   /** UpdateChatAttribute updates attribute after asking LLM for one */
   updateChatAttribute: handleUnaryCall<
     UpdateChatAttributeRequest,
     UpdateChatAttributeResponse
   >;
+  /** DeleteChats removes chats based on the specified chat_ids */
+  deleteChats: handleUnaryCall<DeleteChatsRequest, DeleteChatsResponse>;
 }
 
 export interface ApexServiceClient extends Client {
@@ -5140,6 +5745,31 @@ export interface ApexServiceClient extends Client {
       response: GetChatSessionsResponse,
     ) => void,
   ): ClientUnaryCall;
+  /** GetStoredChatCompletions retrieves a chat's completions */
+  getStoredChatCompletions(
+    request: GetStoredChatCompletionsRequest,
+    callback: (
+      error: ServiceError | null,
+      response: GetStoredChatCompletionsResponse,
+    ) => void,
+  ): ClientUnaryCall;
+  getStoredChatCompletions(
+    request: GetStoredChatCompletionsRequest,
+    metadata: Metadata,
+    callback: (
+      error: ServiceError | null,
+      response: GetStoredChatCompletionsResponse,
+    ) => void,
+  ): ClientUnaryCall;
+  getStoredChatCompletions(
+    request: GetStoredChatCompletionsRequest,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (
+      error: ServiceError | null,
+      response: GetStoredChatCompletionsResponse,
+    ) => void,
+  ): ClientUnaryCall;
   /** UpdateChatAttribute updates attribute after asking LLM for one */
   updateChatAttribute(
     request: UpdateChatAttributeRequest,
@@ -5163,6 +5793,31 @@ export interface ApexServiceClient extends Client {
     callback: (
       error: ServiceError | null,
       response: UpdateChatAttributeResponse,
+    ) => void,
+  ): ClientUnaryCall;
+  /** DeleteChats removes chats based on the specified chat_ids */
+  deleteChats(
+    request: DeleteChatsRequest,
+    callback: (
+      error: ServiceError | null,
+      response: DeleteChatsResponse,
+    ) => void,
+  ): ClientUnaryCall;
+  deleteChats(
+    request: DeleteChatsRequest,
+    metadata: Metadata,
+    callback: (
+      error: ServiceError | null,
+      response: DeleteChatsResponse,
+    ) => void,
+  ): ClientUnaryCall;
+  deleteChats(
+    request: DeleteChatsRequest,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (
+      error: ServiceError | null,
+      response: DeleteChatsResponse,
     ) => void,
   ): ClientUnaryCall;
 }

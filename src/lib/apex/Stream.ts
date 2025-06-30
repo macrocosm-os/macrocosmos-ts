@@ -5,7 +5,10 @@ export type ReadableStreamInterface = ReadableStream<Uint8Array>;
  * Similar to OpenAI's Stream class but specific to Apex API
  */
 export class ApexStream<Item> implements AsyncIterable<Item> {
-  controller: AbortController;
+  /**
+   * The AbortController for this stream. Call `abort()` to cancel the stream.
+   */
+  public controller: AbortController;
 
   constructor(
     private iterator: () => AsyncIterator<Item>,

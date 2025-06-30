@@ -45,11 +45,19 @@ export interface CrawlerCriteria {
   /** platform: the platform of the job ('x' or 'reddit') */
   platform: string;
   /** topic: the topic of the job (e.g. '#ai' for X, 'r/ai' for Reddit) */
-  topic: string;
+  topic?: string | undefined;
   /** notification: the details of the notification to be sent to the user */
   notification?: CrawlerNotification | undefined;
   /** mock: Used for testing purposes (optional, defaults to false) */
   mock: boolean;
+  /** user_id: the ID of the user who created the gravity task */
+  userId: string;
+  /** keyword: the keyword to search for in the job (optional) */
+  keyword?: string | undefined;
+  /** post_start_datetime: the start date of the job (optional) */
+  postStartDatetime?: Date | undefined;
+  /** post_end_datetime: the end date of the job (optional) */
+  postEndDatetime?: Date | undefined;
 }
 
 /** CrawlerNotification is the details of the notification to be sent to the user */
@@ -124,9 +132,15 @@ export interface GetGravityTasksResponse {
 /** GravityTask defines a crawler's criteria for a single job (platform/topic) */
 export interface GravityTask {
   /** topic: the topic of the job (e.g. '#ai' for X, 'r/ai' for Reddit) */
-  topic: string;
+  topic?: string | undefined;
   /** platform: the platform of the job ('x' or 'reddit') */
   platform: string;
+  /** keyword: the keyword to search for in the job (optional) */
+  keyword?: string | undefined;
+  /** post_start_datetime: the start date of the job (optional) */
+  postStartDatetime?: Date | undefined;
+  /** post_end_datetime: the end date of the job (optional) */
+  postEndDatetime?: Date | undefined;
 }
 
 /** NotificationRequest is the request message for sending a notification to a user when a dataset is ready to download */
@@ -507,7 +521,16 @@ export const Crawler: MessageFns<Crawler> = {
 };
 
 function createBaseCrawlerCriteria(): CrawlerCriteria {
-  return { platform: "", topic: "", notification: undefined, mock: false };
+  return {
+    platform: "",
+    topic: undefined,
+    notification: undefined,
+    mock: false,
+    userId: "",
+    keyword: undefined,
+    postStartDatetime: undefined,
+    postEndDatetime: undefined,
+  };
 }
 
 export const CrawlerCriteria: MessageFns<CrawlerCriteria> = {
@@ -518,7 +541,7 @@ export const CrawlerCriteria: MessageFns<CrawlerCriteria> = {
     if (message.platform !== "") {
       writer.uint32(10).string(message.platform);
     }
-    if (message.topic !== "") {
+    if (message.topic !== undefined) {
       writer.uint32(18).string(message.topic);
     }
     if (message.notification !== undefined) {
@@ -529,6 +552,24 @@ export const CrawlerCriteria: MessageFns<CrawlerCriteria> = {
     }
     if (message.mock !== false) {
       writer.uint32(32).bool(message.mock);
+    }
+    if (message.userId !== "") {
+      writer.uint32(42).string(message.userId);
+    }
+    if (message.keyword !== undefined) {
+      writer.uint32(50).string(message.keyword);
+    }
+    if (message.postStartDatetime !== undefined) {
+      Timestamp.encode(
+        toTimestamp(message.postStartDatetime),
+        writer.uint32(58).fork(),
+      ).join();
+    }
+    if (message.postEndDatetime !== undefined) {
+      Timestamp.encode(
+        toTimestamp(message.postEndDatetime),
+        writer.uint32(66).fork(),
+      ).join();
     }
     return writer;
   },
@@ -576,6 +617,42 @@ export const CrawlerCriteria: MessageFns<CrawlerCriteria> = {
           message.mock = reader.bool();
           continue;
         }
+        case 5: {
+          if (tag !== 42) {
+            break;
+          }
+
+          message.userId = reader.string();
+          continue;
+        }
+        case 6: {
+          if (tag !== 50) {
+            break;
+          }
+
+          message.keyword = reader.string();
+          continue;
+        }
+        case 7: {
+          if (tag !== 58) {
+            break;
+          }
+
+          message.postStartDatetime = fromTimestamp(
+            Timestamp.decode(reader, reader.uint32()),
+          );
+          continue;
+        }
+        case 8: {
+          if (tag !== 66) {
+            break;
+          }
+
+          message.postEndDatetime = fromTimestamp(
+            Timestamp.decode(reader, reader.uint32()),
+          );
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -590,11 +667,21 @@ export const CrawlerCriteria: MessageFns<CrawlerCriteria> = {
       platform: isSet(object.platform)
         ? globalThis.String(object.platform)
         : "",
-      topic: isSet(object.topic) ? globalThis.String(object.topic) : "",
+      topic: isSet(object.topic) ? globalThis.String(object.topic) : undefined,
       notification: isSet(object.notification)
         ? CrawlerNotification.fromJSON(object.notification)
         : undefined,
       mock: isSet(object.mock) ? globalThis.Boolean(object.mock) : false,
+      userId: isSet(object.userId) ? globalThis.String(object.userId) : "",
+      keyword: isSet(object.keyword)
+        ? globalThis.String(object.keyword)
+        : undefined,
+      postStartDatetime: isSet(object.postStartDatetime)
+        ? fromJsonTimestamp(object.postStartDatetime)
+        : undefined,
+      postEndDatetime: isSet(object.postEndDatetime)
+        ? fromJsonTimestamp(object.postEndDatetime)
+        : undefined,
     };
   },
 
@@ -603,7 +690,7 @@ export const CrawlerCriteria: MessageFns<CrawlerCriteria> = {
     if (message.platform !== "") {
       obj.platform = message.platform;
     }
-    if (message.topic !== "") {
+    if (message.topic !== undefined) {
       obj.topic = message.topic;
     }
     if (message.notification !== undefined) {
@@ -611,6 +698,18 @@ export const CrawlerCriteria: MessageFns<CrawlerCriteria> = {
     }
     if (message.mock !== false) {
       obj.mock = message.mock;
+    }
+    if (message.userId !== "") {
+      obj.userId = message.userId;
+    }
+    if (message.keyword !== undefined) {
+      obj.keyword = message.keyword;
+    }
+    if (message.postStartDatetime !== undefined) {
+      obj.postStartDatetime = message.postStartDatetime.toISOString();
+    }
+    if (message.postEndDatetime !== undefined) {
+      obj.postEndDatetime = message.postEndDatetime.toISOString();
     }
     return obj;
   },
@@ -621,12 +720,16 @@ export const CrawlerCriteria: MessageFns<CrawlerCriteria> = {
   fromPartial(object: DeepPartial<CrawlerCriteria>): CrawlerCriteria {
     const message = createBaseCrawlerCriteria();
     message.platform = object.platform ?? "";
-    message.topic = object.topic ?? "";
+    message.topic = object.topic ?? undefined;
     message.notification =
       object.notification !== undefined && object.notification !== null
         ? CrawlerNotification.fromPartial(object.notification)
         : undefined;
     message.mock = object.mock ?? false;
+    message.userId = object.userId ?? "";
+    message.keyword = object.keyword ?? undefined;
+    message.postStartDatetime = object.postStartDatetime ?? undefined;
+    message.postEndDatetime = object.postEndDatetime ?? undefined;
     return message;
   },
 };
@@ -1267,7 +1370,13 @@ export const GetGravityTasksResponse: MessageFns<GetGravityTasksResponse> = {
 };
 
 function createBaseGravityTask(): GravityTask {
-  return { topic: "", platform: "" };
+  return {
+    topic: undefined,
+    platform: "",
+    keyword: undefined,
+    postStartDatetime: undefined,
+    postEndDatetime: undefined,
+  };
 }
 
 export const GravityTask: MessageFns<GravityTask> = {
@@ -1275,11 +1384,26 @@ export const GravityTask: MessageFns<GravityTask> = {
     message: GravityTask,
     writer: BinaryWriter = new BinaryWriter(),
   ): BinaryWriter {
-    if (message.topic !== "") {
+    if (message.topic !== undefined) {
       writer.uint32(10).string(message.topic);
     }
     if (message.platform !== "") {
       writer.uint32(18).string(message.platform);
+    }
+    if (message.keyword !== undefined) {
+      writer.uint32(26).string(message.keyword);
+    }
+    if (message.postStartDatetime !== undefined) {
+      Timestamp.encode(
+        toTimestamp(message.postStartDatetime),
+        writer.uint32(34).fork(),
+      ).join();
+    }
+    if (message.postEndDatetime !== undefined) {
+      Timestamp.encode(
+        toTimestamp(message.postEndDatetime),
+        writer.uint32(42).fork(),
+      ).join();
     }
     return writer;
   },
@@ -1308,6 +1432,34 @@ export const GravityTask: MessageFns<GravityTask> = {
           message.platform = reader.string();
           continue;
         }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.keyword = reader.string();
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.postStartDatetime = fromTimestamp(
+            Timestamp.decode(reader, reader.uint32()),
+          );
+          continue;
+        }
+        case 5: {
+          if (tag !== 42) {
+            break;
+          }
+
+          message.postEndDatetime = fromTimestamp(
+            Timestamp.decode(reader, reader.uint32()),
+          );
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -1319,20 +1471,38 @@ export const GravityTask: MessageFns<GravityTask> = {
 
   fromJSON(object: any): GravityTask {
     return {
-      topic: isSet(object.topic) ? globalThis.String(object.topic) : "",
+      topic: isSet(object.topic) ? globalThis.String(object.topic) : undefined,
       platform: isSet(object.platform)
         ? globalThis.String(object.platform)
         : "",
+      keyword: isSet(object.keyword)
+        ? globalThis.String(object.keyword)
+        : undefined,
+      postStartDatetime: isSet(object.postStartDatetime)
+        ? fromJsonTimestamp(object.postStartDatetime)
+        : undefined,
+      postEndDatetime: isSet(object.postEndDatetime)
+        ? fromJsonTimestamp(object.postEndDatetime)
+        : undefined,
     };
   },
 
   toJSON(message: GravityTask): unknown {
     const obj: any = {};
-    if (message.topic !== "") {
+    if (message.topic !== undefined) {
       obj.topic = message.topic;
     }
     if (message.platform !== "") {
       obj.platform = message.platform;
+    }
+    if (message.keyword !== undefined) {
+      obj.keyword = message.keyword;
+    }
+    if (message.postStartDatetime !== undefined) {
+      obj.postStartDatetime = message.postStartDatetime.toISOString();
+    }
+    if (message.postEndDatetime !== undefined) {
+      obj.postEndDatetime = message.postEndDatetime.toISOString();
     }
     return obj;
   },
@@ -1342,8 +1512,11 @@ export const GravityTask: MessageFns<GravityTask> = {
   },
   fromPartial(object: DeepPartial<GravityTask>): GravityTask {
     const message = createBaseGravityTask();
-    message.topic = object.topic ?? "";
+    message.topic = object.topic ?? undefined;
     message.platform = object.platform ?? "";
+    message.keyword = object.keyword ?? undefined;
+    message.postStartDatetime = object.postStartDatetime ?? undefined;
+    message.postEndDatetime = object.postEndDatetime ?? undefined;
     return message;
   },
 };

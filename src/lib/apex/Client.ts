@@ -9,6 +9,8 @@ import {
   SubmitDeepResearcherJobResponse,
   GetDeepResearcherJobRequest,
   GetDeepResearcherJobResponse,
+  GetStoredChatCompletionsRequest,
+  GetStoredChatCompletionsResponse,
 } from "../../generated/apex/v1/apex";
 import * as grpc from "@grpc/grpc-js";
 import { BaseClient, BaseClientOptions } from "../BaseClient";
@@ -28,6 +30,7 @@ type WebRetrievalRequest = MarkFieldsOptional<
 // re-export the types for use in the package
 export {
   ApexStream,
+  ChatCompletionChunkResponse,
   WebRetrievalRequest,
   WebRetrievalResponse,
   ChatCompletionRequest,
@@ -35,9 +38,10 @@ export {
   SubmitDeepResearcherJobResponse,
   GetDeepResearcherJobRequest,
   GetDeepResearcherJobResponse,
+  GetStoredChatCompletionsRequest,
+  GetStoredChatCompletionsResponse,
 };
 
-// Client options
 interface ApexClientOptions extends BaseClientOptions {
   timeout?: number;
 }
@@ -51,6 +55,62 @@ export interface ApexProtoClient {
     new (address: string, credentials: grpc.ChannelCredentials): ApexService;
   };
 }
+export interface ChatCompletionsCreate {
+  (
+    params: ChatCompletionRequest & { stream: true },
+    /** options are not used, but are accepted for compatibility with the OpenAI API */
+    _options?: unknown,
+  ): Promise<ApexStream<ChatCompletionChunkResponse>>;
+  (
+    params: ChatCompletionRequest & { stream?: false | undefined },
+    /** options are not used, but are accepted for compatibility with the OpenAI API */
+    _options?: unknown,
+  ): Promise<ChatCompletionResponse>;
+}
+
+function chatCompletionsCreate(
+  this: ApexClient,
+  params: ChatCompletionRequest & { stream: true },
+  /** options are not used, but are accepted for compatibility with the OpenAI API */
+  _options?: unknown,
+): Promise<ApexStream<ChatCompletionChunkResponse>>;
+function chatCompletionsCreate(
+  this: ApexClient,
+  params: ChatCompletionRequest & { stream?: false | undefined },
+  _options?: unknown,
+): Promise<ChatCompletionResponse>;
+function chatCompletionsCreate(
+  this: ApexClient,
+  params: ChatCompletionRequest,
+  _options?: unknown,
+): Promise<ApexStream<ChatCompletionChunkResponse> | ChatCompletionResponse> {
+  const client = this.createGrpcClient();
+  const requestParams = {
+    ...params,
+    uids: params.uids ?? [],
+    timeout: params.timeout || this.getDefaultTimeout(),
+  };
+  if (requestParams.stream) {
+    const stream = client.chatCompletionStream(requestParams);
+    const controller = new AbortController();
+    return Promise.resolve(
+      ApexStream.fromGrpcStream<ChatCompletionChunkResponse>(
+        stream,
+        controller,
+      ),
+    );
+  } else {
+    return new Promise<ChatCompletionResponse>((resolve, reject) => {
+      client.chatCompletion(requestParams, (error, response) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+        resolve(response);
+      });
+    });
+  }
+}
 
 /**
  * Client for interacting with the Apex API
@@ -58,7 +118,6 @@ export interface ApexProtoClient {
  */
 export class ApexClient extends BaseClient {
   private _grpcClient?: ApexServiceClient;
-
   private defaultTimeout: number;
 
   constructor(options: ApexClientOptions, grpcClient?: ApexServiceClient) {
@@ -67,7 +126,7 @@ export class ApexClient extends BaseClient {
     this._grpcClient = grpcClient;
   }
 
-  private createGrpcClient(): ApexServiceClient {
+  protected createGrpcClient(): ApexServiceClient {
     if (this._grpcClient) return this._grpcClient;
 
     // Create gRPC credentials with API key
@@ -104,7 +163,7 @@ export class ApexClient extends BaseClient {
   /**
    * Get the default timeout for chat completions
    */
-  private getDefaultTimeout(): number {
+  protected getDefaultTimeout(): number {
     return this.defaultTimeout;
   }
 
@@ -113,47 +172,7 @@ export class ApexClient extends BaseClient {
    */
   chat = {
     completions: {
-      create: async (
-        params: ChatCompletionRequest,
-        _options?: unknown,
-      ): Promise<
-        ChatCompletionResponse | ApexStream<ChatCompletionChunkResponse>
-      > => {
-        const client = this.createGrpcClient();
-
-        // Apply default timeout if not specified in params
-        const requestParams = {
-          ...params,
-          uids: params.uids ?? [],
-          timeout: params.timeout || this.getDefaultTimeout(),
-        };
-
-        // Handle streaming vs non-streaming
-        if (requestParams.stream) {
-          // Create a streaming call
-          const stream = client.chatCompletionStream(requestParams);
-
-          // Create controller for abort capability
-          const controller = new AbortController();
-
-          // Return a Stream object that wraps the gRPC stream
-          return ApexStream.fromGrpcStream<ChatCompletionChunkResponse>(
-            stream,
-            controller,
-          );
-        } else {
-          // For non-streaming, return a promise that resolves with the completion
-          return new Promise<ChatCompletionResponse>((resolve, reject) => {
-            client.chatCompletion(requestParams, (error, response) => {
-              if (error) {
-                reject(error);
-                return;
-              }
-              resolve(response);
-            });
-          });
-        }
-      },
+      create: chatCompletionsCreate.bind(this) as ChatCompletionsCreate,
     },
   };
 
@@ -180,29 +199,35 @@ export class ApexClient extends BaseClient {
   };
 
   /**
-   * Submit a deep researcher job
+   * Submit a deep researcher job with proper defaults
    */
   submitDeepResearcherJob = async (
     params: ChatCompletionRequest,
   ): Promise<SubmitDeepResearcherJobResponse> => {
     const client = this.createGrpcClient();
+    const request: GeneratedChatCompletionRequest = {
+      ...params,
+      uids: params.uids ?? [],
+      // Required internal fields for Deep Researcher
+      task: "InferenceTask",
+      mixture: false,
+      inferenceMode: "Chain-of-Thought",
+      stream: true,
+    };
 
     return new Promise<SubmitDeepResearcherJobResponse>((resolve, reject) => {
-      client.submitDeepResearcherJob(
-        { ...params, uids: params.uids ?? [] },
-        (error, response) => {
-          if (error) {
-            reject(error);
-            return;
-          }
-          resolve(response);
-        },
-      );
+      client.submitDeepResearcherJob(request, (error, response) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+        resolve(response);
+      });
     });
   };
 
   /**
-   * Get a deep researcher job
+   * Get the status and results of a deep research job
    */
   getDeepResearcherJob = async (
     params: GetDeepResearcherJobRequest,
@@ -211,6 +236,25 @@ export class ApexClient extends BaseClient {
 
     return new Promise<GetDeepResearcherJobResponse>((resolve, reject) => {
       client.getDeepResearcherJob(params, (error, response) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+        resolve(response);
+      });
+    });
+  };
+
+  /**
+   * Get completions of a chat
+   */
+  getStoredChatCompletions = async (
+    params: GetStoredChatCompletionsRequest,
+  ): Promise<GetStoredChatCompletionsResponse> => {
+    const client = this.createGrpcClient();
+
+    return new Promise<GetStoredChatCompletionsResponse>((resolve, reject) => {
+      client.getStoredChatCompletions(params, (error, response) => {
         if (error) {
           reject(error);
           return;
