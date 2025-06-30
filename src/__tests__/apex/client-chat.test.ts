@@ -96,6 +96,43 @@ describe("ApexClient", () => {
     expect(Object.keys(result.chatCompletions[0] || {}).length).toBe(0);
   }, 30000);
 
+  // it("should append a chat completion", async () => {
+  //   // chat ID for testing
+  //
+  //   const create_chat_result = await client.createChatAndCompletion({
+  //     userPrompt: "This is a test chat, how are you?",
+  //     chatType: "apex",
+  //     completionType: "basic",
+  //     title: "Test Chat",
+  //   });
+  //
+  //   // Verify the response structure
+  //   console.log("Create chat and completion response:", create_chat_result);
+  //   expect(create_chat_result).toBeDefined();
+  //   // Get stored chat completions
+  //   const result = await client.createCompletion({
+  //     chatId: create_chat_result.parsedChat?.id ?? "",
+  //     userPrompt: "This is a test completion, how are you?",
+  //     completionType: "basic",
+  //   });
+  //
+  //   // Verify the response structure
+  //   console.log("Create completion response:", result);
+  //   expect(result).toBeDefined();
+  //
+  //   // Check ParsedCompletion
+  //   expect(result.parsedCompletion).toBeDefined();
+  //   expect(result.parsedCompletion!.id).toBeDefined();
+  //   expect(result.parsedCompletion!.chatId).toBe(
+  //     create_chat_result.parsedChat!.id,
+  //   );
+  //   expect(result.parsedCompletion!.completionType).toBe("basic");
+  //   expect(result.parsedCompletion!.userPromptText).toBe(
+  //     "This is a test completion, how are you?",
+  //   );
+  //
+  // }, 30000);
+
   // Deep Researcher Tests
   it("should create a deep research job", async () => {
     // Create test parameters

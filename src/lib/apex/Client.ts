@@ -16,6 +16,8 @@ import {
   SearchChatIdsByPromptAndCompletionTextResponse,
   CreateChatAndCompletionRequest,
   CreateChatAndCompletionResponse,
+  CreateCompletionRequest,
+  CreateCompletionResponse,
 } from "../../generated/apex/v1/apex";
 import * as grpc from "@grpc/grpc-js";
 import { BaseClient, BaseClientOptions } from "../BaseClient";
@@ -334,6 +336,31 @@ export class ApexClient extends BaseClient {
         (
           error: grpc.ServiceError | null,
           response: CreateChatAndCompletionResponse,
+        ) => {
+          if (error) {
+            reject(error);
+            return;
+          }
+          resolve(response);
+        },
+      );
+    });
+  };
+
+  /**
+   * Create completion for a chat
+   */
+  createCompletion = async (
+    params: CreateCompletionRequest,
+  ): Promise<CreateCompletionResponse> => {
+    const client = this.createGrpcClient();
+
+    return new Promise<CreateCompletionResponse>((resolve, reject) => {
+      client.createCompletion(
+        params,
+        (
+          error: grpc.ServiceError | null,
+          response: CreateCompletionResponse,
         ) => {
           if (error) {
             reject(error);
