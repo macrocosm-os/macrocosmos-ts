@@ -133,7 +133,7 @@ describe("ApexClient", () => {
       "This is a test completion, how are you?",
     );
     // Delete test chat
-    const delete_chat_result = await client.deleteChat({
+    const delete_chat_result = await client.deleteChats({
       chatIds: [create_chat_result.parsedChat?.id ?? ""],
     });
     expect(delete_chat_result).toBeDefined();
@@ -154,7 +154,7 @@ describe("ApexClient", () => {
     expect(create_chat_result).toBeDefined();
 
     // Delete test chat
-    const delete_chat_result = await client.deleteChat({
+    const delete_chat_result = await client.deleteChats({
       chatIds: [create_chat_result.parsedChat?.id ?? ""],
     });
     expect(delete_chat_result).toBeDefined();
@@ -266,7 +266,7 @@ describe("ApexClient", () => {
     expect(result.parsedCompletion!.completionText).toBeDefined();
     expect(result.parsedCompletion!.createdAt).toBeDefined();
     // Delete test chat
-    const delete_chat_result = await client.deleteChat({
+    const delete_chat_result = await client.deleteChats({
       chatIds: [result.parsedChat?.id ?? ""],
     });
     expect(delete_chat_result.success).toBeTruthy();

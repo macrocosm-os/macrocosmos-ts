@@ -376,7 +376,7 @@ export class ApexClient extends BaseClient {
   /**
    * Delete a chat given its id
    */
-  deleteChat = async (
+  deleteChats = async (
     params: DeleteChatsRequest,
   ): Promise<DeleteChatsResponse> => {
     const client = this.createGrpcClient();
