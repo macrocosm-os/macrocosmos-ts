@@ -166,9 +166,10 @@ describe("ApexClient", () => {
     expect(get_chat_sessions_result).toBeDefined();
     // should be an empty array as we just deleted the chat
     expect(Array.isArray(get_chat_sessions_result.chatSessions)).toBe(true);
-    expect(Object.keys(get_chat_sessions_result.chatSessions[0] || {}).length).toBe(0);
+    expect(
+      Object.keys(get_chat_sessions_result.chatSessions[0] || {}).length,
+    ).toBe(0);
   }, 30000);
-
 
   // Deep Researcher Tests
   it("should create a deep research job", async () => {
@@ -219,7 +220,6 @@ describe("ApexClient", () => {
     // Log response for debugging
     console.log("Get Job Results Response:", response);
   }, 60000); // Longer timeout for this test as it involves multiple API calls
-
 
   it("should retrieve a user's completions based on the search term", async () => {
     const searchTerm = "France?";

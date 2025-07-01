@@ -384,10 +384,7 @@ export class ApexClient extends BaseClient {
     return new Promise<DeleteChatsResponse>((resolve, reject) => {
       client.deleteChats(
         params,
-        (
-          error: grpc.ServiceError | null,
-          response: DeleteChatsResponse,
-        ) => {
+        (error: grpc.ServiceError | null, response: DeleteChatsResponse) => {
           if (error) {
             reject(error);
             return;
