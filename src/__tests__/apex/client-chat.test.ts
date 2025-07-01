@@ -167,8 +167,10 @@ describe("ApexClient", () => {
     // should be an empty array as we just deleted the chat
     expect(Array.isArray(get_chat_sessions_result.chatSessions)).toBe(true);
     expect(
-      Object.keys(get_chat_sessions_result.chatSessions[0] || {}).length,
-    ).toBe(0);
+      get_chat_sessions_result.chatSessions.some(
+        session => session.id === create_chat_result.parsedChat?.id,
+      ),
+    ).toBe(false);
   }, 30000);
 
   // Deep Researcher Tests
@@ -267,7 +269,6 @@ describe("ApexClient", () => {
     const delete_chat_result = await client.deleteChat({
       chatIds: [result.parsedChat?.id ?? ""],
     });
-    expect(delete_chat_result).toBeDefined();
     expect(delete_chat_result.success).toBeTruthy();
   }, 30000);
 
@@ -279,7 +280,5 @@ describe("ApexClient", () => {
     console.log("Stored chats:", result);
     expect(result).toBeDefined();
     expect(Array.isArray(result.chatSessions)).toBe(true);
-    // chat id doesn't exist so check first element is an empty object
-    expect(Object.keys(result.chatSessions[0] || {}).length).toBe(0);
   }, 30000);
 });

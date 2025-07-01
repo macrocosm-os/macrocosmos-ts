@@ -4,7 +4,9 @@ export { VERSION } from "./version";
 export const CLIENT_NAME = "macrocosmos-ts-sdk";
 
 export const BASE_URL =
-  process.env.MACROCOSMOS_BASE_URL || "constellation.api.cloud.macrocosmos.ai";
+  // process.env.MACROCOSMOS_BASE_URL || "constellation.api.cloud.macrocosmos.ai";
+  process.env.MACROCOSMOS_BASE_URL ||
+  "constellation-branch-main.api.cloud.macrocosmos.ai";
 export const APEX_API_KEY =
   process.env.APEX_API_KEY || process.env.MACROCOSMOS_API_KEY;
 export const GRAVITY_API_KEY =
