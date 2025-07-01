@@ -18,6 +18,8 @@ import {
   CreateChatAndCompletionResponse,
   CreateCompletionRequest,
   CreateCompletionResponse,
+  DeleteChatsRequest,
+  DeleteChatsResponse,
 } from "../../generated/apex/v1/apex";
 import * as grpc from "@grpc/grpc-js";
 import { BaseClient, BaseClientOptions } from "../BaseClient";
@@ -361,6 +363,30 @@ export class ApexClient extends BaseClient {
         (
           error: grpc.ServiceError | null,
           response: CreateCompletionResponse,
+        ) => {
+          if (error) {
+            reject(error);
+            return;
+          }
+          resolve(response);
+        },
+      );
+    });
+  };
+  /**
+   * Delete a chat given its id
+   */
+  deleteChat = async (
+    params: DeleteChatsRequest,
+  ): Promise<DeleteChatsResponse> => {
+    const client = this.createGrpcClient();
+
+    return new Promise<DeleteChatsResponse>((resolve, reject) => {
+      client.deleteChats(
+        params,
+        (
+          error: grpc.ServiceError | null,
+          response: DeleteChatsResponse,
         ) => {
           if (error) {
             reject(error);
