@@ -333,7 +333,7 @@ describe("ApexClient", () => {
     console.log("Create chat response:", create_chat_result);
     expect(create_chat_result).toBeDefined();
 
-    const update_chat_attributes = await client.updateAttributes({
+    const update_chat_attributes = await client.updateChatAttributes({
       chatId: create_chat_result.parsedChat?.id ?? "",
       attributes: {
         title: "Updated Test Chat",

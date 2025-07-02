@@ -425,7 +425,7 @@ export class ApexClient extends BaseClient {
   /**
    * Update chat attributes
    */
-  updateAttributes = async (
+  updateChatAttributes = async (
     params: UpdateChatAttributesRequest,
   ): Promise<UpdateChatAttributesResponse> => {
     const client = this.createGrpcClient();
