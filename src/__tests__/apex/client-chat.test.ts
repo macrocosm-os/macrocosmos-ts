@@ -341,7 +341,6 @@ describe("ApexClient", () => {
       },
     });
 
-
     expect(update_chat_attributes.chat?.title).toBe("Updated Test Chat");
     expect(update_chat_attributes.chat?.chatType).toBe("gravity");
 
