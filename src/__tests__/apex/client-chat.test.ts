@@ -319,4 +319,36 @@ describe("ApexClient", () => {
     expect(result).toBeDefined();
     expect(Array.isArray(result.chatSessions)).toBe(true);
   }, 30000);
+
+  it("should update chat attribute", async () => {
+    // chat ID for testing
+    const create_chat_result = await client.createChatAndCompletion({
+      userPrompt: "This is a test user prompt. Capital of France?",
+      chatType: "apex",
+      completionType: "basic",
+      title: "Test Chat",
+    });
+
+    // Verify the response structure
+    console.log("Create chat response:", create_chat_result);
+    expect(create_chat_result).toBeDefined();
+
+    const update_chat_attributes = await client.updateAttributes({
+      chatId: create_chat_result.parsedChat?.id ?? "",
+      attributes: {
+        title: "Updated Test Chat",
+        chat_type: "gravity",
+      },
+    });
+
+
+    expect(update_chat_attributes.chat?.title).toBe("Updated Test Chat");
+    expect(update_chat_attributes.chat?.chatType).toBe("gravity");
+
+    // Delete test chat
+    const delete_chat_result = await client.deleteChats({
+      chatIds: [create_chat_result.parsedChat?.id ?? ""],
+    });
+    expect(delete_chat_result.success).toBeTruthy();
+  }, 30000);
 });
