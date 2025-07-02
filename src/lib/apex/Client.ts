@@ -20,6 +20,8 @@ import {
   CreateCompletionResponse,
   DeleteChatsRequest,
   DeleteChatsResponse,
+  DeleteCompletionsRequest,
+  DeleteCompletionsResponse,
 } from "../../generated/apex/v1/apex";
 import * as grpc from "@grpc/grpc-js";
 import { BaseClient, BaseClientOptions } from "../BaseClient";
@@ -385,6 +387,30 @@ export class ApexClient extends BaseClient {
       client.deleteChats(
         params,
         (error: grpc.ServiceError | null, response: DeleteChatsResponse) => {
+          if (error) {
+            reject(error);
+            return;
+          }
+          resolve(response);
+        },
+      );
+    });
+  };
+  /**
+   * Delete completions given their id
+   */
+  deleteCompletions = async (
+    params: DeleteCompletionsRequest,
+  ): Promise<DeleteCompletionsResponse> => {
+    const client = this.createGrpcClient();
+
+    return new Promise<DeleteCompletionsResponse>((resolve, reject) => {
+      client.deleteCompletions(
+        params,
+        (
+          error: grpc.ServiceError | null,
+          response: DeleteCompletionsResponse,
+        ) => {
           if (error) {
             reject(error);
             return;

@@ -164,13 +164,51 @@ describe("ApexClient", () => {
     // Verify the response structure
     console.log("Stored chats:", get_chat_sessions_result);
     expect(get_chat_sessions_result).toBeDefined();
-    // should be an empty array as we just deleted the chat
+    // make sure the chat does not exist in the chats retrieved
     expect(Array.isArray(get_chat_sessions_result.chatSessions)).toBe(true);
     expect(
       get_chat_sessions_result.chatSessions.some(
         session => session.id === create_chat_result.parsedChat?.id,
       ),
     ).toBe(false);
+  }, 30000);
+
+  it("should delete a completion", async () => {
+    // chat ID for testing
+    const create_completion_result = await client.createChatAndCompletion({
+      userPrompt: "This is a test chat, how is it going?",
+      chatType: "apex",
+      completionType: "basic",
+      title: "Test Chat",
+    });
+
+    console.log("Create completion response:", create_completion_result);
+    expect(create_completion_result).toBeDefined();
+
+    // Delete test completion
+    const delete_completion_result = await client.deleteCompletions({
+      completionIds: [create_completion_result.parsedCompletion?.id ?? ""],
+    });
+    expect(delete_completion_result).toBeDefined();
+    expect(delete_completion_result.success).toBeTruthy();
+    const get_chat_completions_result = await client.getStoredChatCompletions({
+      chatId: create_completion_result.parsedChat?.id ?? "",
+    });
+
+    console.log("Stored completions:", get_chat_completions_result);
+    expect(get_chat_completions_result).toBeDefined();
+    // make sure the completion does not exist in the chats retrieved
+    expect(
+      get_chat_completions_result.chatCompletions.some(
+        completion =>
+          completion.id === create_completion_result.parsedCompletion?.id,
+      ),
+    ).toBe(false);
+    // Now delete test chat
+    const delete_chat_result = await client.deleteChats({
+      chatIds: [create_completion_result.parsedChat?.id ?? ""],
+    });
+    expect(delete_chat_result.success).toBeTruthy();
   }, 30000);
 
   // Deep Researcher Tests
