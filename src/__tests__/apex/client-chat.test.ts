@@ -1,5 +1,8 @@
 import { ApexClient, ChatMessage } from "macrocosmos";
-import { SamplingParameters } from "macrocosmos/generated/apex/v1/apex";
+import {
+  CreateChatAndCompletionRequest,
+  SamplingParameters,
+} from "macrocosmos/generated/apex/v1/apex";
 
 describe("ApexClient", () => {
   const API_KEY = process.env.MACROCOSMOS_API_KEY;
@@ -29,6 +32,13 @@ describe("ApexClient", () => {
     topP: 0.9,
     maxNewTokens: 100,
     doSample: true,
+  };
+
+  const createChatAndCompletionParams: CreateChatAndCompletionRequest = {
+    userPrompt: "This is a test chat, how are you?",
+    chatType: "apex",
+    completionType: "basic",
+    title: "Test Chat",
   };
 
   let client: ApexClient;
@@ -98,12 +108,9 @@ describe("ApexClient", () => {
 
   it("should append a chat completion", async () => {
     // create a test chat
-    const create_chat_result = await client.createChatAndCompletion({
-      userPrompt: "This is a test chat, how are you?",
-      chatType: "apex",
-      completionType: "basic",
-      title: "Test Chat",
-    });
+    const create_chat_result = await client.createChatAndCompletion(
+      createChatAndCompletionParams,
+    );
 
     // Verify a chat id exists (i.e., a chat was created)
     console.log("Create chat response:", create_chat_result);
@@ -142,12 +149,9 @@ describe("ApexClient", () => {
 
   it("should delete a chat", async () => {
     // chat ID for testing
-    const create_chat_result = await client.createChatAndCompletion({
-      userPrompt: "This is a test chat, how are you?",
-      chatType: "apex",
-      completionType: "basic",
-      title: "Test Chat",
-    });
+    const create_chat_result = await client.createChatAndCompletion(
+      createChatAndCompletionParams,
+    );
 
     // Verify the response structure
     console.log("Create chat response:", create_chat_result);
@@ -175,12 +179,9 @@ describe("ApexClient", () => {
 
   it("should delete a completion", async () => {
     // chat ID for testing
-    const create_completion_result = await client.createChatAndCompletion({
-      userPrompt: "This is a test chat, how is it going?",
-      chatType: "apex",
-      completionType: "basic",
-      title: "Test Chat",
-    });
+    const create_completion_result = await client.createChatAndCompletion(
+      createChatAndCompletionParams,
+    );
 
     console.log("Create completion response:", create_completion_result);
     expect(create_completion_result).toBeDefined();
@@ -277,12 +278,9 @@ describe("ApexClient", () => {
   }, 30000);
 
   it("should create a chat and completion for a user", async () => {
-    const result = await client.createChatAndCompletion({
-      userPrompt: "This is a test chat, how are you?",
-      chatType: "apex",
-      completionType: "basic",
-      title: "Test Chat",
-    });
+    const result = await client.createChatAndCompletion(
+      createChatAndCompletionParams,
+    );
 
     // Verify the response structure
     console.log("Create chat and completion response:", result);
@@ -322,12 +320,9 @@ describe("ApexClient", () => {
 
   it("should update chat attribute", async () => {
     // chat ID for testing
-    const create_chat_result = await client.createChatAndCompletion({
-      userPrompt: "This is a test user prompt. Capital of France?",
-      chatType: "apex",
-      completionType: "basic",
-      title: "Test Chat",
-    });
+    const create_chat_result = await client.createChatAndCompletion(
+      createChatAndCompletionParams,
+    );
 
     // Verify the response structure
     console.log("Create chat response:", create_chat_result);
