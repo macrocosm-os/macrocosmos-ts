@@ -48,5 +48,5 @@ describe("ApexClient WebRetrieval", () => {
 
     // Expect to have at least one result
     expect(response.results?.length).toBeGreaterThan(0);
-  }, 30000); // Increase timeout to 30 seconds
+  }, 45000); // Increase timeout to 45 seconds
 });

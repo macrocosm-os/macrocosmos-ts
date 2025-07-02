@@ -22,6 +22,8 @@ import {
   DeleteChatsResponse,
   DeleteCompletionsRequest,
   DeleteCompletionsResponse,
+  UpdateChatAttributesRequest,
+  UpdateChatAttributesResponse,
 } from "../../generated/apex/v1/apex";
 import * as grpc from "@grpc/grpc-js";
 import { BaseClient, BaseClientOptions } from "../BaseClient";
@@ -410,6 +412,30 @@ export class ApexClient extends BaseClient {
         (
           error: grpc.ServiceError | null,
           response: DeleteCompletionsResponse,
+        ) => {
+          if (error) {
+            reject(error);
+            return;
+          }
+          resolve(response);
+        },
+      );
+    });
+  };
+  /**
+   * Update chat attributes
+   */
+  updateChatAttributes = async (
+    params: UpdateChatAttributesRequest,
+  ): Promise<UpdateChatAttributesResponse> => {
+    const client = this.createGrpcClient();
+
+    return new Promise<UpdateChatAttributesResponse>((resolve, reject) => {
+      client.updateChatAttributes(
+        params,
+        (
+          error: grpc.ServiceError | null,
+          response: UpdateChatAttributesResponse,
         ) => {
           if (error) {
             reject(error);
