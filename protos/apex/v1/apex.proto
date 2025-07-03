@@ -25,7 +25,7 @@ service ApexService {
   rpc GetDeepResearcherJob(GetDeepResearcherJobRequest) returns (GetDeepResearcherJobResponse);
 
   // GetChatSessions retrieves a user's chats
-  rpc GetChatSessions(google.protobuf.Empty) returns (GetChatSessionsResponse);
+  rpc GetChatSessions(GetChatSessionsRequest) returns (GetChatSessionsResponse);
 
   // GetStoredChatCompletions retrieves a chat's completions
   rpc GetStoredChatCompletions(GetStoredChatCompletionsRequest) returns (GetStoredChatCompletionsResponse);
@@ -461,6 +461,12 @@ message GetChatSessionsResponse {
   repeated ChatSession chat_sessions = 1;
 }
 
+// A GetChatSessionsRequest message
+message GetChatSessionsRequest {
+  // chat_type: type of chat (e.g. "apex" or "gravity")
+  string chat_type = 1;
+}
+
 // A GetStoredChatCompletionRequest request message
 message GetStoredChatCompletionsRequest {
   // chat_id: a unique identifier for a chat
@@ -495,6 +501,7 @@ message GetStoredChatCompletionsResponse {
   // chat_completions: the chat completions
   repeated StoredChatCompletion chat_completions = 1;
 }
+
 // Directly model the attributes as a map
 message UpdateChatAttributesRequest {
   // chat_id: the unique id associated to a users chat message
