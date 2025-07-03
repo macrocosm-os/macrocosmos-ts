@@ -345,4 +345,44 @@ describe("ApexClient", () => {
     });
     expect(delete_chat_result.success).toBeTruthy();
   }, 30000);
+  it("should update completion attribute", async () => {
+    // chat ID for testing
+    const create_chat_result = await client.createChatAndCompletion(
+      createChatAndCompletionParams,
+    );
+
+    // Verify chat was created
+    console.log("Create chat and completion response:", create_chat_result);
+    expect(create_chat_result).toBeDefined();
+
+    const update_completion_attributes =
+      await client.updateCompletionAttributes({
+        completionId: create_chat_result.parsedCompletion?.id ?? "",
+        completionText: "Updated completion text",
+        metadata: {
+          fancy_metadata_key: "fancy_metadata_value",
+        },
+      });
+
+    expect(update_completion_attributes.completion?.completionText).toBe(
+      "Updated completion text",
+    );
+    expect(update_completion_attributes.completion?.metadata).toBeDefined();
+    expect(typeof update_completion_attributes.completion?.metadata).toBe(
+      "object",
+    );
+    expect(
+      Object.keys(update_completion_attributes.completion?.metadata || {})
+        .length,
+    ).toBe(1);
+    expect(
+      update_completion_attributes.completion?.metadata?.fancy_metadata_key,
+    ).toBe("fancy_metadata_value");
+
+    // Delete the test chat. This also deletes the completion.
+    const delete_chat_result = await client.deleteChats({
+      chatIds: [create_chat_result.parsedChat?.id ?? ""],
+    });
+    expect(delete_chat_result.success).toBeTruthy();
+  }, 30000);
 });

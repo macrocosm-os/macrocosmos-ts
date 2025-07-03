@@ -24,6 +24,8 @@ import {
   DeleteCompletionsResponse,
   UpdateChatAttributesRequest,
   UpdateChatAttributesResponse,
+  UpdateCompletionAttributesRequest,
+  UpdateCompletionAttributesResponse,
 } from "../../generated/apex/v1/apex";
 import * as grpc from "@grpc/grpc-js";
 import { BaseClient, BaseClientOptions } from "../BaseClient";
@@ -445,5 +447,31 @@ export class ApexClient extends BaseClient {
         },
       );
     });
+  };
+  /**
+   * Update completion attributes
+   */
+  updateCompletionAttributes = async (
+    params: UpdateCompletionAttributesRequest,
+  ): Promise<UpdateCompletionAttributesResponse> => {
+    const client = this.createGrpcClient();
+
+    return new Promise<UpdateCompletionAttributesResponse>(
+      (resolve, reject) => {
+        client.updateCompletionAttributes(
+          params,
+          (
+            error: grpc.ServiceError | null,
+            response: UpdateCompletionAttributesResponse,
+          ) => {
+            if (error) {
+              reject(error);
+              return;
+            }
+            resolve(response);
+          },
+        );
+      },
+    );
   };
 }
