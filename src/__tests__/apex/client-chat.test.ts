@@ -163,7 +163,9 @@ describe("ApexClient", () => {
     });
     expect(delete_chat_result).toBeDefined();
     expect(delete_chat_result.success).toBeTruthy();
-    const get_chat_sessions_result = await client.getChatSessions();
+    const get_chat_sessions_result = await client.getChatSessions({
+      chatType: "apex",
+    });
 
     // Verify the response structure
     console.log("Stored chats:", get_chat_sessions_result);
@@ -310,7 +312,9 @@ describe("ApexClient", () => {
 
   it("should retrieve a user's stored chats", async () => {
     // Get stored chat completions
-    const result = await client.getChatSessions();
+    const result = await client.getChatSessions({
+      chatType: "apex",
+    });
 
     // Verify the response structure
     console.log("Stored chats:", result);

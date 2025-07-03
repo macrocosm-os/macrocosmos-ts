@@ -484,6 +484,12 @@ export interface GetChatSessionsResponse {
   chatSessions: ChatSession[];
 }
 
+/** A GetChatSessionsRequest message */
+export interface GetChatSessionsRequest {
+  /** chat_type: type of chat (e.g. "apex" or "gravity") */
+  chatType: string;
+}
+
 /** A GetStoredChatCompletionRequest request message */
 export interface GetStoredChatCompletionsRequest {
   /** chat_id: a unique identifier for a chat */
@@ -4756,6 +4762,77 @@ export const GetChatSessionsResponse: MessageFns<GetChatSessionsResponse> = {
   },
 };
 
+function createBaseGetChatSessionsRequest(): GetChatSessionsRequest {
+  return { chatType: "" };
+}
+
+export const GetChatSessionsRequest: MessageFns<GetChatSessionsRequest> = {
+  encode(
+    message: GetChatSessionsRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
+    if (message.chatType !== "") {
+      writer.uint32(10).string(message.chatType);
+    }
+    return writer;
+  },
+
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): GetChatSessionsRequest {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseGetChatSessionsRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.chatType = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): GetChatSessionsRequest {
+    return {
+      chatType: isSet(object.chatType)
+        ? globalThis.String(object.chatType)
+        : "",
+    };
+  },
+
+  toJSON(message: GetChatSessionsRequest): unknown {
+    const obj: any = {};
+    if (message.chatType !== "") {
+      obj.chatType = message.chatType;
+    }
+    return obj;
+  },
+
+  create(base?: DeepPartial<GetChatSessionsRequest>): GetChatSessionsRequest {
+    return GetChatSessionsRequest.fromPartial(base ?? {});
+  },
+  fromPartial(
+    object: DeepPartial<GetChatSessionsRequest>,
+  ): GetChatSessionsRequest {
+    const message = createBaseGetChatSessionsRequest();
+    message.chatType = object.chatType ?? "";
+    return message;
+  },
+};
+
 function createBaseGetStoredChatCompletionsRequest(): GetStoredChatCompletionsRequest {
   return { chatId: "" };
 }
@@ -6944,9 +7021,9 @@ export const ApexServiceService = {
     path: "/apex.v1.ApexService/GetChatSessions",
     requestStream: false,
     responseStream: false,
-    requestSerialize: (value: Empty) =>
-      Buffer.from(Empty.encode(value).finish()),
-    requestDeserialize: (value: Buffer) => Empty.decode(value),
+    requestSerialize: (value: GetChatSessionsRequest) =>
+      Buffer.from(GetChatSessionsRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer) => GetChatSessionsRequest.decode(value),
     responseSerialize: (value: GetChatSessionsResponse) =>
       Buffer.from(GetChatSessionsResponse.encode(value).finish()),
     responseDeserialize: (value: Buffer) =>
@@ -7109,7 +7186,10 @@ export interface ApexServiceServer extends UntypedServiceImplementation {
     GetDeepResearcherJobResponse
   >;
   /** GetChatSessions retrieves a user's chats */
-  getChatSessions: handleUnaryCall<Empty, GetChatSessionsResponse>;
+  getChatSessions: handleUnaryCall<
+    GetChatSessionsRequest,
+    GetChatSessionsResponse
+  >;
   /** GetStoredChatCompletions retrieves a chat's completions */
   getStoredChatCompletions: handleUnaryCall<
     GetStoredChatCompletionsRequest,
@@ -7267,14 +7347,14 @@ export interface ApexServiceClient extends Client {
   ): ClientUnaryCall;
   /** GetChatSessions retrieves a user's chats */
   getChatSessions(
-    request: Empty,
+    request: GetChatSessionsRequest,
     callback: (
       error: ServiceError | null,
       response: GetChatSessionsResponse,
     ) => void,
   ): ClientUnaryCall;
   getChatSessions(
-    request: Empty,
+    request: GetChatSessionsRequest,
     metadata: Metadata,
     callback: (
       error: ServiceError | null,
@@ -7282,7 +7362,7 @@ export interface ApexServiceClient extends Client {
     ) => void,
   ): ClientUnaryCall;
   getChatSessions(
-    request: Empty,
+    request: GetChatSessionsRequest,
     metadata: Metadata,
     options: Partial<CallOptions>,
     callback: (
