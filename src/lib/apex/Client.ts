@@ -11,6 +11,19 @@ import {
   GetDeepResearcherJobResponse,
   GetStoredChatCompletionsRequest,
   GetStoredChatCompletionsResponse,
+  GetChatSessionsResponse,
+  SearchChatIdsByPromptAndCompletionTextRequest,
+  SearchChatIdsByPromptAndCompletionTextResponse,
+  CreateChatAndCompletionRequest,
+  CreateChatAndCompletionResponse,
+  CreateCompletionRequest,
+  CreateCompletionResponse,
+  DeleteChatsRequest,
+  DeleteChatsResponse,
+  DeleteCompletionsRequest,
+  DeleteCompletionsResponse,
+  UpdateChatAttributesRequest,
+  UpdateChatAttributesResponse,
 } from "../../generated/apex/v1/apex";
 import * as grpc from "@grpc/grpc-js";
 import { BaseClient, BaseClientOptions } from "../BaseClient";
@@ -40,6 +53,7 @@ export {
   GetDeepResearcherJobResponse,
   GetStoredChatCompletionsRequest,
   GetStoredChatCompletionsResponse,
+  GetChatSessionsResponse,
 };
 
 interface ApexClientOptions extends BaseClientOptions {
@@ -261,6 +275,175 @@ export class ApexClient extends BaseClient {
         }
         resolve(response);
       });
+    });
+  };
+
+  /**
+   * Get the user's stored chats
+   */
+  getChatSessions = async (): Promise<GetChatSessionsResponse> => {
+    const client = this.createGrpcClient();
+
+    return new Promise<GetChatSessionsResponse>((resolve, reject) => {
+      client.getChatSessions(
+        {},
+        (
+          error: grpc.ServiceError | null,
+          response: GetChatSessionsResponse,
+        ) => {
+          if (error) {
+            reject(error);
+            return;
+          }
+          resolve(response);
+        },
+      );
+    });
+  };
+
+  /**
+   * Search a user's prompt and completion text and return associated chat ids
+   */
+  searchChatIdsByPromptAndCompletionText = async (
+    params: SearchChatIdsByPromptAndCompletionTextRequest,
+  ): Promise<SearchChatIdsByPromptAndCompletionTextResponse> => {
+    const client = this.createGrpcClient();
+
+    return new Promise<SearchChatIdsByPromptAndCompletionTextResponse>(
+      (resolve, reject) => {
+        client.searchChatIdsByPromptAndCompletionText(
+          params,
+          (
+            error: grpc.ServiceError | null,
+            response: SearchChatIdsByPromptAndCompletionTextResponse,
+          ) => {
+            if (error) {
+              reject(error);
+              return;
+            }
+            resolve(response);
+          },
+        );
+      },
+    );
+  };
+
+  /**
+   * Create a chat and completion for a user
+   */
+  createChatAndCompletion = async (
+    params: CreateChatAndCompletionRequest,
+  ): Promise<CreateChatAndCompletionResponse> => {
+    const client = this.createGrpcClient();
+
+    return new Promise<CreateChatAndCompletionResponse>((resolve, reject) => {
+      client.createChatAndCompletion(
+        params,
+        (
+          error: grpc.ServiceError | null,
+          response: CreateChatAndCompletionResponse,
+        ) => {
+          if (error) {
+            reject(error);
+            return;
+          }
+          resolve(response);
+        },
+      );
+    });
+  };
+
+  /**
+   * Create completion for a chat
+   */
+  createCompletion = async (
+    params: CreateCompletionRequest,
+  ): Promise<CreateCompletionResponse> => {
+    const client = this.createGrpcClient();
+
+    return new Promise<CreateCompletionResponse>((resolve, reject) => {
+      client.createCompletion(
+        params,
+        (
+          error: grpc.ServiceError | null,
+          response: CreateCompletionResponse,
+        ) => {
+          if (error) {
+            reject(error);
+            return;
+          }
+          resolve(response);
+        },
+      );
+    });
+  };
+  /**
+   * Delete a chat given its id
+   */
+  deleteChats = async (
+    params: DeleteChatsRequest,
+  ): Promise<DeleteChatsResponse> => {
+    const client = this.createGrpcClient();
+
+    return new Promise<DeleteChatsResponse>((resolve, reject) => {
+      client.deleteChats(
+        params,
+        (error: grpc.ServiceError | null, response: DeleteChatsResponse) => {
+          if (error) {
+            reject(error);
+            return;
+          }
+          resolve(response);
+        },
+      );
+    });
+  };
+  /**
+   * Delete completions given their id
+   */
+  deleteCompletions = async (
+    params: DeleteCompletionsRequest,
+  ): Promise<DeleteCompletionsResponse> => {
+    const client = this.createGrpcClient();
+
+    return new Promise<DeleteCompletionsResponse>((resolve, reject) => {
+      client.deleteCompletions(
+        params,
+        (
+          error: grpc.ServiceError | null,
+          response: DeleteCompletionsResponse,
+        ) => {
+          if (error) {
+            reject(error);
+            return;
+          }
+          resolve(response);
+        },
+      );
+    });
+  };
+  /**
+   * Update chat attributes
+   */
+  updateChatAttributes = async (
+    params: UpdateChatAttributesRequest,
+  ): Promise<UpdateChatAttributesResponse> => {
+    const client = this.createGrpcClient();
+
+    return new Promise<UpdateChatAttributesResponse>((resolve, reject) => {
+      client.updateChatAttributes(
+        params,
+        (
+          error: grpc.ServiceError | null,
+          response: UpdateChatAttributesResponse,
+        ) => {
+          if (error) {
+            reject(error);
+            return;
+          }
+          resolve(response);
+        },
+      );
     });
   };
 }

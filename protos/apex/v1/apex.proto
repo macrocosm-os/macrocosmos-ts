@@ -599,3 +599,37 @@ message DeleteCompletionsResponse {
   // success: indicates if the deletion was successful
   bool success = 1;
 }
+
+// A SearchChatIdsByPromptAndCompletionText request
+message SearchChatIdsByPromptAndCompletionTextRequest {
+  // search_term: the user supplied search term
+  string search_term = 1;
+}
+
+// A SearchChatIdsByPromptAndCompletionText response
+message SearchChatIdsByPromptAndCompletionTextResponse {
+  // chat_ids: a list of chat_ids which adhere to the search criteria
+  repeated string chat_ids = 1;
+}
+
+// An UpdateCompletionAttributes request
+message UpdateCompletionAttributesRequest {
+  // completion_id: the chat completion id
+  string completion_id = 1;
+  // completion_text: the user's completion text (optional)
+  optional string completion_text = 2;
+  // metadata: metadata json blob (optional)
+  google.protobuf.Struct metadata = 3;
+}
+
+// An UpdateCompletionAttributes response
+message UpdateCompletionAttributesResponse {
+  // completion: the chat completion that has been updated
+  StoredChatCompletion completion = 1;
+}
+
+// A GetCompletionsWithDeepResearcherEntry response (request is not required)
+message GetCompletionsWithDeepResearcherEntryResponse {
+  // completions: a list of completion objects containing deep researcher metadata
+  repeated ParsedCompletion completions = 1;
+}
