@@ -168,6 +168,28 @@ describe("GravityClient", () => {
     });
   });
 
+  // describe("createGravityTask with keyword and datetimes", () => {
+  //   it("should call the createGravityTask method on the gRPC client, using keyword and datetimes with ISO strings", async () => {
+  //     const params: CreateGravityTaskRequest = {
+  //       gravityTasks: [
+  //         {
+  //           platform: "x",
+  //           topic: "#ai",
+  //           keyword: "data",
+  //           postStartDatetime: "2025-01-01T00:00:00Z",
+  //           postEndDatetime: "2025-06-01T00:00:00Z",
+  //         },
+  //       ],
+  //       name: "Test Task",
+  //     };
+
+  //     const result = await client.createGravityTask(params);
+
+  //     expect(mockGrpcClient.createGravityTask).toHaveBeenCalled();
+  //     expect(result).toEqual({ gravityTaskId: "test-id" });
+  //   });
+  // });
+
   describe("buildDataset", () => {
     it("should call the BuildDataset method on the gRPC client", async () => {
       const params: BuildDatasetRequest = {

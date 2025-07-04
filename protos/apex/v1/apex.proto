@@ -473,7 +473,6 @@ message GetStoredChatCompletionsRequest {
   string chat_id = 1;
 }
 
-
 // A StoredChatCompletion message repeated in GetStoredChatCompletionsResponse
 message StoredChatCompletion {
   // id: chat completion id
