@@ -5,7 +5,6 @@ package apex.v1;
 option go_package = "macrocosm-os/rift/constellation_api/gen/apex/v1";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/struct.proto";
-import "google/protobuf/struct.proto";
 import "google/protobuf/empty.proto";
 
 
