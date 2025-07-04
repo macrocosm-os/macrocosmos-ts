@@ -26,6 +26,7 @@ import {
   UpdateChatAttributesResponse,
   UpdateCompletionAttributesRequest,
   UpdateCompletionAttributesResponse,
+  GetChatSessionsRequest,
 } from "../../generated/apex/v1/apex";
 import * as grpc from "@grpc/grpc-js";
 import { BaseClient, BaseClientOptions } from "../BaseClient";
@@ -283,12 +284,14 @@ export class ApexClient extends BaseClient {
   /**
    * Get the user's stored chats
    */
-  getChatSessions = async (): Promise<GetChatSessionsResponse> => {
+  getChatSessions = async (
+    params: GetChatSessionsRequest,
+  ): Promise<GetChatSessionsResponse> => {
     const client = this.createGrpcClient();
 
     return new Promise<GetChatSessionsResponse>((resolve, reject) => {
       client.getChatSessions(
-        {},
+        params,
         (
           error: grpc.ServiceError | null,
           response: GetChatSessionsResponse,
