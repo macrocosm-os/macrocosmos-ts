@@ -363,6 +363,7 @@ describe("ApexClient", () => {
       await client.updateCompletionAttributes({
         completionId: create_chat_result.parsedCompletion?.id ?? "",
         completionText: "Updated completion text",
+        userPromptText: "Updated user prompt text",
         metadata: {
           fancy_metadata_key: "fancy_metadata_value",
         },
@@ -370,6 +371,9 @@ describe("ApexClient", () => {
 
     expect(update_completion_attributes.completion?.completionText).toBe(
       "Updated completion text",
+    );
+    expect(update_completion_attributes.completion?.userPromptText).toBe(
+      "Updated user prompt text",
     );
     expect(update_completion_attributes.completion?.metadata).toBeDefined();
     expect(typeof update_completion_attributes.completion?.metadata).toBe(
