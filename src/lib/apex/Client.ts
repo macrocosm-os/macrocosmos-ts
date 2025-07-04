@@ -24,6 +24,9 @@ import {
   DeleteCompletionsResponse,
   UpdateChatAttributesRequest,
   UpdateChatAttributesResponse,
+  UpdateCompletionAttributesRequest,
+  UpdateCompletionAttributesResponse,
+  GetChatSessionsRequest,
 } from "../../generated/apex/v1/apex";
 import * as grpc from "@grpc/grpc-js";
 import { BaseClient, BaseClientOptions } from "../BaseClient";
@@ -281,12 +284,14 @@ export class ApexClient extends BaseClient {
   /**
    * Get the user's stored chats
    */
-  getChatSessions = async (): Promise<GetChatSessionsResponse> => {
+  getChatSessions = async (
+    params: GetChatSessionsRequest,
+  ): Promise<GetChatSessionsResponse> => {
     const client = this.createGrpcClient();
 
     return new Promise<GetChatSessionsResponse>((resolve, reject) => {
       client.getChatSessions(
-        {},
+        params,
         (
           error: grpc.ServiceError | null,
           response: GetChatSessionsResponse,
@@ -445,5 +450,31 @@ export class ApexClient extends BaseClient {
         },
       );
     });
+  };
+  /**
+   * Update completion attributes
+   */
+  updateCompletionAttributes = async (
+    params: UpdateCompletionAttributesRequest,
+  ): Promise<UpdateCompletionAttributesResponse> => {
+    const client = this.createGrpcClient();
+
+    return new Promise<UpdateCompletionAttributesResponse>(
+      (resolve, reject) => {
+        client.updateCompletionAttributes(
+          params,
+          (
+            error: grpc.ServiceError | null,
+            response: UpdateCompletionAttributesResponse,
+          ) => {
+            if (error) {
+              reject(error);
+              return;
+            }
+            resolve(response);
+          },
+        );
+      },
+    );
   };
 }

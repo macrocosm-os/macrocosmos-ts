@@ -26,7 +26,7 @@ service ApexService {
   rpc GetDeepResearcherJob(GetDeepResearcherJobRequest) returns (GetDeepResearcherJobResponse);
 
   // GetChatSessions retrieves a user's chats
-  rpc GetChatSessions(google.protobuf.Empty) returns (GetChatSessionsResponse);
+  rpc GetChatSessions(GetChatSessionsRequest) returns (GetChatSessionsResponse);
 
   // GetStoredChatCompletions retrieves a chat's completions
   rpc GetStoredChatCompletions(GetStoredChatCompletionsRequest) returns (GetStoredChatCompletionsResponse);
@@ -460,6 +460,12 @@ message ChatSession {
 message GetChatSessionsResponse {
   // chat_sessions: the chat sessions
   repeated ChatSession chat_sessions = 1;
+}
+
+// A GetChatSessionsRequest message
+message GetChatSessionsRequest {
+  // chat_type: type of chat (e.g. "apex" or "gravity")
+  string chat_type = 1;
 }
 
 // A GetStoredChatCompletionRequest request message
