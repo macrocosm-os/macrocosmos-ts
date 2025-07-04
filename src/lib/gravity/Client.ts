@@ -30,11 +30,32 @@ import {
 import { BaseClient, BaseClientOptions } from "../BaseClient";
 import { MarkFieldsOptional } from "../util.types";
 
+/**
+ * Helper function to convert string or Date to Date object
+ */
+function toDate(value: Date | string | undefined): Date | undefined {
+  if (value === undefined) return undefined;
+  if (value instanceof Date) return value;
+  if (typeof value === "string") return new Date(value);
+  return undefined;
+}
+
 // re-work some generated fields to be optional -
 // the generated types are stricter than they need to be.
 
+// Create a more flexible type that allows strings for datetime fields
+type FlexibleGravityTask = Omit<
+  GeneratedCreateGravityTaskRequest["gravityTasks"][0],
+  "postStartDatetime" | "postEndDatetime"
+> & {
+  postStartDatetime?: Date | string | undefined;
+  postEndDatetime?: Date | string | undefined;
+};
+
 type CreateGravityTaskRequest = MarkFieldsOptional<
-  GeneratedCreateGravityTaskRequest,
+  Omit<GeneratedCreateGravityTaskRequest, "gravityTasks"> & {
+    gravityTasks: FlexibleGravityTask[];
+  },
   "notificationRequests"
 >;
 
@@ -69,6 +90,7 @@ export type {
   DatasetFile,
   DatasetStep,
   Nebula,
+  FlexibleGravityTask,
 };
 
 /**
@@ -160,17 +182,23 @@ export class GravityClient extends BaseClient {
     params: CreateGravityTaskRequest,
   ): Promise<CreateGravityTaskResponse> => {
     const client = this.createGrpcClient();
+    const convertedParams: GeneratedCreateGravityTaskRequest = {
+      ...params,
+      gravityTasks: params.gravityTasks.map(task => ({
+        ...task,
+        postStartDatetime: toDate(task.postStartDatetime),
+        postEndDatetime: toDate(task.postEndDatetime),
+      })),
+      notificationRequests: params.notificationRequests || [],
+    };
     return new Promise<CreateGravityTaskResponse>((resolve, reject) => {
-      client.createGravityTask(
-        params as GeneratedCreateGravityTaskRequest,
-        (error, response) => {
-          if (error) {
-            reject(error);
-            return;
-          }
-          resolve(response);
-        },
-      );
+      client.createGravityTask(convertedParams, (error, response) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+        resolve(response);
+      });
     });
   };
 

@@ -168,17 +168,16 @@ describe("GravityClient", () => {
     });
   });
 
-  // TODO: Uncomment this test when the backend is updated to support keyword and datetimes
-  // describe("createGravityTask", () => {
-  //   it("should call the CreateGravityTask method on the gRPC client, using keyword and datetimes", async () => {
+  // describe("createGravityTask with keyword and datetimes", () => {
+  //   it("should call the createGravityTask method on the gRPC client, using keyword and datetimes with ISO strings", async () => {
   //     const params: CreateGravityTaskRequest = {
   //       gravityTasks: [
   //         {
   //           platform: "x",
   //           topic: "#ai",
   //           keyword: "data",
-  //           postStartDatetime: new Date("2025-01-01T00:00:00Z"),
-  //           postEndDatetime: new Date("2025-06-01T00:00:00Z"),
+  //           postStartDatetime: "2025-01-01T00:00:00Z",
+  //           postEndDatetime: "2025-06-01T00:00:00Z",
   //         },
   //       ],
   //       name: "Test Task",
@@ -186,10 +185,7 @@ describe("GravityClient", () => {
 
   //     const result = await client.createGravityTask(params);
 
-  //     expect(mockGrpcClient.createGravityTask).toHaveBeenCalledWith(
-  //       params,
-  //       expect.any(Function),
-  //     );
+  //     expect(mockGrpcClient.createGravityTask).toHaveBeenCalled();
   //     expect(result).toEqual({ gravityTaskId: "test-id" });
   //   });
   // });
