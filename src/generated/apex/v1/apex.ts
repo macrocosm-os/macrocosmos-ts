@@ -653,6 +653,8 @@ export interface UpdateCompletionAttributesRequest {
   completionText?: string | undefined;
   /** metadata: metadata json blob (optional) */
   metadata?: { [key: string]: any } | undefined;
+  /** user_prompt_text: the user's prompt text (optional) */
+  userPromptText?: string | undefined;
 }
 
 /** An UpdateCompletionAttributes response */
@@ -6673,7 +6675,12 @@ export const SearchChatIdsByPromptAndCompletionTextResponse: MessageFns<SearchCh
   };
 
 function createBaseUpdateCompletionAttributesRequest(): UpdateCompletionAttributesRequest {
-  return { completionId: "", completionText: undefined, metadata: undefined };
+  return {
+    completionId: "",
+    completionText: undefined,
+    metadata: undefined,
+    userPromptText: undefined,
+  };
 }
 
 export const UpdateCompletionAttributesRequest: MessageFns<UpdateCompletionAttributesRequest> =
@@ -6693,6 +6700,9 @@ export const UpdateCompletionAttributesRequest: MessageFns<UpdateCompletionAttri
           Struct.wrap(message.metadata),
           writer.uint32(26).fork(),
         ).join();
+      }
+      if (message.userPromptText !== undefined) {
+        writer.uint32(34).string(message.userPromptText);
       }
       return writer;
     },
@@ -6734,6 +6744,14 @@ export const UpdateCompletionAttributesRequest: MessageFns<UpdateCompletionAttri
             );
             continue;
           }
+          case 4: {
+            if (tag !== 34) {
+              break;
+            }
+
+            message.userPromptText = reader.string();
+            continue;
+          }
         }
         if ((tag & 7) === 4 || tag === 0) {
           break;
@@ -6752,6 +6770,9 @@ export const UpdateCompletionAttributesRequest: MessageFns<UpdateCompletionAttri
           ? globalThis.String(object.completionText)
           : undefined,
         metadata: isObject(object.metadata) ? object.metadata : undefined,
+        userPromptText: isSet(object.userPromptText)
+          ? globalThis.String(object.userPromptText)
+          : undefined,
       };
     },
 
@@ -6765,6 +6786,9 @@ export const UpdateCompletionAttributesRequest: MessageFns<UpdateCompletionAttri
       }
       if (message.metadata !== undefined) {
         obj.metadata = message.metadata;
+      }
+      if (message.userPromptText !== undefined) {
+        obj.userPromptText = message.userPromptText;
       }
       return obj;
     },
@@ -6781,6 +6805,7 @@ export const UpdateCompletionAttributesRequest: MessageFns<UpdateCompletionAttri
       message.completionId = object.completionId ?? "";
       message.completionText = object.completionText ?? undefined;
       message.metadata = object.metadata ?? undefined;
+      message.userPromptText = object.userPromptText ?? undefined;
       return message;
     },
   };

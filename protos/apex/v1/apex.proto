@@ -626,6 +626,8 @@ message UpdateCompletionAttributesRequest {
   optional string completion_text = 2;
   // metadata: metadata json blob (optional)
   google.protobuf.Struct metadata = 3;
+  // user_prompt_text: the user's prompt text (optional)
+  optional string user_prompt_text = 4;
 }
 
 // An UpdateCompletionAttributes response
