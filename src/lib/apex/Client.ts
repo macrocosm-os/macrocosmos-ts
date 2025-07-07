@@ -477,4 +477,30 @@ export class ApexClient extends BaseClient {
       },
     );
   };
+  /**
+   * GetCompletion by ID endpoint
+   */
+  updateCompletionAttributes = async (
+    params: UpdateCompletionAttributesRequest,
+  ): Promise<UpdateCompletionAttributesResponse> => {
+    const client = this.createGrpcClient();
+
+    return new Promise<UpdateCompletionAttributesResponse>(
+      (resolve, reject) => {
+        client.updateCompletionAttributes(
+          params,
+          (
+            error: grpc.ServiceError | null,
+            response: UpdateCompletionAttributesResponse,
+          ) => {
+            if (error) {
+              reject(error);
+              return;
+            }
+            resolve(response);
+          },
+        );
+      },
+    );
+  };
 }
