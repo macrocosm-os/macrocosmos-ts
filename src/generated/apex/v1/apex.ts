@@ -496,6 +496,12 @@ export interface GetStoredChatCompletionsRequest {
   chatId: string;
 }
 
+/** A GetChatCompletionRequest request message */
+export interface GetChatCompletionRequest {
+  /** completion_id: a unique identifier for a completion */
+  completionId: string;
+}
+
 /** A StoredChatCompletion message repeated in GetStoredChatCompletionsResponse */
 export interface StoredChatCompletion {
   /** id: chat completion id */
@@ -653,6 +659,8 @@ export interface UpdateCompletionAttributesRequest {
   completionText?: string | undefined;
   /** metadata: metadata json blob (optional) */
   metadata?: { [key: string]: any } | undefined;
+  /** user_prompt_text: the user's prompt text (optional) */
+  userPromptText?: string | undefined;
 }
 
 /** An UpdateCompletionAttributes response */
@@ -4905,6 +4913,79 @@ export const GetStoredChatCompletionsRequest: MessageFns<GetStoredChatCompletion
     },
   };
 
+function createBaseGetChatCompletionRequest(): GetChatCompletionRequest {
+  return { completionId: "" };
+}
+
+export const GetChatCompletionRequest: MessageFns<GetChatCompletionRequest> = {
+  encode(
+    message: GetChatCompletionRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
+    if (message.completionId !== "") {
+      writer.uint32(10).string(message.completionId);
+    }
+    return writer;
+  },
+
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): GetChatCompletionRequest {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseGetChatCompletionRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.completionId = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): GetChatCompletionRequest {
+    return {
+      completionId: isSet(object.completionId)
+        ? globalThis.String(object.completionId)
+        : "",
+    };
+  },
+
+  toJSON(message: GetChatCompletionRequest): unknown {
+    const obj: any = {};
+    if (message.completionId !== "") {
+      obj.completionId = message.completionId;
+    }
+    return obj;
+  },
+
+  create(
+    base?: DeepPartial<GetChatCompletionRequest>,
+  ): GetChatCompletionRequest {
+    return GetChatCompletionRequest.fromPartial(base ?? {});
+  },
+  fromPartial(
+    object: DeepPartial<GetChatCompletionRequest>,
+  ): GetChatCompletionRequest {
+    const message = createBaseGetChatCompletionRequest();
+    message.completionId = object.completionId ?? "";
+    return message;
+  },
+};
+
 function createBaseStoredChatCompletion(): StoredChatCompletion {
   return {
     id: "",
@@ -6673,7 +6754,12 @@ export const SearchChatIdsByPromptAndCompletionTextResponse: MessageFns<SearchCh
   };
 
 function createBaseUpdateCompletionAttributesRequest(): UpdateCompletionAttributesRequest {
-  return { completionId: "", completionText: undefined, metadata: undefined };
+  return {
+    completionId: "",
+    completionText: undefined,
+    metadata: undefined,
+    userPromptText: undefined,
+  };
 }
 
 export const UpdateCompletionAttributesRequest: MessageFns<UpdateCompletionAttributesRequest> =
@@ -6693,6 +6779,9 @@ export const UpdateCompletionAttributesRequest: MessageFns<UpdateCompletionAttri
           Struct.wrap(message.metadata),
           writer.uint32(26).fork(),
         ).join();
+      }
+      if (message.userPromptText !== undefined) {
+        writer.uint32(34).string(message.userPromptText);
       }
       return writer;
     },
@@ -6734,6 +6823,14 @@ export const UpdateCompletionAttributesRequest: MessageFns<UpdateCompletionAttri
             );
             continue;
           }
+          case 4: {
+            if (tag !== 34) {
+              break;
+            }
+
+            message.userPromptText = reader.string();
+            continue;
+          }
         }
         if ((tag & 7) === 4 || tag === 0) {
           break;
@@ -6752,6 +6849,9 @@ export const UpdateCompletionAttributesRequest: MessageFns<UpdateCompletionAttri
           ? globalThis.String(object.completionText)
           : undefined,
         metadata: isObject(object.metadata) ? object.metadata : undefined,
+        userPromptText: isSet(object.userPromptText)
+          ? globalThis.String(object.userPromptText)
+          : undefined,
       };
     },
 
@@ -6765,6 +6865,9 @@ export const UpdateCompletionAttributesRequest: MessageFns<UpdateCompletionAttri
       }
       if (message.metadata !== undefined) {
         obj.metadata = message.metadata;
+      }
+      if (message.userPromptText !== undefined) {
+        obj.userPromptText = message.userPromptText;
       }
       return obj;
     },
@@ -6781,6 +6884,7 @@ export const UpdateCompletionAttributesRequest: MessageFns<UpdateCompletionAttri
       message.completionId = object.completionId ?? "";
       message.completionText = object.completionText ?? undefined;
       message.metadata = object.metadata ?? undefined;
+      message.userPromptText = object.userPromptText ?? undefined;
       return message;
     },
   };
@@ -7043,6 +7147,19 @@ export const ApexServiceService = {
     responseDeserialize: (value: Buffer) =>
       GetStoredChatCompletionsResponse.decode(value),
   },
+  /** GetChatCompletion retrieves a completion by its ID */
+  getChatCompletion: {
+    path: "/apex.v1.ApexService/GetChatCompletion",
+    requestStream: false,
+    responseStream: false,
+    requestSerialize: (value: GetChatCompletionRequest) =>
+      Buffer.from(GetChatCompletionRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer) =>
+      GetChatCompletionRequest.decode(value),
+    responseSerialize: (value: StoredChatCompletion) =>
+      Buffer.from(StoredChatCompletion.encode(value).finish()),
+    responseDeserialize: (value: Buffer) => StoredChatCompletion.decode(value),
+  },
   /** UpdateChatAttributes updates specified attributes of a chat */
   updateChatAttributes: {
     path: "/apex.v1.ApexService/UpdateChatAttributes",
@@ -7194,6 +7311,11 @@ export interface ApexServiceServer extends UntypedServiceImplementation {
   getStoredChatCompletions: handleUnaryCall<
     GetStoredChatCompletionsRequest,
     GetStoredChatCompletionsResponse
+  >;
+  /** GetChatCompletion retrieves a completion by its ID */
+  getChatCompletion: handleUnaryCall<
+    GetChatCompletionRequest,
+    StoredChatCompletion
   >;
   /** UpdateChatAttributes updates specified attributes of a chat */
   updateChatAttributes: handleUnaryCall<
@@ -7393,6 +7515,31 @@ export interface ApexServiceClient extends Client {
     callback: (
       error: ServiceError | null,
       response: GetStoredChatCompletionsResponse,
+    ) => void,
+  ): ClientUnaryCall;
+  /** GetChatCompletion retrieves a completion by its ID */
+  getChatCompletion(
+    request: GetChatCompletionRequest,
+    callback: (
+      error: ServiceError | null,
+      response: StoredChatCompletion,
+    ) => void,
+  ): ClientUnaryCall;
+  getChatCompletion(
+    request: GetChatCompletionRequest,
+    metadata: Metadata,
+    callback: (
+      error: ServiceError | null,
+      response: StoredChatCompletion,
+    ) => void,
+  ): ClientUnaryCall;
+  getChatCompletion(
+    request: GetChatCompletionRequest,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (
+      error: ServiceError | null,
+      response: StoredChatCompletion,
     ) => void,
   ): ClientUnaryCall;
   /** UpdateChatAttributes updates specified attributes of a chat */
