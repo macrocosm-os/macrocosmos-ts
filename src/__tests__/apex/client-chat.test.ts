@@ -189,7 +189,7 @@ describe("ApexClient", () => {
     console.log("Create chat response:", create_chat_result);
     expect(create_chat_result).toBeDefined();
 
-    // Delete test chat
+    // Get the completion created in the chat
     const get_chat_completion_result = await client.getChatCompletion({
       completionId: create_chat_result.parsedCompletion?.id ?? "",
     });
