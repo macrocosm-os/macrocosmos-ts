@@ -27,6 +27,8 @@ import {
   UpdateCompletionAttributesRequest,
   UpdateCompletionAttributesResponse,
   GetChatSessionsRequest,
+  GetChatCompletionRequest,
+  StoredChatCompletion,
 } from "../../generated/apex/v1/apex";
 import * as grpc from "@grpc/grpc-js";
 import { BaseClient, BaseClientOptions } from "../BaseClient";
@@ -476,5 +478,26 @@ export class ApexClient extends BaseClient {
         );
       },
     );
+  };
+  /**
+   * GetCompletion by ID client
+   */
+  getChatCompletion = async (
+    params: GetChatCompletionRequest,
+  ): Promise<StoredChatCompletion> => {
+    const client = this.createGrpcClient();
+
+    return new Promise<StoredChatCompletion>((resolve, reject) => {
+      client.getChatCompletion(
+        params,
+        (error: grpc.ServiceError | null, response: StoredChatCompletion) => {
+          if (error) {
+            reject(error);
+            return;
+          }
+          resolve(response);
+        },
+      );
+    });
   };
 }

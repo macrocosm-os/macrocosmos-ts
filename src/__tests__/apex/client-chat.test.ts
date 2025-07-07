@@ -179,6 +179,47 @@ describe("ApexClient", () => {
     ).toBe(false);
   }, 30000);
 
+  it("should retrieve a completion", async () => {
+    // chat ID for testing
+    const create_chat_result = await client.createChatAndCompletion(
+      createChatAndCompletionParams,
+    );
+
+    // Verify create chat was successful
+    console.log("Create chat response:", create_chat_result);
+    expect(create_chat_result).toBeDefined();
+
+    // Get the completion created in the chat
+    const get_chat_completion_result = await client.getChatCompletion({
+      completionId: create_chat_result.parsedCompletion?.id ?? "",
+    });
+
+    // Make sure the retrieved completion matches the created one
+    expect(get_chat_completion_result).toBeDefined();
+    expect(get_chat_completion_result.id).toBe(
+      create_chat_result.parsedCompletion?.id,
+    );
+    expect(get_chat_completion_result.chatId).toBe(
+      create_chat_result.parsedChat?.id,
+    );
+    expect(get_chat_completion_result.completionType).toBe(
+      create_chat_result.parsedCompletion?.completionType,
+    );
+    expect(get_chat_completion_result.createdAt?.toISOString()).toBe(
+      create_chat_result.parsedCompletion?.createdAt?.toISOString(),
+    );
+    expect(get_chat_completion_result.userPromptText).toBe(
+      create_chat_result.parsedCompletion?.userPromptText,
+    );
+    expect(get_chat_completion_result.metadata).toStrictEqual(
+      create_chat_result.parsedCompletion?.metadata,
+    );
+    const delete_chat_result = await client.deleteChats({
+      chatIds: [create_chat_result.parsedChat?.id ?? ""],
+    });
+    expect(delete_chat_result.success).toBeTruthy();
+  }, 30000);
+
   it("should delete a completion", async () => {
     // chat ID for testing
     const create_completion_result = await client.createChatAndCompletion(
