@@ -119,8 +119,21 @@ function chatCompletionsCreate(
       ),
     );
   } else {
+    if (this.isSecure()) {
+      return new Promise<ChatCompletionResponse>((resolve, reject) => {
+        client.chatCompletion(requestParams, (error, response) => {
+          if (error) {
+            reject(error);
+            return;
+          }
+          resolve(response);
+        });
+      });
+    }
+
+    const metadata = this.createAuthMetadata();
     return new Promise<ChatCompletionResponse>((resolve, reject) => {
-      client.chatCompletion(requestParams, (error, response) => {
+      client.chatCompletion(requestParams, metadata, (error, response) => {
         if (error) {
           reject(error);
           return;
