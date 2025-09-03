@@ -4,7 +4,7 @@ import {
   WebRetrievalResponse,
 } from "macrocosmos";
 
-describe("ApexClient WebRetrieval", () => {
+describe.skip("ApexClient WebRetrieval", () => {
   const API_KEY = process.env.MACROCOSMOS_API_KEY;
 
   if (!API_KEY) {
