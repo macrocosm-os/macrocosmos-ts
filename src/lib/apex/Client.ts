@@ -119,8 +119,21 @@ function chatCompletionsCreate(
       ),
     );
   } else {
+    if (this.isSecure()) {
+      return new Promise<ChatCompletionResponse>((resolve, reject) => {
+        client.chatCompletion(requestParams, (error, response) => {
+          if (error) {
+            reject(error);
+            return;
+          }
+          resolve(response);
+        });
+      });
+    }
+
+    const metadata = this.createAuthMetadata();
     return new Promise<ChatCompletionResponse>((resolve, reject) => {
-      client.chatCompletion(requestParams, (error, response) => {
+      client.chatCompletion(requestParams, metadata, (error, response) => {
         if (error) {
           reject(error);
           return;
@@ -148,35 +161,11 @@ export class ApexClient extends BaseClient {
   protected createGrpcClient(): ApexServiceClient {
     if (this._grpcClient) return this._grpcClient;
 
-    // Create gRPC credentials with API key
-    const callCreds = grpc.credentials.createFromMetadataGenerator(
-      (_params, callback) => {
-        const meta = new grpc.Metadata();
-        meta.add("authorization", `Bearer ${this.getApiKey()}`);
-        meta.add("x-source", this.getAppName());
-        meta.add("x-client-id", this.getClientName());
-        meta.add("x-client-version", this.getClientVersion());
-        meta.add("x-forwarded-user", this.getUserId());
-        callback(null, meta);
-      },
+    // Create gRPC client with proper credentials
+    return new ApexServiceClient(
+      this.getBaseURL(),
+      this.createChannelCredentials(),
     );
-
-    // Create credentials based on secure option
-    let credentials: grpc.ChannelCredentials;
-    if (this.isSecure()) {
-      // Use secure credentials for production
-      const channelCreds = grpc.credentials.createSsl();
-      credentials = grpc.credentials.combineChannelCredentials(
-        channelCreds,
-        callCreds,
-      );
-    } else {
-      // For insecure connections, create insecure channel credentials
-      credentials = grpc.credentials.createInsecure();
-    }
-
-    // Create gRPC client
-    return new ApexServiceClient(this.getBaseURL(), credentials);
   }
 
   /**
@@ -198,14 +187,31 @@ export class ApexClient extends BaseClient {
   /**
    * Web retrieval API for searching the internet
    */
-  webRetrieval = async (
+  webRetrieval = (
     params: WebRetrievalRequest,
   ): Promise<WebRetrievalResponse> => {
     const client = this.createGrpcClient();
 
+    if (this.isSecure()) {
+      return new Promise<WebRetrievalResponse>((resolve, reject) => {
+        client.webRetrieval(
+          { ...params, uids: params.uids ?? [] },
+          (error, response) => {
+            if (error) {
+              reject(error);
+              return;
+            }
+            resolve(response);
+          },
+        );
+      });
+    }
+
+    const metadata = this.createAuthMetadata();
     return new Promise<WebRetrievalResponse>((resolve, reject) => {
       client.webRetrieval(
         { ...params, uids: params.uids ?? [] },
+        metadata,
         (error, response) => {
           if (error) {
             reject(error);
@@ -220,7 +226,7 @@ export class ApexClient extends BaseClient {
   /**
    * Submit a deep researcher job with proper defaults
    */
-  submitDeepResearcherJob = async (
+  submitDeepResearcherJob = (
     params: ChatCompletionRequest,
   ): Promise<SubmitDeepResearcherJobResponse> => {
     const client = this.createGrpcClient();
@@ -234,8 +240,21 @@ export class ApexClient extends BaseClient {
       stream: true,
     };
 
+    if (this.isSecure()) {
+      return new Promise<SubmitDeepResearcherJobResponse>((resolve, reject) => {
+        client.submitDeepResearcherJob(request, (error, response) => {
+          if (error) {
+            reject(error);
+            return;
+          }
+          resolve(response);
+        });
+      });
+    }
+
+    const metadata = this.createAuthMetadata();
     return new Promise<SubmitDeepResearcherJobResponse>((resolve, reject) => {
-      client.submitDeepResearcherJob(request, (error, response) => {
+      client.submitDeepResearcherJob(request, metadata, (error, response) => {
         if (error) {
           reject(error);
           return;
@@ -248,13 +267,26 @@ export class ApexClient extends BaseClient {
   /**
    * Get the status and results of a deep research job
    */
-  getDeepResearcherJob = async (
+  getDeepResearcherJob = (
     params: GetDeepResearcherJobRequest,
   ): Promise<GetDeepResearcherJobResponse> => {
     const client = this.createGrpcClient();
 
+    if (this.isSecure()) {
+      return new Promise<GetDeepResearcherJobResponse>((resolve, reject) => {
+        client.getDeepResearcherJob(params, (error, response) => {
+          if (error) {
+            reject(error);
+            return;
+          }
+          resolve(response);
+        });
+      });
+    }
+
+    const metadata = this.createAuthMetadata();
     return new Promise<GetDeepResearcherJobResponse>((resolve, reject) => {
-      client.getDeepResearcherJob(params, (error, response) => {
+      client.getDeepResearcherJob(params, metadata, (error, response) => {
         if (error) {
           reject(error);
           return;
@@ -267,13 +299,28 @@ export class ApexClient extends BaseClient {
   /**
    * Get completions of a chat
    */
-  getStoredChatCompletions = async (
+  getStoredChatCompletions = (
     params: GetStoredChatCompletionsRequest,
   ): Promise<GetStoredChatCompletionsResponse> => {
     const client = this.createGrpcClient();
 
+    if (this.isSecure()) {
+      return new Promise<GetStoredChatCompletionsResponse>(
+        (resolve, reject) => {
+          client.getStoredChatCompletions(params, (error, response) => {
+            if (error) {
+              reject(error);
+              return;
+            }
+            resolve(response);
+          });
+        },
+      );
+    }
+
+    const metadata = this.createAuthMetadata();
     return new Promise<GetStoredChatCompletionsResponse>((resolve, reject) => {
-      client.getStoredChatCompletions(params, (error, response) => {
+      client.getStoredChatCompletions(params, metadata, (error, response) => {
         if (error) {
           reject(error);
           return;
@@ -286,14 +333,34 @@ export class ApexClient extends BaseClient {
   /**
    * Get the user's stored chats
    */
-  getChatSessions = async (
+  getChatSessions = (
     params: GetChatSessionsRequest,
   ): Promise<GetChatSessionsResponse> => {
     const client = this.createGrpcClient();
 
+    if (this.isSecure()) {
+      return new Promise<GetChatSessionsResponse>((resolve, reject) => {
+        client.getChatSessions(
+          params,
+          (
+            error: grpc.ServiceError | null,
+            response: GetChatSessionsResponse,
+          ) => {
+            if (error) {
+              reject(error);
+              return;
+            }
+            resolve(response);
+          },
+        );
+      });
+    }
+
+    const metadata = this.createAuthMetadata();
     return new Promise<GetChatSessionsResponse>((resolve, reject) => {
       client.getChatSessions(
         params,
+        metadata,
         (
           error: grpc.ServiceError | null,
           response: GetChatSessionsResponse,
@@ -311,15 +378,37 @@ export class ApexClient extends BaseClient {
   /**
    * Search a user's prompt and completion text and return associated chat ids
    */
-  searchChatIdsByPromptAndCompletionText = async (
+  searchChatIdsByPromptAndCompletionText = (
     params: SearchChatIdsByPromptAndCompletionTextRequest,
   ): Promise<SearchChatIdsByPromptAndCompletionTextResponse> => {
     const client = this.createGrpcClient();
 
+    if (this.isSecure()) {
+      return new Promise<SearchChatIdsByPromptAndCompletionTextResponse>(
+        (resolve, reject) => {
+          client.searchChatIdsByPromptAndCompletionText(
+            params,
+            (
+              error: grpc.ServiceError | null,
+              response: SearchChatIdsByPromptAndCompletionTextResponse,
+            ) => {
+              if (error) {
+                reject(error);
+                return;
+              }
+              resolve(response);
+            },
+          );
+        },
+      );
+    }
+
+    const metadata = this.createAuthMetadata();
     return new Promise<SearchChatIdsByPromptAndCompletionTextResponse>(
       (resolve, reject) => {
         client.searchChatIdsByPromptAndCompletionText(
           params,
+          metadata,
           (
             error: grpc.ServiceError | null,
             response: SearchChatIdsByPromptAndCompletionTextResponse,
@@ -338,14 +427,34 @@ export class ApexClient extends BaseClient {
   /**
    * Create a chat and completion for a user
    */
-  createChatAndCompletion = async (
+  createChatAndCompletion = (
     params: CreateChatAndCompletionRequest,
   ): Promise<CreateChatAndCompletionResponse> => {
     const client = this.createGrpcClient();
 
+    if (this.isSecure()) {
+      return new Promise<CreateChatAndCompletionResponse>((resolve, reject) => {
+        client.createChatAndCompletion(
+          params,
+          (
+            error: grpc.ServiceError | null,
+            response: CreateChatAndCompletionResponse,
+          ) => {
+            if (error) {
+              reject(error);
+              return;
+            }
+            resolve(response);
+          },
+        );
+      });
+    }
+
+    const metadata = this.createAuthMetadata();
     return new Promise<CreateChatAndCompletionResponse>((resolve, reject) => {
       client.createChatAndCompletion(
         params,
+        metadata,
         (
           error: grpc.ServiceError | null,
           response: CreateChatAndCompletionResponse,
@@ -363,14 +472,34 @@ export class ApexClient extends BaseClient {
   /**
    * Create completion for a chat
    */
-  createCompletion = async (
+  createCompletion = (
     params: CreateCompletionRequest,
   ): Promise<CreateCompletionResponse> => {
     const client = this.createGrpcClient();
 
+    if (this.isSecure()) {
+      return new Promise<CreateCompletionResponse>((resolve, reject) => {
+        client.createCompletion(
+          params,
+          (
+            error: grpc.ServiceError | null,
+            response: CreateCompletionResponse,
+          ) => {
+            if (error) {
+              reject(error);
+              return;
+            }
+            resolve(response);
+          },
+        );
+      });
+    }
+
+    const metadata = this.createAuthMetadata();
     return new Promise<CreateCompletionResponse>((resolve, reject) => {
       client.createCompletion(
         params,
+        metadata,
         (
           error: grpc.ServiceError | null,
           response: CreateCompletionResponse,
@@ -384,17 +513,33 @@ export class ApexClient extends BaseClient {
       );
     });
   };
+
   /**
    * Delete a chat given its id
    */
-  deleteChats = async (
-    params: DeleteChatsRequest,
-  ): Promise<DeleteChatsResponse> => {
+  deleteChats = (params: DeleteChatsRequest): Promise<DeleteChatsResponse> => {
     const client = this.createGrpcClient();
 
+    if (this.isSecure()) {
+      return new Promise<DeleteChatsResponse>((resolve, reject) => {
+        client.deleteChats(
+          params,
+          (error: grpc.ServiceError | null, response: DeleteChatsResponse) => {
+            if (error) {
+              reject(error);
+              return;
+            }
+            resolve(response);
+          },
+        );
+      });
+    }
+
+    const metadata = this.createAuthMetadata();
     return new Promise<DeleteChatsResponse>((resolve, reject) => {
       client.deleteChats(
         params,
+        metadata,
         (error: grpc.ServiceError | null, response: DeleteChatsResponse) => {
           if (error) {
             reject(error);
@@ -405,17 +550,38 @@ export class ApexClient extends BaseClient {
       );
     });
   };
+
   /**
    * Delete completions given their id
    */
-  deleteCompletions = async (
+  deleteCompletions = (
     params: DeleteCompletionsRequest,
   ): Promise<DeleteCompletionsResponse> => {
     const client = this.createGrpcClient();
 
+    if (this.isSecure()) {
+      return new Promise<DeleteCompletionsResponse>((resolve, reject) => {
+        client.deleteCompletions(
+          params,
+          (
+            error: grpc.ServiceError | null,
+            response: DeleteCompletionsResponse,
+          ) => {
+            if (error) {
+              reject(error);
+              return;
+            }
+            resolve(response);
+          },
+        );
+      });
+    }
+
+    const metadata = this.createAuthMetadata();
     return new Promise<DeleteCompletionsResponse>((resolve, reject) => {
       client.deleteCompletions(
         params,
+        metadata,
         (
           error: grpc.ServiceError | null,
           response: DeleteCompletionsResponse,
@@ -429,17 +595,38 @@ export class ApexClient extends BaseClient {
       );
     });
   };
+
   /**
    * Update chat attributes
    */
-  updateChatAttributes = async (
+  updateChatAttributes = (
     params: UpdateChatAttributesRequest,
   ): Promise<UpdateChatAttributesResponse> => {
     const client = this.createGrpcClient();
 
+    if (this.isSecure()) {
+      return new Promise<UpdateChatAttributesResponse>((resolve, reject) => {
+        client.updateChatAttributes(
+          params,
+          (
+            error: grpc.ServiceError | null,
+            response: UpdateChatAttributesResponse,
+          ) => {
+            if (error) {
+              reject(error);
+              return;
+            }
+            resolve(response);
+          },
+        );
+      });
+    }
+
+    const metadata = this.createAuthMetadata();
     return new Promise<UpdateChatAttributesResponse>((resolve, reject) => {
       client.updateChatAttributes(
         params,
+        metadata,
         (
           error: grpc.ServiceError | null,
           response: UpdateChatAttributesResponse,
@@ -453,18 +640,41 @@ export class ApexClient extends BaseClient {
       );
     });
   };
+
   /**
    * Update completion attributes
    */
-  updateCompletionAttributes = async (
+  updateCompletionAttributes = (
     params: UpdateCompletionAttributesRequest,
   ): Promise<UpdateCompletionAttributesResponse> => {
     const client = this.createGrpcClient();
 
+    if (this.isSecure()) {
+      return new Promise<UpdateCompletionAttributesResponse>(
+        (resolve, reject) => {
+          client.updateCompletionAttributes(
+            params,
+            (
+              error: grpc.ServiceError | null,
+              response: UpdateCompletionAttributesResponse,
+            ) => {
+              if (error) {
+                reject(error);
+                return;
+              }
+              resolve(response);
+            },
+          );
+        },
+      );
+    }
+
+    const metadata = this.createAuthMetadata();
     return new Promise<UpdateCompletionAttributesResponse>(
       (resolve, reject) => {
         client.updateCompletionAttributes(
           params,
+          metadata,
           (
             error: grpc.ServiceError | null,
             response: UpdateCompletionAttributesResponse,
@@ -479,17 +689,35 @@ export class ApexClient extends BaseClient {
       },
     );
   };
+
   /**
    * GetCompletion by ID client
    */
-  getChatCompletion = async (
+  getChatCompletion = (
     params: GetChatCompletionRequest,
   ): Promise<StoredChatCompletion> => {
     const client = this.createGrpcClient();
 
+    if (this.isSecure()) {
+      return new Promise<StoredChatCompletion>((resolve, reject) => {
+        client.getChatCompletion(
+          params,
+          (error: grpc.ServiceError | null, response: StoredChatCompletion) => {
+            if (error) {
+              reject(error);
+              return;
+            }
+            resolve(response);
+          },
+        );
+      });
+    }
+
+    const metadata = this.createAuthMetadata();
     return new Promise<StoredChatCompletion>((resolve, reject) => {
       client.getChatCompletion(
         params,
+        metadata,
         (error: grpc.ServiceError | null, response: StoredChatCompletion) => {
           if (error) {
             reject(error);

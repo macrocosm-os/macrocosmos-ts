@@ -1,4 +1,3 @@
-import * as grpc from "@grpc/grpc-js";
 import {
   GravityServiceClient,
   GetGravityTasksRequest,
@@ -86,46 +85,36 @@ export class GravityClient extends BaseClient {
   private createGrpcClient(): GravityServiceClient {
     if (this._grpcClient) return this._grpcClient;
 
-    // Create gRPC credentials with API key
-    const callCreds = grpc.credentials.createFromMetadataGenerator(
-      (_params, callback) => {
-        const meta = new grpc.Metadata();
-        meta.add("authorization", `Bearer ${this.getApiKey()}`);
-        meta.add("x-source", this.getAppName());
-        meta.add("x-client-id", this.getClientName());
-        meta.add("x-client-version", this.getClientVersion());
-        meta.add("x-forwarded-user", this.getUserId());
-        callback(null, meta);
-      },
+    // Create gRPC client with proper credentials
+    return new GravityServiceClient(
+      this.getBaseURL(),
+      this.createChannelCredentials(),
     );
-
-    // Create credentials based on secure option
-    let credentials: grpc.ChannelCredentials;
-    if (this.isSecure()) {
-      // Use secure credentials for production
-      const channelCreds = grpc.credentials.createSsl();
-      credentials = grpc.credentials.combineChannelCredentials(
-        channelCreds,
-        callCreds,
-      );
-    } else {
-      // For insecure connections, create insecure channel credentials
-      credentials = grpc.credentials.createInsecure();
-    }
-
-    // Create gRPC client
-    return new GravityServiceClient(this.getBaseURL(), credentials);
   }
 
   /**
    * Lists all data collection tasks for a user
    */
-  getGravityTasks = async (
+  getGravityTasks = (
     params: GetGravityTasksRequest,
   ): Promise<GetGravityTasksResponse> => {
     const client = this.createGrpcClient();
+
+    if (this.isSecure()) {
+      return new Promise<GetGravityTasksResponse>((resolve, reject) => {
+        client.getGravityTasks(params, (error, response) => {
+          if (error) {
+            reject(error);
+            return;
+          }
+          resolve(response);
+        });
+      });
+    }
+
+    const metadata = this.createAuthMetadata();
     return new Promise<GetGravityTasksResponse>((resolve, reject) => {
-      client.getGravityTasks(params, (error, response) => {
+      client.getGravityTasks(params, metadata, (error, response) => {
         if (error) {
           reject(error);
           return;
@@ -138,12 +127,24 @@ export class GravityClient extends BaseClient {
   /**
    * Get a single crawler by its ID
    */
-  getCrawler = async (
-    params: GetCrawlerRequest,
-  ): Promise<GetCrawlerResponse> => {
+  getCrawler = (params: GetCrawlerRequest): Promise<GetCrawlerResponse> => {
     const client = this.createGrpcClient();
+
+    if (this.isSecure()) {
+      return new Promise<GetCrawlerResponse>((resolve, reject) => {
+        client.getCrawler(params, (error, response) => {
+          if (error) {
+            reject(error);
+            return;
+          }
+          resolve(response);
+        });
+      });
+    }
+
+    const metadata = this.createAuthMetadata();
     return new Promise<GetCrawlerResponse>((resolve, reject) => {
-      client.getCrawler(params, (error, response) => {
+      client.getCrawler(params, metadata, (error, response) => {
         if (error) {
           reject(error);
           return;
@@ -156,13 +157,31 @@ export class GravityClient extends BaseClient {
   /**
    * Create a new gravity task
    */
-  createGravityTask = async (
+  createGravityTask = (
     params: CreateGravityTaskRequest,
   ): Promise<CreateGravityTaskResponse> => {
     const client = this.createGrpcClient();
+
+    if (this.isSecure()) {
+      return new Promise<CreateGravityTaskResponse>((resolve, reject) => {
+        client.createGravityTask(
+          params as GeneratedCreateGravityTaskRequest,
+          (error, response) => {
+            if (error) {
+              reject(error);
+              return;
+            }
+            resolve(response);
+          },
+        );
+      });
+    }
+
+    const metadata = this.createAuthMetadata();
     return new Promise<CreateGravityTaskResponse>((resolve, reject) => {
       client.createGravityTask(
         params as GeneratedCreateGravityTaskRequest,
+        metadata,
         (error, response) => {
           if (error) {
             reject(error);
@@ -177,13 +196,31 @@ export class GravityClient extends BaseClient {
   /**
    * Build a dataset for a single crawler
    */
-  buildDataset = async (
+  buildDataset = (
     params: BuildDatasetRequest,
   ): Promise<BuildDatasetResponse> => {
     const client = this.createGrpcClient();
+
+    if (this.isSecure()) {
+      return new Promise<BuildDatasetResponse>((resolve, reject) => {
+        client.buildDataset(
+          params as GeneratedBuildDatasetRequest,
+          (error, response) => {
+            if (error) {
+              reject(error);
+              return;
+            }
+            resolve(response);
+          },
+        );
+      });
+    }
+
+    const metadata = this.createAuthMetadata();
     return new Promise<BuildDatasetResponse>((resolve, reject) => {
       client.buildDataset(
         params as GeneratedBuildDatasetRequest,
+        metadata,
         (error, response) => {
           if (error) {
             reject(error);
@@ -198,12 +235,24 @@ export class GravityClient extends BaseClient {
   /**
    * Get the dataset build status and results
    */
-  getDataset = async (
-    params: GetDatasetRequest,
-  ): Promise<GetDatasetResponse> => {
+  getDataset = (params: GetDatasetRequest): Promise<GetDatasetResponse> => {
     const client = this.createGrpcClient();
+
+    if (this.isSecure()) {
+      return new Promise<GetDatasetResponse>((resolve, reject) => {
+        client.getDataset(params, (error, response) => {
+          if (error) {
+            reject(error);
+            return;
+          }
+          resolve(response);
+        });
+      });
+    }
+
+    const metadata = this.createAuthMetadata();
     return new Promise<GetDatasetResponse>((resolve, reject) => {
-      client.getDataset(params, (error, response) => {
+      client.getDataset(params, metadata, (error, response) => {
         if (error) {
           reject(error);
           return;
@@ -216,12 +265,26 @@ export class GravityClient extends BaseClient {
   /**
    * Cancel a gravity task and any crawlers associated with it
    */
-  cancelGravityTask = async (
+  cancelGravityTask = (
     params: CancelGravityTaskRequest,
   ): Promise<CancelGravityTaskResponse> => {
     const client = this.createGrpcClient();
+
+    if (this.isSecure()) {
+      return new Promise<CancelGravityTaskResponse>((resolve, reject) => {
+        client.cancelGravityTask(params, (error, response) => {
+          if (error) {
+            reject(error);
+            return;
+          }
+          resolve(response);
+        });
+      });
+    }
+
+    const metadata = this.createAuthMetadata();
     return new Promise<CancelGravityTaskResponse>((resolve, reject) => {
-      client.cancelGravityTask(params, (error, response) => {
+      client.cancelGravityTask(params, metadata, (error, response) => {
         if (error) {
           reject(error);
           return;
@@ -234,12 +297,26 @@ export class GravityClient extends BaseClient {
   /**
    * Cancel dataset build if it is in progress and purges the dataset
    */
-  cancelDataset = async (
+  cancelDataset = (
     params: CancelDatasetRequest,
   ): Promise<CancelDatasetResponse> => {
     const client = this.createGrpcClient();
+
+    if (this.isSecure()) {
+      return new Promise<CancelDatasetResponse>((resolve, reject) => {
+        client.cancelDataset(params, (error, response) => {
+          if (error) {
+            reject(error);
+            return;
+          }
+          resolve(response);
+        });
+      });
+    }
+
+    const metadata = this.createAuthMetadata();
     return new Promise<CancelDatasetResponse>((resolve, reject) => {
-      client.cancelDataset(params, (error, response) => {
+      client.cancelDataset(params, metadata, (error, response) => {
         if (error) {
           reject(error);
           return;

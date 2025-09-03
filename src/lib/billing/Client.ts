@@ -3,7 +3,6 @@ import {
   GetUsageRequest,
   GetUsageResponse,
 } from "../../generated/billing/v1/billing";
-import * as grpc from "@grpc/grpc-js";
 import { BaseClient, BaseClientOptions } from "../BaseClient";
 
 // re-export the types for use in the package
@@ -25,35 +24,11 @@ export class BillingClient extends BaseClient {
   private createGrpcClient(): BillingServiceClient {
     if (this._grpcClient) return this._grpcClient;
 
-    // Create gRPC credentials with API key
-    const callCreds = grpc.credentials.createFromMetadataGenerator(
-      (_params, callback) => {
-        const meta = new grpc.Metadata();
-        meta.add("authorization", `Bearer ${this.getApiKey()}`);
-        meta.add("x-source", this.getAppName());
-        meta.add("x-client-id", this.getClientName());
-        meta.add("x-client-version", this.getClientVersion());
-        meta.add("x-forwarded-user", this.getUserId());
-        callback(null, meta);
-      },
+    // Create gRPC client with proper credentials
+    return new BillingServiceClient(
+      this.getBaseURL(),
+      this.createChannelCredentials(),
     );
-
-    // Create credentials based on secure option
-    let credentials: grpc.ChannelCredentials;
-    if (this.isSecure()) {
-      // Use secure credentials for production
-      const channelCreds = grpc.credentials.createSsl();
-      credentials = grpc.credentials.combineChannelCredentials(
-        channelCreds,
-        callCreds,
-      );
-    } else {
-      // For insecure connections, create insecure channel credentials
-      credentials = grpc.credentials.createInsecure();
-    }
-
-    // Create gRPC client
-    return new BillingServiceClient(this.getBaseURL(), credentials);
   }
 
   /**
@@ -62,8 +37,21 @@ export class BillingClient extends BaseClient {
   getUsage = async (params: GetUsageRequest): Promise<GetUsageResponse> => {
     const client = this.createGrpcClient();
 
+    if (this.isSecure()) {
+      return new Promise<GetUsageResponse>((resolve, reject) => {
+        client.getUsage(params, (error, response) => {
+          if (error) {
+            reject(error);
+            return;
+          }
+          resolve(response);
+        });
+      });
+    }
+
+    const metadata = this.createAuthMetadata();
     return new Promise<GetUsageResponse>((resolve, reject) => {
-      client.getUsage(params, (error, response) => {
+      client.getUsage(params, metadata, (error, response) => {
         if (error) {
           reject(error);
           return;
