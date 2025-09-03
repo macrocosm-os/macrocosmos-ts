@@ -4,14 +4,14 @@ import {
   WebRetrievalResponse,
 } from "macrocosmos";
 
-describe.skip("ApexClient WebRetrieval", () => {
+describe("ApexClient WebRetrieval", () => {
   const API_KEY = process.env.MACROCOSMOS_API_KEY;
 
   if (!API_KEY) {
     throw new Error("MACROCOSMOS_API_KEY environment variable is required");
   }
 
-  it("should make a web retrieval request", async () => {
+  it.skip("should make a web retrieval request", async () => {
     // Create ApexClient
     const client = new ApexClient({
       apiKey: API_KEY,
