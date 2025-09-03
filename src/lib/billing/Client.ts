@@ -3,7 +3,6 @@ import {
   GetUsageRequest,
   GetUsageResponse,
 } from "../../generated/billing/v1/billing";
-import * as grpc from "@grpc/grpc-js";
 import { BaseClient, BaseClientOptions } from "../BaseClient";
 
 // re-export the types for use in the package
@@ -38,27 +37,27 @@ export class BillingClient extends BaseClient {
   getUsage = async (params: GetUsageRequest): Promise<GetUsageResponse> => {
     const client = this.createGrpcClient();
 
-    return this.executeGrpcCall(
-      metadata =>
-        new Promise<GetUsageResponse>((resolve, reject) => {
-          client.getUsage(params, metadata, (error, response) => {
-            if (error) {
-              reject(error);
-              return;
-            }
-            resolve(response);
-          });
-        }),
-      () =>
-        new Promise<GetUsageResponse>((resolve, reject) => {
-          client.getUsage(params, (error, response) => {
-            if (error) {
-              reject(error);
-              return;
-            }
-            resolve(response);
-          });
-        }),
-    );
+    if (this.isSecure()) {
+      return new Promise<GetUsageResponse>((resolve, reject) => {
+        client.getUsage(params, (error, response) => {
+          if (error) {
+            reject(error);
+            return;
+          }
+          resolve(response);
+        });
+      });
+    }
+
+    const metadata = this.createAuthMetadata();
+    return new Promise<GetUsageResponse>((resolve, reject) => {
+      client.getUsage(params, metadata, (error, response) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+        resolve(response);
+      });
+    });
   };
 }

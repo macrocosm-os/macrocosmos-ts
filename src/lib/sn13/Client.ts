@@ -8,7 +8,6 @@ import {
   OnDemandDataRequest,
   OnDemandDataResponse,
 } from "../../generated/sn13/v1/sn13_validator";
-import * as grpc from "@grpc/grpc-js";
 import { BaseClient, BaseClientOptions } from "../BaseClient";
 
 // re-export the types for use in the package
@@ -38,46 +37,34 @@ export class Sn13Client extends BaseClient {
   private createGrpcClient(): Sn13ServiceClient {
     if (this._grpcClient) return this._grpcClient;
 
-    // Create gRPC credentials with API key
-    const callCreds = grpc.credentials.createFromMetadataGenerator(
-      (_params, callback) => {
-        const meta = new grpc.Metadata();
-        meta.add("authorization", `Bearer ${this.getApiKey()}`);
-        meta.add("x-source", this.getAppName());
-        meta.add("x-client-id", this.getClientName());
-        meta.add("x-client-version", this.getClientVersion());
-        meta.add("x-forwarded-user", this.getUserId());
-        callback(null, meta);
-      },
+    // Create gRPC client with proper credentials
+    return new Sn13ServiceClient(
+      this.getBaseURL(),
+      this.createChannelCredentials(),
     );
-
-    // Create credentials based on secure option
-    let credentials: grpc.ChannelCredentials;
-    if (this.isSecure()) {
-      // Use secure credentials for production
-      const channelCreds = grpc.credentials.createSsl();
-      credentials = grpc.credentials.combineChannelCredentials(
-        channelCreds,
-        callCreds,
-      );
-    } else {
-      // For insecure connections, create insecure channel credentials
-      credentials = grpc.credentials.createInsecure();
-    }
-
-    // Create gRPC client
-    return new Sn13ServiceClient(this.getBaseURL(), credentials);
   }
 
   /**
    * List topics from a source
    */
-  listTopics = async (
-    params: ListTopicsRequest,
-  ): Promise<ListTopicsResponse> => {
+  listTopics = (params: ListTopicsRequest): Promise<ListTopicsResponse> => {
     const client = this.createGrpcClient();
+
+    if (this.isSecure()) {
+      return new Promise<ListTopicsResponse>((resolve, reject) => {
+        client.listTopics(params, (error, response) => {
+          if (error) {
+            reject(error);
+            return;
+          }
+          resolve(response);
+        });
+      });
+    }
+
+    const metadata = this.createAuthMetadata();
     return new Promise<ListTopicsResponse>((resolve, reject) => {
-      client.listTopics(params, (error, response) => {
+      client.listTopics(params, metadata, (error, response) => {
         if (error) {
           reject(error);
           return;
@@ -90,12 +77,26 @@ export class Sn13Client extends BaseClient {
   /**
    * Validate a Reddit topic
    */
-  validateRedditTopic = async (
+  validateRedditTopic = (
     params: ValidateRedditTopicRequest,
   ): Promise<ValidateRedditTopicResponse> => {
     const client = this.createGrpcClient();
+
+    if (this.isSecure()) {
+      return new Promise<ValidateRedditTopicResponse>((resolve, reject) => {
+        client.validateRedditTopic(params, (error, response) => {
+          if (error) {
+            reject(error);
+            return;
+          }
+          resolve(response);
+        });
+      });
+    }
+
+    const metadata = this.createAuthMetadata();
     return new Promise<ValidateRedditTopicResponse>((resolve, reject) => {
-      client.validateRedditTopic(params, (error, response) => {
+      client.validateRedditTopic(params, metadata, (error, response) => {
         if (error) {
           reject(error);
           return;
@@ -108,12 +109,26 @@ export class Sn13Client extends BaseClient {
   /**
    * Retrieve on-demand data from the SN13 API service
    */
-  onDemandData = async (
+  onDemandData = (
     params: OnDemandDataRequest,
   ): Promise<OnDemandDataResponse> => {
     const client = this.createGrpcClient();
+
+    if (this.isSecure()) {
+      return new Promise<OnDemandDataResponse>((resolve, reject) => {
+        client.onDemandData(params, (error, response) => {
+          if (error) {
+            reject(error);
+            return;
+          }
+          resolve(response);
+        });
+      });
+    }
+
+    const metadata = this.createAuthMetadata();
     return new Promise<OnDemandDataResponse>((resolve, reject) => {
-      client.onDemandData(params, (error, response) => {
+      client.onDemandData(params, metadata, (error, response) => {
         if (error) {
           reject(error);
           return;
