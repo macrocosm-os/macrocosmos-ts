@@ -137,4 +137,31 @@ export abstract class BaseClient {
       return grpc.credentials.createInsecure();
     }
   }
+
+  /**
+   * Get authentication metadata for insecure connections
+   * Returns undefined for secure connections (where auth is handled by credentials)
+   */
+  protected getAuthMetadataForInsecure(): grpc.Metadata | undefined {
+    return this.isSecure() ? undefined : this.createAuthMetadata();
+  }
+
+  /**
+   * Execute a gRPC call with proper authentication handling
+   * This centralizes the logic for secure vs insecure connections
+   */
+  protected async executeGrpcCall<T>(
+    callWithMetadata: (metadata: grpc.Metadata) => Promise<T>,
+    callWithoutMetadata: () => Promise<T>,
+  ): Promise<T> {
+    const metadata = this.getAuthMetadataForInsecure();
+
+    if (metadata) {
+      // Insecure connection - use metadata
+      return callWithMetadata(metadata);
+    } else {
+      // Secure connection - no metadata needed
+      return callWithoutMetadata();
+    }
+  }
 }

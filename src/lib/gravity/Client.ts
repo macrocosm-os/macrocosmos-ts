@@ -100,27 +100,29 @@ export class GravityClient extends BaseClient {
     params: GetGravityTasksRequest,
   ): Promise<GetGravityTasksResponse> => {
     const client = this.createGrpcClient();
-    return new Promise<GetGravityTasksResponse>((resolve, reject) => {
-      // For insecure connections, we need to manually add auth metadata
-      if (this.isSecure()) {
-        client.getGravityTasks(params, (error, response) => {
-          if (error) {
-            reject(error);
-            return;
-          }
-          resolve(response);
-        });
-      } else {
-        const metadata = this.createAuthMetadata();
-        client.getGravityTasks(params, metadata, (error, response) => {
-          if (error) {
-            reject(error);
-            return;
-          }
-          resolve(response);
-        });
-      }
-    });
+
+    return this.executeGrpcCall(
+      metadata =>
+        new Promise<GetGravityTasksResponse>((resolve, reject) => {
+          client.getGravityTasks(params, metadata, (error, response) => {
+            if (error) {
+              reject(error);
+              return;
+            }
+            resolve(response);
+          });
+        }),
+      () =>
+        new Promise<GetGravityTasksResponse>((resolve, reject) => {
+          client.getGravityTasks(params, (error, response) => {
+            if (error) {
+              reject(error);
+              return;
+            }
+            resolve(response);
+          });
+        }),
+    );
   };
 
   /**
@@ -130,15 +132,29 @@ export class GravityClient extends BaseClient {
     params: GetCrawlerRequest,
   ): Promise<GetCrawlerResponse> => {
     const client = this.createGrpcClient();
-    return new Promise<GetCrawlerResponse>((resolve, reject) => {
-      client.getCrawler(params, (error, response) => {
-        if (error) {
-          reject(error);
-          return;
-        }
-        resolve(response);
-      });
-    });
+
+    return this.executeGrpcCall(
+      metadata =>
+        new Promise<GetCrawlerResponse>((resolve, reject) => {
+          client.getCrawler(params, metadata, (error, response) => {
+            if (error) {
+              reject(error);
+              return;
+            }
+            resolve(response);
+          });
+        }),
+      () =>
+        new Promise<GetCrawlerResponse>((resolve, reject) => {
+          client.getCrawler(params, (error, response) => {
+            if (error) {
+              reject(error);
+              return;
+            }
+            resolve(response);
+          });
+        }),
+    );
   };
 
   /**
@@ -148,18 +164,36 @@ export class GravityClient extends BaseClient {
     params: CreateGravityTaskRequest,
   ): Promise<CreateGravityTaskResponse> => {
     const client = this.createGrpcClient();
-    return new Promise<CreateGravityTaskResponse>((resolve, reject) => {
-      client.createGravityTask(
-        params as GeneratedCreateGravityTaskRequest,
-        (error, response) => {
-          if (error) {
-            reject(error);
-            return;
-          }
-          resolve(response);
-        },
-      );
-    });
+
+    return this.executeGrpcCall(
+      metadata =>
+        new Promise<CreateGravityTaskResponse>((resolve, reject) => {
+          client.createGravityTask(
+            params as GeneratedCreateGravityTaskRequest,
+            metadata,
+            (error, response) => {
+              if (error) {
+                reject(error);
+                return;
+              }
+              resolve(response);
+            },
+          );
+        }),
+      () =>
+        new Promise<CreateGravityTaskResponse>((resolve, reject) => {
+          client.createGravityTask(
+            params as GeneratedCreateGravityTaskRequest,
+            (error, response) => {
+              if (error) {
+                reject(error);
+                return;
+              }
+              resolve(response);
+            },
+          );
+        }),
+    );
   };
 
   /**
@@ -169,18 +203,36 @@ export class GravityClient extends BaseClient {
     params: BuildDatasetRequest,
   ): Promise<BuildDatasetResponse> => {
     const client = this.createGrpcClient();
-    return new Promise<BuildDatasetResponse>((resolve, reject) => {
-      client.buildDataset(
-        params as GeneratedBuildDatasetRequest,
-        (error, response) => {
-          if (error) {
-            reject(error);
-            return;
-          }
-          resolve(response);
-        },
-      );
-    });
+
+    return this.executeGrpcCall(
+      metadata =>
+        new Promise<BuildDatasetResponse>((resolve, reject) => {
+          client.buildDataset(
+            params as GeneratedBuildDatasetRequest,
+            metadata,
+            (error, response) => {
+              if (error) {
+                reject(error);
+                return;
+              }
+              resolve(response);
+            },
+          );
+        }),
+      () =>
+        new Promise<BuildDatasetResponse>((resolve, reject) => {
+          client.buildDataset(
+            params as GeneratedBuildDatasetRequest,
+            (error, response) => {
+              if (error) {
+                reject(error);
+                return;
+              }
+              resolve(response);
+            },
+          );
+        }),
+    );
   };
 
   /**
@@ -190,15 +242,29 @@ export class GravityClient extends BaseClient {
     params: GetDatasetRequest,
   ): Promise<GetDatasetResponse> => {
     const client = this.createGrpcClient();
-    return new Promise<GetDatasetResponse>((resolve, reject) => {
-      client.getDataset(params, (error, response) => {
-        if (error) {
-          reject(error);
-          return;
-        }
-        resolve(response);
-      });
-    });
+
+    return this.executeGrpcCall(
+      metadata =>
+        new Promise<GetDatasetResponse>((resolve, reject) => {
+          client.getDataset(params, metadata, (error, response) => {
+            if (error) {
+              reject(error);
+              return;
+            }
+            resolve(response);
+          });
+        }),
+      () =>
+        new Promise<GetDatasetResponse>((resolve, reject) => {
+          client.getDataset(params, (error, response) => {
+            if (error) {
+              reject(error);
+              return;
+            }
+            resolve(response);
+          });
+        }),
+    );
   };
 
   /**
@@ -208,15 +274,29 @@ export class GravityClient extends BaseClient {
     params: CancelGravityTaskRequest,
   ): Promise<CancelGravityTaskResponse> => {
     const client = this.createGrpcClient();
-    return new Promise<CancelGravityTaskResponse>((resolve, reject) => {
-      client.cancelGravityTask(params, (error, response) => {
-        if (error) {
-          reject(error);
-          return;
-        }
-        resolve(response);
-      });
-    });
+
+    return this.executeGrpcCall(
+      metadata =>
+        new Promise<CancelGravityTaskResponse>((resolve, reject) => {
+          client.cancelGravityTask(params, metadata, (error, response) => {
+            if (error) {
+              reject(error);
+              return;
+            }
+            resolve(response);
+          });
+        }),
+      () =>
+        new Promise<CancelGravityTaskResponse>((resolve, reject) => {
+          client.cancelGravityTask(params, (error, response) => {
+            if (error) {
+              reject(error);
+              return;
+            }
+            resolve(response);
+          });
+        }),
+    );
   };
 
   /**
@@ -226,14 +306,28 @@ export class GravityClient extends BaseClient {
     params: CancelDatasetRequest,
   ): Promise<CancelDatasetResponse> => {
     const client = this.createGrpcClient();
-    return new Promise<CancelDatasetResponse>((resolve, reject) => {
-      client.cancelDataset(params, (error, response) => {
-        if (error) {
-          reject(error);
-          return;
-        }
-        resolve(response);
-      });
-    });
+
+    return this.executeGrpcCall(
+      metadata =>
+        new Promise<CancelDatasetResponse>((resolve, reject) => {
+          client.cancelDataset(params, metadata, (error, response) => {
+            if (error) {
+              reject(error);
+              return;
+            }
+            resolve(response);
+          });
+        }),
+      () =>
+        new Promise<CancelDatasetResponse>((resolve, reject) => {
+          client.cancelDataset(params, (error, response) => {
+            if (error) {
+              reject(error);
+              return;
+            }
+            resolve(response);
+          });
+        }),
+    );
   };
 }

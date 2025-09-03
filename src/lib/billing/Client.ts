@@ -38,26 +38,27 @@ export class BillingClient extends BaseClient {
   getUsage = async (params: GetUsageRequest): Promise<GetUsageResponse> => {
     const client = this.createGrpcClient();
 
-    return new Promise<GetUsageResponse>((resolve, reject) => {
-      // For insecure connections, we need to manually add auth metadata
-      if (this.isSecure()) {
-        client.getUsage(params, (error, response) => {
-          if (error) {
-            reject(error);
-            return;
-          }
-          resolve(response);
-        });
-      } else {
-        const metadata = this.createAuthMetadata();
-        client.getUsage(params, metadata, (error, response) => {
-          if (error) {
-            reject(error);
-            return;
-          }
-          resolve(response);
-        });
-      }
-    });
+    return this.executeGrpcCall(
+      metadata =>
+        new Promise<GetUsageResponse>((resolve, reject) => {
+          client.getUsage(params, metadata, (error, response) => {
+            if (error) {
+              reject(error);
+              return;
+            }
+            resolve(response);
+          });
+        }),
+      () =>
+        new Promise<GetUsageResponse>((resolve, reject) => {
+          client.getUsage(params, (error, response) => {
+            if (error) {
+              reject(error);
+              return;
+            }
+            resolve(response);
+          });
+        }),
+    );
   };
 }

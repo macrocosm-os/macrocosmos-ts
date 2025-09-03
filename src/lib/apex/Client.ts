@@ -179,18 +179,35 @@ export class ApexClient extends BaseClient {
   ): Promise<WebRetrievalResponse> => {
     const client = this.createGrpcClient();
 
-    return new Promise<WebRetrievalResponse>((resolve, reject) => {
-      client.webRetrieval(
-        { ...params, uids: params.uids ?? [] },
-        (error, response) => {
-          if (error) {
-            reject(error);
-            return;
-          }
-          resolve(response);
-        },
-      );
-    });
+    return this.executeGrpcCall(
+      metadata =>
+        new Promise<WebRetrievalResponse>((resolve, reject) => {
+          client.webRetrieval(
+            { ...params, uids: params.uids ?? [] },
+            metadata,
+            (error, response) => {
+              if (error) {
+                reject(error);
+                return;
+              }
+              resolve(response);
+            },
+          );
+        }),
+      () =>
+        new Promise<WebRetrievalResponse>((resolve, reject) => {
+          client.webRetrieval(
+            { ...params, uids: params.uids ?? [] },
+            (error, response) => {
+              if (error) {
+                reject(error);
+                return;
+              }
+              resolve(response);
+            },
+          );
+        }),
+    );
   };
 
   /**
@@ -210,15 +227,32 @@ export class ApexClient extends BaseClient {
       stream: true,
     };
 
-    return new Promise<SubmitDeepResearcherJobResponse>((resolve, reject) => {
-      client.submitDeepResearcherJob(request, (error, response) => {
-        if (error) {
-          reject(error);
-          return;
-        }
-        resolve(response);
-      });
-    });
+    return this.executeGrpcCall(
+      metadata =>
+        new Promise<SubmitDeepResearcherJobResponse>((resolve, reject) => {
+          client.submitDeepResearcherJob(
+            request,
+            metadata,
+            (error, response) => {
+              if (error) {
+                reject(error);
+                return;
+              }
+              resolve(response);
+            },
+          );
+        }),
+      () =>
+        new Promise<SubmitDeepResearcherJobResponse>((resolve, reject) => {
+          client.submitDeepResearcherJob(request, (error, response) => {
+            if (error) {
+              reject(error);
+              return;
+            }
+            resolve(response);
+          });
+        }),
+    );
   };
 
   /**
@@ -229,15 +263,28 @@ export class ApexClient extends BaseClient {
   ): Promise<GetDeepResearcherJobResponse> => {
     const client = this.createGrpcClient();
 
-    return new Promise<GetDeepResearcherJobResponse>((resolve, reject) => {
-      client.getDeepResearcherJob(params, (error, response) => {
-        if (error) {
-          reject(error);
-          return;
-        }
-        resolve(response);
-      });
-    });
+    return this.executeGrpcCall(
+      metadata =>
+        new Promise<GetDeepResearcherJobResponse>((resolve, reject) => {
+          client.getDeepResearcherJob(params, metadata, (error, response) => {
+            if (error) {
+              reject(error);
+              return;
+            }
+            resolve(response);
+          });
+        }),
+      () =>
+        new Promise<GetDeepResearcherJobResponse>((resolve, reject) => {
+          client.getDeepResearcherJob(params, (error, response) => {
+            if (error) {
+              reject(error);
+              return;
+            }
+            resolve(response);
+          });
+        }),
+    );
   };
 
   /**
@@ -248,15 +295,32 @@ export class ApexClient extends BaseClient {
   ): Promise<GetStoredChatCompletionsResponse> => {
     const client = this.createGrpcClient();
 
-    return new Promise<GetStoredChatCompletionsResponse>((resolve, reject) => {
-      client.getStoredChatCompletions(params, (error, response) => {
-        if (error) {
-          reject(error);
-          return;
-        }
-        resolve(response);
-      });
-    });
+    return this.executeGrpcCall(
+      metadata =>
+        new Promise<GetStoredChatCompletionsResponse>((resolve, reject) => {
+          client.getStoredChatCompletions(
+            params,
+            metadata,
+            (error, response) => {
+              if (error) {
+                reject(error);
+                return;
+              }
+              resolve(response);
+            },
+          );
+        }),
+      () =>
+        new Promise<GetStoredChatCompletionsResponse>((resolve, reject) => {
+          client.getStoredChatCompletions(params, (error, response) => {
+            if (error) {
+              reject(error);
+              return;
+            }
+            resolve(response);
+          });
+        }),
+    );
   };
 
   /**
@@ -267,21 +331,41 @@ export class ApexClient extends BaseClient {
   ): Promise<GetChatSessionsResponse> => {
     const client = this.createGrpcClient();
 
-    return new Promise<GetChatSessionsResponse>((resolve, reject) => {
-      client.getChatSessions(
-        params,
-        (
-          error: grpc.ServiceError | null,
-          response: GetChatSessionsResponse,
-        ) => {
-          if (error) {
-            reject(error);
-            return;
-          }
-          resolve(response);
-        },
-      );
-    });
+    return this.executeGrpcCall(
+      metadata =>
+        new Promise<GetChatSessionsResponse>((resolve, reject) => {
+          client.getChatSessions(
+            params,
+            metadata,
+            (
+              error: grpc.ServiceError | null,
+              response: GetChatSessionsResponse,
+            ) => {
+              if (error) {
+                reject(error);
+                return;
+              }
+              resolve(response);
+            },
+          );
+        }),
+      () =>
+        new Promise<GetChatSessionsResponse>((resolve, reject) => {
+          client.getChatSessions(
+            params,
+            (
+              error: grpc.ServiceError | null,
+              response: GetChatSessionsResponse,
+            ) => {
+              if (error) {
+                reject(error);
+                return;
+              }
+              resolve(response);
+            },
+          );
+        }),
+    );
   };
 
   /**
@@ -292,22 +376,44 @@ export class ApexClient extends BaseClient {
   ): Promise<SearchChatIdsByPromptAndCompletionTextResponse> => {
     const client = this.createGrpcClient();
 
-    return new Promise<SearchChatIdsByPromptAndCompletionTextResponse>(
-      (resolve, reject) => {
-        client.searchChatIdsByPromptAndCompletionText(
-          params,
-          (
-            error: grpc.ServiceError | null,
-            response: SearchChatIdsByPromptAndCompletionTextResponse,
-          ) => {
-            if (error) {
-              reject(error);
-              return;
-            }
-            resolve(response);
+    return this.executeGrpcCall(
+      metadata =>
+        new Promise<SearchChatIdsByPromptAndCompletionTextResponse>(
+          (resolve, reject) => {
+            client.searchChatIdsByPromptAndCompletionText(
+              params,
+              metadata,
+              (
+                error: grpc.ServiceError | null,
+                response: SearchChatIdsByPromptAndCompletionTextResponse,
+              ) => {
+                if (error) {
+                  reject(error);
+                  return;
+                }
+                resolve(response);
+              },
+            );
           },
-        );
-      },
+        ),
+      () =>
+        new Promise<SearchChatIdsByPromptAndCompletionTextResponse>(
+          (resolve, reject) => {
+            client.searchChatIdsByPromptAndCompletionText(
+              params,
+              (
+                error: grpc.ServiceError | null,
+                response: SearchChatIdsByPromptAndCompletionTextResponse,
+              ) => {
+                if (error) {
+                  reject(error);
+                  return;
+                }
+                resolve(response);
+              },
+            );
+          },
+        ),
     );
   };
 
@@ -319,21 +425,41 @@ export class ApexClient extends BaseClient {
   ): Promise<CreateChatAndCompletionResponse> => {
     const client = this.createGrpcClient();
 
-    return new Promise<CreateChatAndCompletionResponse>((resolve, reject) => {
-      client.createChatAndCompletion(
-        params,
-        (
-          error: grpc.ServiceError | null,
-          response: CreateChatAndCompletionResponse,
-        ) => {
-          if (error) {
-            reject(error);
-            return;
-          }
-          resolve(response);
-        },
-      );
-    });
+    return this.executeGrpcCall(
+      metadata =>
+        new Promise<CreateChatAndCompletionResponse>((resolve, reject) => {
+          client.createChatAndCompletion(
+            params,
+            metadata,
+            (
+              error: grpc.ServiceError | null,
+              response: CreateChatAndCompletionResponse,
+            ) => {
+              if (error) {
+                reject(error);
+                return;
+              }
+              resolve(response);
+            },
+          );
+        }),
+      () =>
+        new Promise<CreateChatAndCompletionResponse>((resolve, reject) => {
+          client.createChatAndCompletion(
+            params,
+            (
+              error: grpc.ServiceError | null,
+              response: CreateChatAndCompletionResponse,
+            ) => {
+              if (error) {
+                reject(error);
+                return;
+              }
+              resolve(response);
+            },
+          );
+        }),
+    );
   };
 
   /**
@@ -344,22 +470,43 @@ export class ApexClient extends BaseClient {
   ): Promise<CreateCompletionResponse> => {
     const client = this.createGrpcClient();
 
-    return new Promise<CreateCompletionResponse>((resolve, reject) => {
-      client.createCompletion(
-        params,
-        (
-          error: grpc.ServiceError | null,
-          response: CreateCompletionResponse,
-        ) => {
-          if (error) {
-            reject(error);
-            return;
-          }
-          resolve(response);
-        },
-      );
-    });
+    return this.executeGrpcCall(
+      metadata =>
+        new Promise<CreateCompletionResponse>((resolve, reject) => {
+          client.createCompletion(
+            params,
+            metadata,
+            (
+              error: grpc.ServiceError | null,
+              response: CreateCompletionResponse,
+            ) => {
+              if (error) {
+                reject(error);
+                return;
+              }
+              resolve(response);
+            },
+          );
+        }),
+      () =>
+        new Promise<CreateCompletionResponse>((resolve, reject) => {
+          client.createCompletion(
+            params,
+            (
+              error: grpc.ServiceError | null,
+              response: CreateCompletionResponse,
+            ) => {
+              if (error) {
+                reject(error);
+                return;
+              }
+              resolve(response);
+            },
+          );
+        }),
+    );
   };
+
   /**
    * Delete a chat given its id
    */
@@ -368,19 +515,43 @@ export class ApexClient extends BaseClient {
   ): Promise<DeleteChatsResponse> => {
     const client = this.createGrpcClient();
 
-    return new Promise<DeleteChatsResponse>((resolve, reject) => {
-      client.deleteChats(
-        params,
-        (error: grpc.ServiceError | null, response: DeleteChatsResponse) => {
-          if (error) {
-            reject(error);
-            return;
-          }
-          resolve(response);
-        },
-      );
-    });
+    return this.executeGrpcCall(
+      metadata =>
+        new Promise<DeleteChatsResponse>((resolve, reject) => {
+          client.deleteChats(
+            params,
+            metadata,
+            (
+              error: grpc.ServiceError | null,
+              response: DeleteChatsResponse,
+            ) => {
+              if (error) {
+                reject(error);
+                return;
+              }
+              resolve(response);
+            },
+          );
+        }),
+      () =>
+        new Promise<DeleteChatsResponse>((resolve, reject) => {
+          client.deleteChats(
+            params,
+            (
+              error: grpc.ServiceError | null,
+              response: DeleteChatsResponse,
+            ) => {
+              if (error) {
+                reject(error);
+                return;
+              }
+              resolve(response);
+            },
+          );
+        }),
+    );
   };
+
   /**
    * Delete completions given their id
    */
@@ -389,22 +560,43 @@ export class ApexClient extends BaseClient {
   ): Promise<DeleteCompletionsResponse> => {
     const client = this.createGrpcClient();
 
-    return new Promise<DeleteCompletionsResponse>((resolve, reject) => {
-      client.deleteCompletions(
-        params,
-        (
-          error: grpc.ServiceError | null,
-          response: DeleteCompletionsResponse,
-        ) => {
-          if (error) {
-            reject(error);
-            return;
-          }
-          resolve(response);
-        },
-      );
-    });
+    return this.executeGrpcCall(
+      metadata =>
+        new Promise<DeleteCompletionsResponse>((resolve, reject) => {
+          client.deleteCompletions(
+            params,
+            metadata,
+            (
+              error: grpc.ServiceError | null,
+              response: DeleteCompletionsResponse,
+            ) => {
+              if (error) {
+                reject(error);
+                return;
+              }
+              resolve(response);
+            },
+          );
+        }),
+      () =>
+        new Promise<DeleteCompletionsResponse>((resolve, reject) => {
+          client.deleteCompletions(
+            params,
+            (
+              error: grpc.ServiceError | null,
+              response: DeleteCompletionsResponse,
+            ) => {
+              if (error) {
+                reject(error);
+                return;
+              }
+              resolve(response);
+            },
+          );
+        }),
+    );
   };
+
   /**
    * Update chat attributes
    */
@@ -413,22 +605,43 @@ export class ApexClient extends BaseClient {
   ): Promise<UpdateChatAttributesResponse> => {
     const client = this.createGrpcClient();
 
-    return new Promise<UpdateChatAttributesResponse>((resolve, reject) => {
-      client.updateChatAttributes(
-        params,
-        (
-          error: grpc.ServiceError | null,
-          response: UpdateChatAttributesResponse,
-        ) => {
-          if (error) {
-            reject(error);
-            return;
-          }
-          resolve(response);
-        },
-      );
-    });
+    return this.executeGrpcCall(
+      metadata =>
+        new Promise<UpdateChatAttributesResponse>((resolve, reject) => {
+          client.updateChatAttributes(
+            params,
+            metadata,
+            (
+              error: grpc.ServiceError | null,
+              response: UpdateChatAttributesResponse,
+            ) => {
+              if (error) {
+                reject(error);
+                return;
+              }
+              resolve(response);
+            },
+          );
+        }),
+      () =>
+        new Promise<UpdateChatAttributesResponse>((resolve, reject) => {
+          client.updateChatAttributes(
+            params,
+            (
+              error: grpc.ServiceError | null,
+              response: UpdateChatAttributesResponse,
+            ) => {
+              if (error) {
+                reject(error);
+                return;
+              }
+              resolve(response);
+            },
+          );
+        }),
+    );
   };
+
   /**
    * Update completion attributes
    */
@@ -437,24 +650,43 @@ export class ApexClient extends BaseClient {
   ): Promise<UpdateCompletionAttributesResponse> => {
     const client = this.createGrpcClient();
 
-    return new Promise<UpdateCompletionAttributesResponse>(
-      (resolve, reject) => {
-        client.updateCompletionAttributes(
-          params,
-          (
-            error: grpc.ServiceError | null,
-            response: UpdateCompletionAttributesResponse,
-          ) => {
-            if (error) {
-              reject(error);
-              return;
-            }
-            resolve(response);
-          },
-        );
-      },
+    return this.executeGrpcCall(
+      metadata =>
+        new Promise<UpdateCompletionAttributesResponse>((resolve, reject) => {
+          client.updateCompletionAttributes(
+            params,
+            metadata,
+            (
+              error: grpc.ServiceError | null,
+              response: UpdateCompletionAttributesResponse,
+            ) => {
+              if (error) {
+                reject(error);
+                return;
+              }
+              resolve(response);
+            },
+          );
+        }),
+      () =>
+        new Promise<UpdateCompletionAttributesResponse>((resolve, reject) => {
+          client.updateCompletionAttributes(
+            params,
+            (
+              error: grpc.ServiceError | null,
+              response: UpdateCompletionAttributesResponse,
+            ) => {
+              if (error) {
+                reject(error);
+                return;
+              }
+              resolve(response);
+            },
+          );
+        }),
     );
   };
+
   /**
    * GetCompletion by ID client
    */
@@ -463,17 +695,40 @@ export class ApexClient extends BaseClient {
   ): Promise<StoredChatCompletion> => {
     const client = this.createGrpcClient();
 
-    return new Promise<StoredChatCompletion>((resolve, reject) => {
-      client.getChatCompletion(
-        params,
-        (error: grpc.ServiceError | null, response: StoredChatCompletion) => {
-          if (error) {
-            reject(error);
-            return;
-          }
-          resolve(response);
-        },
-      );
-    });
+    return this.executeGrpcCall(
+      metadata =>
+        new Promise<StoredChatCompletion>((resolve, reject) => {
+          client.getChatCompletion(
+            params,
+            metadata,
+            (
+              error: grpc.ServiceError | null,
+              response: StoredChatCompletion,
+            ) => {
+              if (error) {
+                reject(error);
+                return;
+              }
+              resolve(response);
+            },
+          );
+        }),
+      () =>
+        new Promise<StoredChatCompletion>((resolve, reject) => {
+          client.getChatCompletion(
+            params,
+            (
+              error: grpc.ServiceError | null,
+              response: StoredChatCompletion,
+            ) => {
+              if (error) {
+                reject(error);
+                return;
+              }
+              resolve(response);
+            },
+          );
+        }),
+    );
   };
 }
