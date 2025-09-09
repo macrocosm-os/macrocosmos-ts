@@ -257,8 +257,8 @@ describe("ApexClient", () => {
     expect(delete_chat_result.success).toBeTruthy();
   }, 30000);
 
-  // Deep Researcher Tests
-  it("should create a deep research job", async () => {
+  // Deep Researcher Tests - skipped due to failure, Deep Researcher has also been retired
+  it.skip("should create a deep research job", async () => {
     // Create test parameters
     const params = {
       messages: deepResearchMessages,
@@ -282,7 +282,7 @@ describe("ApexClient", () => {
     console.log("Create Job Response:", response);
   }, 30000);
 
-  it("should get deep researcher job results", async () => {
+  it.skip("should get deep researcher job results", async () => {
     // First create a job. Use simple inputs as job creation is tested in the previous test.
     const createParams = {
       messages: deepResearchMessages,
