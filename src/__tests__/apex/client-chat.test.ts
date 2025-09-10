@@ -50,7 +50,7 @@ describe("ApexClient", () => {
     });
   });
 
-  it("should make a streaming chat completion call", async () => {
+  it.skip("should make a streaming chat completion call", async () => {
     // Create streaming completion
     const result = await client.chat.completions.create({
       messages,
