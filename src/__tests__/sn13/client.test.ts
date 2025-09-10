@@ -68,4 +68,36 @@ describe("Sn13Client", () => {
     // Log response for debugging
     console.log("On-Demand Data Response:", response);
   }, 60000); // Increase timeout to 60 seconds
+
+  it("should fetch on-demand data with keyword mode", async () => {
+    // Create Sn13Client
+    const client = new Sn13Client({
+      apiKey: API_KEY,
+      appName: "sn13-client.test.ts",
+    });
+
+    // Create request
+    const request: OnDemandDataRequest = {
+      source: "x",
+      usernames: ["nasa", "spacex"],
+      keywords: ["photo", "space", "mars"],
+      startDate: "2024-04-01",
+      endDate: "2025-04-25",
+      limit: 3,
+      keywordMode: "any",
+    };
+
+    // Fetch on-demand data
+    const response = await client.onDemandData(request);
+
+    // Verify response structure
+    expect(response).toBeDefined();
+    expect(typeof response.status).toBe("string");
+    expect(Array.isArray(response.data)).toBe(true);
+    expect(response.data.length).toBeLessThanOrEqual(request.limit as number);
+    expect(response.meta).toBeDefined();
+
+    // Log response for debugging
+    console.log("On-Demand Data Response:", response);
+  }, 60000); // Increase timeout to 60 seconds
 });

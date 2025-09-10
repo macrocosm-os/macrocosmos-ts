@@ -123,7 +123,8 @@ const response = await client.onDemandData({
   keywords: ['photo', 'space', 'mars'],
   startDate: '2024-04-01',
   endDate: '2025-04-25',
-  limit: 3
+  limit: 3,
+  keywordMode: 'any',
 });
 
 ```
