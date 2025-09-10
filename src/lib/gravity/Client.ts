@@ -25,6 +25,10 @@ import {
   DatasetFile,
   DatasetStep,
   Nebula,
+  GetGravityTaskDatasetFilesResponse,
+  GetGravityTaskDatasetFilesRequest,
+  BuildAllDatasetsResponse,
+  BuildAllDatasetsRequest,
 } from "../../generated/gravity/v1/gravity";
 import { BaseClient, BaseClientOptions } from "../BaseClient";
 import { MarkFieldsOptional } from "../util.types";
@@ -317,6 +321,72 @@ export class GravityClient extends BaseClient {
     const metadata = this.createAuthMetadata();
     return new Promise<CancelDatasetResponse>((resolve, reject) => {
       client.cancelDataset(params, metadata, (error, response) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+        resolve(response);
+      });
+    });
+  };
+
+  getGravityTaskDatasetFiles = (
+    params: GetGravityTaskDatasetFilesRequest,
+  ): Promise<GetGravityTaskDatasetFilesResponse> => {
+    const client = this.createGrpcClient();
+
+    if (this.isSecure()) {
+      return new Promise<GetGravityTaskDatasetFilesResponse>(
+        (resolve, reject) => {
+          client.getGravityTaskDatasetFiles(params, (error, response) => {
+            if (error) {
+              reject(error);
+              return;
+            }
+            resolve(response);
+          });
+        },
+      );
+    }
+
+    const metadata = this.createAuthMetadata();
+    return new Promise<GetGravityTaskDatasetFilesResponse>(
+      (resolve, reject) => {
+        client.getGravityTaskDatasetFiles(
+          params,
+          metadata,
+          (error, response) => {
+            if (error) {
+              reject(error);
+              return;
+            }
+            resolve(response);
+          },
+        );
+      },
+    );
+  };
+
+  buildAllDatasets = (
+    params: BuildAllDatasetsRequest,
+  ): Promise<BuildAllDatasetsResponse> => {
+    const client = this.createGrpcClient();
+
+    if (this.isSecure()) {
+      return new Promise<BuildAllDatasetsResponse>((resolve, reject) => {
+        client.buildAllDatasets(params, (error, response) => {
+          if (error) {
+            reject(error);
+            return;
+          }
+          resolve(response);
+        });
+      });
+    }
+
+    const metadata = this.createAuthMetadata();
+    return new Promise<BuildAllDatasetsResponse>((resolve, reject) => {
+      client.buildAllDatasets(params, metadata, (error, response) => {
         if (error) {
           reject(error);
           return;

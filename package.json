@@ -1,6 +1,6 @@
 {
   "name": "macrocosmos",
-  "version": "1.3.1",
+  "version": "1.4.0",
   "description": "TypeScript SDK package for Macrocosmos",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -23,7 +23,8 @@
     "format:check": "prettier --check \"src/**/*.{ts,js,json,md}\"",
     "format:write": "prettier --write \"src/**/*.{ts,js,json,md}\"",
     "gen:proto": "npx protoc --plugin=protoc-gen-ts_proto=./node_modules/.bin/protoc-gen-ts_proto --ts_proto_out=./src/generated --ts_proto_opt=outputServices=grpc-js,useOptionals=messages,useExactTypes=false,esModuleInterop=true,forceLong=number -I ./protos $(find ./protos -name \"*.proto\") && prettier --write \"src/generated/**/*.{ts,js,json,md}\" ",
-    "example:sn13:list-topics": "ts-node src/__examples__/sn13/list-topics.ts"
+    "example:sn13:list-topics": "ts-node src/__examples__/sn13/list-topics.ts",
+    "prepare": "husky"
   },
   "keywords": [],
   "author": "",
@@ -54,6 +55,7 @@
     "@typescript-eslint/parser": "^8.29.1",
     "eslint": "^9.24.0",
     "eslint-plugin-prettier": "^5.2.6",
+    "husky": "^9.1.7",
     "prettier": "^3.5.3",
     "rimraf": "^5.0.5",
     "ts-node": "^10.9.2",

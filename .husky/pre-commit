@@ -1,0 +1,2 @@
+# Check and sync package version with exported version
+node scripts/pre-commit-version-check.js
