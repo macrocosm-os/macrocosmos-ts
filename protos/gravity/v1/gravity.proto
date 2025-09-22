@@ -11,6 +11,22 @@ service GravityService {
   // Lists all data collection tasks for a user
   rpc GetGravityTasks(GetGravityTasksRequest) returns (GetGravityTasksResponse);
 
+  // Add a persistent gravity task to the Gravity state DB
+  rpc AddPersistentGravityTask(AddPersistentGravityTaskRequest)
+      returns (UpsertResponse);
+
+  // Add a persistent dataset workflow to the Gravity state DB
+  rpc AddPersistentDatasetWorkflows(AddPersistentDatasetWorkflowsRequest)
+      returns (UpsertResponse);
+
+  // Retrieve recent persistent dataset workflows (last 7 days, non-Completed)
+  rpc GetPersistentDatasetWorkflows(google.protobuf.Empty)
+      returns (GetPersistentDatasetWorkflowsResponse);
+
+  // Retrieve all persistent gravity tasks from the Gravity state DB
+  rpc GetPersistentGravityTasks(google.protobuf.Empty)
+      returns (GetPersistentGravityTasksResponse);
+
   // Get a single crawler by its ID
   rpc GetCrawler(GetCrawlerRequest) returns (GetCrawlerResponse);
 
@@ -23,6 +39,9 @@ service GravityService {
 
   // Get the dataset build status and results
   rpc GetDataset(GetDatasetRequest) returns (GetDatasetResponse);
+
+  // Add a persistent topic to the Gravity state DB
+  rpc AddPersistentTopic(PersistentTopic) returns (UpsertResponse);
 
   // Cancel a gravity task and any crawlers associated with it
   rpc CancelGravityTask(CancelGravityTaskRequest)
@@ -66,7 +85,16 @@ service GravityService {
   rpc UpsertNebula(UpsertNebulaRequest) returns (UpsertResponse);
 
   // Builds all datasets for a task (additionally cancels crawlers with no data)
-  rpc BuildAllDatasets(BuildAllDatasetsRequest) returns (BuildAllDatasetsResponse);
+  rpc BuildAllDatasets(BuildAllDatasetsRequest)
+      returns (BuildAllDatasetsResponse);
+
+  // Gets all persistent topics from the Gravity state DB
+  rpc GetPersistentTopics(google.protobuf.Empty)
+      returns (PersistentTopicResponse);
+
+  // Gets crawler history for a gravity task
+  rpc GetCrawlerHistory(GetCrawlerHistoryRequest)
+      returns (GetCrawlerHistoryResponse);
 }
 
 // PublishDatasetRequest is the request message for publishing a dataset
@@ -75,6 +103,22 @@ message PublishDatasetRequest {
   string dataset_id = 1;
 }
 
+// PersistentDatasetWorkflow
+message PersistentDatasetWorkflow {
+  // dataset_id: the ID of the dataset workflow
+  string dataset_id = 1;
+  // status: the status of the dataset workflow
+  string status = 2;
+}
+
+// AddPersistentDatasetWorkflowsRequest
+message AddPersistentDatasetWorkflowsRequest {
+  repeated PersistentDatasetWorkflow dataset_workflows = 1;
+}
+// GetPersistentDatasetWorkflowsResponse returns recent dataset workflows
+message GetPersistentDatasetWorkflowsResponse {
+  repeated PersistentDatasetWorkflow dataset_workflows = 1;
+}
 // Crawler is a single crawler workflow that registers a single job
 // (platform/topic) on SN13's dynamic desirability engine
 message Crawler {
@@ -93,6 +137,22 @@ message Crawler {
   // dataset_workflows: the IDs of the dataset workflows that are associated
   // with the crawler
   repeated string dataset_workflows = 7;
+}
+
+// PersistentGravityTasksResponse: this message repeats in
+// GetPersistentGravityTasksResponse
+message PersistentGravityTasksResponse {
+  // gravity_task_id: the id of the gravity task
+  string gravity_task_id = 1;
+  // ingest_dt: the date the task was ingested
+  string ingest_dt = 2;
+}
+
+// GetPersistentGravityTasksResponse: message containing persistent task ids and
+// their ingest dt
+message GetPersistentGravityTasksResponse {
+  // persistent_gravity_tasks: the persistent gravity tasks
+  repeated PersistentGravityTasksResponse persistent_gravity_tasks = 1;
 }
 
 // UpsertCrawlerRequest for upserting a crawler and its criteria
@@ -166,6 +226,19 @@ message CrawlerCriteria {
   optional google.protobuf.Timestamp post_start_datetime = 7;
   // post_end_datetime: the end date of the job (optional)
   optional google.protobuf.Timestamp post_end_datetime = 8;
+}
+
+// PersistentTopic is the contents of the persistent topic
+message PersistentTopic {
+  // platform: the platform of the job ('x' or 'reddit')
+  string platform = 1;
+  // topic: the topic of the job (e.g. '#ai' for X, 'r/ai' for Reddit)
+  optional string topic = 2;
+}
+
+message PersistentTopicResponse {
+  // persistent_topics: the persistent topics
+  repeated PersistentTopic persistent_topics = 1;
 }
 
 // CrawlerNotification is the details of the notification to be sent to the user
@@ -336,9 +409,15 @@ message BuildAllDatasetsRequest {
   // specifies how much of each crawler to build for workflow
   repeated BuildDatasetRequest build_crawlers_config = 2;
 }
+
 message BuildAllDatasetsResponse {
   string gravity_task_id = 1;
   repeated Dataset datasets = 2;
+}
+
+message AddPersistentGravityTaskRequest {
+  // gravity_task_id: the ID of the gravity task
+  string gravity_task_id = 1;
 }
 
 message Nebula {
@@ -519,6 +598,8 @@ message DatasetFileWithId {
   string s3_key = 6;
   // url: the URL of the file (public use)
   string url = 7;
+  // nebula_url: the url of a nebula
+  string nebula_url = 8;
 }
 
 // GetGravityTaskDatasetFilesResponse is the response message for getting
@@ -528,4 +609,48 @@ message GetGravityTaskDatasetFilesResponse {
   string gravity_task_id = 1;
   // crawler_dataset_files: dataset files grouped by crawler
   repeated CrawlerDatasetFiles crawler_dataset_files = 2;
+}
+
+// GetCrawlerHistoryRequest is the request message for getting crawler history
+// associated to the provided gravity_task_id
+message GetCrawlerHistoryRequest {
+  // gravity_task_id: the ID of the gravity task
+  string gravity_task_id = 1;
+}
+
+// CrawlerHistoryEntry represents a single history entry for a crawler
+message CrawlerHistoryEntry {
+  // ingest_dt: the timestamp when this entry was ingested
+  google.protobuf.Timestamp ingest_dt = 1;
+  // records_collected: the number of records collected
+  int64 records_collected = 2;
+  // bytes_collected: the number of bytes collected
+  int64 bytes_collected = 3;
+}
+
+// CrawlerCriteriaAndHistory represents crawler information with criteria and
+// history
+message CrawlerCriteriaAndHistory {
+  // crawler_id: the ID of the crawler
+  string crawler_id = 1;
+  // platform: the platform from gravity_crawler_criteria
+  string platform = 2;
+  // topic: the topic from gravity_crawler_criteria
+  optional string topic = 3;
+  // keyword: the keyword from gravity_crawler_criteria
+  optional string keyword = 4;
+  // post_start_date: the start date for posts from gravity_crawler_criteria
+  optional google.protobuf.Timestamp post_start_date = 5;
+  // post_end_date: the end date for posts from gravity_crawler_criteria
+  optional google.protobuf.Timestamp post_end_date = 6;
+  // crawler_history: the history entries for this crawler
+  repeated CrawlerHistoryEntry crawler_history = 7;
+}
+
+// GetCrawlerHistoryResponse is the response message for getting crawler history
+message GetCrawlerHistoryResponse {
+  // gravity_task_id: the ID of the gravity task
+  string gravity_task_id = 1;
+  // crawlers: the crawlers with their criteria and history
+  repeated CrawlerCriteriaAndHistory crawlers = 2;
 }
