@@ -95,6 +95,9 @@ service GravityService {
   // Gets crawler history for a gravity task
   rpc GetCrawlerHistory(GetCrawlerHistoryRequest)
       returns (GetCrawlerHistoryResponse);
+
+  // Completes a crawler
+  rpc CompleteCrawler(CompleteCrawlerRequest) returns (UpsertResponse);      
 }
 
 // PublishDatasetRequest is the request message for publishing a dataset
@@ -347,6 +350,17 @@ message GetCrawlerRequest {
   string crawler_id = 1;
 }
 
+// CompleteCrawlerRequest is the request message for cancelling a crawler
+message CompleteCrawlerRequest {
+  // crawler_id: the ID of the crawler
+  string crawler_id = 1;
+  // status: ending status of the crawler
+  string status = 3;
+  // removed field 
+  reserved 2;
+  reserved "gravity_task_id";
+}
+
 // GetCrawlerResponse is the response message for getting a crawler
 message GetCrawlerResponse {
   // crawler: the crawler
@@ -564,7 +578,7 @@ message DatasetBillingCorrectionResponse {
 // Marketplace
 message GetMarketplaceDatasetsResponse {
   // datasets: list of marketplace datasets
-  repeated DatasetFile datasets = 1;
+  repeated GravityTaskState datasets = 1;
 }
 
 // GetGravityTaskDatasetFilesRequest is the request message for getting dataset
