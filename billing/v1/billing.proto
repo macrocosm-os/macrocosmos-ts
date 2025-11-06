@@ -7,6 +7,12 @@ option go_package = "macrocosm-os/rift/constellation_api/gen/billing/v1";
 service BillingService {
   // Get the usage of the user's credits with subscription-aware billing
   rpc GetUsage(GetUsageRequest) returns (GetUsageResponse);
+  
+  // ChargeUserForUsage charges a user for gravity data usage (testing endpoint)
+  rpc ChargeUserForUsage(ChargeUserForUsageRequest) returns (ChargeUserForUsageResponse);
+  
+  // Check if a user has enough allowance and credits to cover a charge (testing endpoint)
+  rpc UserHasEnoughAllowanceAndCredits(UserHasEnoughAllowanceAndCreditsRequest) returns (UserHasEnoughAllowanceAndCreditsResponse);
 }
 
 // GetUsageRequest is the request message for getting the usage of the user's credits
@@ -57,4 +63,46 @@ message GetUsageResponse {
   repeated BillingRate billing_rates = 4;
   // active_subscription: the currently active subscription
   optional SubscriptionInfo active_subscription = 5;
+}
+
+// ChargeUserForUsageRequest is the request message for charging a user for usage
+message ChargeUserForUsageRequest {
+  // transaction_id: unique identifier for this transaction
+  string transaction_id = 1;
+  // channel: the gravity service channel ("dataset" or "on_demand")
+  string channel = 2;
+  // rows: the number of rows to charge for (can be negative for refunds)
+  int64 rows = 3;
+}
+
+// ChargeUserForUsageResponse is the response message for charging a user for usage
+message ChargeUserForUsageResponse {
+  // charge_cents: the amount charged in cents
+  float charge_cents = 1;
+  // transaction_id: the transaction ID
+  string transaction_id = 2;
+  // channel: the channel that was charged
+  string channel = 3;
+  // rows: the number of rows charged
+  int64 rows = 4;
+}
+
+// UserHasEnoughAllowanceAndCreditsRequest is the request message for checking if a user has enough allowance and credits
+message UserHasEnoughAllowanceAndCreditsRequest {
+  // channel: the gravity service channel ("dataset" or "on_demand")
+  string channel = 1;
+  // rows: the number of rows to check for
+  int64 rows = 2;
+}
+
+// UserHasEnoughAllowanceAndCreditsResponse is the response message for checking if a user has enough allowance and credits
+message UserHasEnoughAllowanceAndCreditsResponse {
+  // has_enough: whether the user has enough allowance and credits
+  bool has_enough = 1;
+  // charge_cents: the amount that would be charged in cents
+  float charge_cents = 2;
+  // channel: the channel that would be charged
+  string channel = 3;
+  // rows: the number of rows that would be charged
+  int64 rows = 4;
 }
