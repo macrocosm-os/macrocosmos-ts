@@ -71,6 +71,48 @@ export interface GetUsageResponse {
   activeSubscription?: SubscriptionInfo | undefined;
 }
 
+/** ChargeUserForUsageRequest is the request message for charging a user for usage */
+export interface ChargeUserForUsageRequest {
+  /** transaction_id: unique identifier for this transaction */
+  transactionId: string;
+  /** channel: the gravity service channel ("dataset" or "on_demand") */
+  channel: string;
+  /** rows: the number of rows to charge for (can be negative for refunds) */
+  rows: number;
+}
+
+/** ChargeUserForUsageResponse is the response message for charging a user for usage */
+export interface ChargeUserForUsageResponse {
+  /** charge_cents: the amount charged in cents */
+  chargeCents: number;
+  /** transaction_id: the transaction ID */
+  transactionId: string;
+  /** channel: the channel that was charged */
+  channel: string;
+  /** rows: the number of rows charged */
+  rows: number;
+}
+
+/** UserHasEnoughAllowanceAndCreditsRequest is the request message for checking if a user has enough allowance and credits */
+export interface UserHasEnoughAllowanceAndCreditsRequest {
+  /** channel: the gravity service channel ("dataset" or "on_demand") */
+  channel: string;
+  /** rows: the number of rows to check for */
+  rows: number;
+}
+
+/** UserHasEnoughAllowanceAndCreditsResponse is the response message for checking if a user has enough allowance and credits */
+export interface UserHasEnoughAllowanceAndCreditsResponse {
+  /** has_enough: whether the user has enough allowance and credits */
+  hasEnough: boolean;
+  /** charge_cents: the amount that would be charged in cents */
+  chargeCents: number;
+  /** channel: the channel that would be charged */
+  channel: string;
+  /** rows: the number of rows that would be charged */
+  rows: number;
+}
+
 function createBaseGetUsageRequest(): GetUsageRequest {
   return { productType: undefined };
 }
@@ -599,6 +641,448 @@ export const GetUsageResponse: MessageFns<GetUsageResponse> = {
   },
 };
 
+function createBaseChargeUserForUsageRequest(): ChargeUserForUsageRequest {
+  return { transactionId: "", channel: "", rows: 0 };
+}
+
+export const ChargeUserForUsageRequest: MessageFns<ChargeUserForUsageRequest> =
+  {
+    encode(
+      message: ChargeUserForUsageRequest,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      if (message.transactionId !== "") {
+        writer.uint32(10).string(message.transactionId);
+      }
+      if (message.channel !== "") {
+        writer.uint32(18).string(message.channel);
+      }
+      if (message.rows !== 0) {
+        writer.uint32(24).int64(message.rows);
+      }
+      return writer;
+    },
+
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): ChargeUserForUsageRequest {
+      const reader =
+        input instanceof BinaryReader ? input : new BinaryReader(input);
+      let end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseChargeUserForUsageRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.transactionId = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.channel = reader.string();
+            continue;
+          }
+          case 3: {
+            if (tag !== 24) {
+              break;
+            }
+
+            message.rows = longToNumber(reader.int64());
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    },
+
+    fromJSON(object: any): ChargeUserForUsageRequest {
+      return {
+        transactionId: isSet(object.transactionId)
+          ? globalThis.String(object.transactionId)
+          : "",
+        channel: isSet(object.channel) ? globalThis.String(object.channel) : "",
+        rows: isSet(object.rows) ? globalThis.Number(object.rows) : 0,
+      };
+    },
+
+    toJSON(message: ChargeUserForUsageRequest): unknown {
+      const obj: any = {};
+      if (message.transactionId !== "") {
+        obj.transactionId = message.transactionId;
+      }
+      if (message.channel !== "") {
+        obj.channel = message.channel;
+      }
+      if (message.rows !== 0) {
+        obj.rows = Math.round(message.rows);
+      }
+      return obj;
+    },
+
+    create(
+      base?: DeepPartial<ChargeUserForUsageRequest>,
+    ): ChargeUserForUsageRequest {
+      return ChargeUserForUsageRequest.fromPartial(base ?? {});
+    },
+    fromPartial(
+      object: DeepPartial<ChargeUserForUsageRequest>,
+    ): ChargeUserForUsageRequest {
+      const message = createBaseChargeUserForUsageRequest();
+      message.transactionId = object.transactionId ?? "";
+      message.channel = object.channel ?? "";
+      message.rows = object.rows ?? 0;
+      return message;
+    },
+  };
+
+function createBaseChargeUserForUsageResponse(): ChargeUserForUsageResponse {
+  return { chargeCents: 0, transactionId: "", channel: "", rows: 0 };
+}
+
+export const ChargeUserForUsageResponse: MessageFns<ChargeUserForUsageResponse> =
+  {
+    encode(
+      message: ChargeUserForUsageResponse,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      if (message.chargeCents !== 0) {
+        writer.uint32(13).float(message.chargeCents);
+      }
+      if (message.transactionId !== "") {
+        writer.uint32(18).string(message.transactionId);
+      }
+      if (message.channel !== "") {
+        writer.uint32(26).string(message.channel);
+      }
+      if (message.rows !== 0) {
+        writer.uint32(32).int64(message.rows);
+      }
+      return writer;
+    },
+
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): ChargeUserForUsageResponse {
+      const reader =
+        input instanceof BinaryReader ? input : new BinaryReader(input);
+      let end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseChargeUserForUsageResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 13) {
+              break;
+            }
+
+            message.chargeCents = reader.float();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.transactionId = reader.string();
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.channel = reader.string();
+            continue;
+          }
+          case 4: {
+            if (tag !== 32) {
+              break;
+            }
+
+            message.rows = longToNumber(reader.int64());
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    },
+
+    fromJSON(object: any): ChargeUserForUsageResponse {
+      return {
+        chargeCents: isSet(object.chargeCents)
+          ? globalThis.Number(object.chargeCents)
+          : 0,
+        transactionId: isSet(object.transactionId)
+          ? globalThis.String(object.transactionId)
+          : "",
+        channel: isSet(object.channel) ? globalThis.String(object.channel) : "",
+        rows: isSet(object.rows) ? globalThis.Number(object.rows) : 0,
+      };
+    },
+
+    toJSON(message: ChargeUserForUsageResponse): unknown {
+      const obj: any = {};
+      if (message.chargeCents !== 0) {
+        obj.chargeCents = message.chargeCents;
+      }
+      if (message.transactionId !== "") {
+        obj.transactionId = message.transactionId;
+      }
+      if (message.channel !== "") {
+        obj.channel = message.channel;
+      }
+      if (message.rows !== 0) {
+        obj.rows = Math.round(message.rows);
+      }
+      return obj;
+    },
+
+    create(
+      base?: DeepPartial<ChargeUserForUsageResponse>,
+    ): ChargeUserForUsageResponse {
+      return ChargeUserForUsageResponse.fromPartial(base ?? {});
+    },
+    fromPartial(
+      object: DeepPartial<ChargeUserForUsageResponse>,
+    ): ChargeUserForUsageResponse {
+      const message = createBaseChargeUserForUsageResponse();
+      message.chargeCents = object.chargeCents ?? 0;
+      message.transactionId = object.transactionId ?? "";
+      message.channel = object.channel ?? "";
+      message.rows = object.rows ?? 0;
+      return message;
+    },
+  };
+
+function createBaseUserHasEnoughAllowanceAndCreditsRequest(): UserHasEnoughAllowanceAndCreditsRequest {
+  return { channel: "", rows: 0 };
+}
+
+export const UserHasEnoughAllowanceAndCreditsRequest: MessageFns<UserHasEnoughAllowanceAndCreditsRequest> =
+  {
+    encode(
+      message: UserHasEnoughAllowanceAndCreditsRequest,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      if (message.channel !== "") {
+        writer.uint32(10).string(message.channel);
+      }
+      if (message.rows !== 0) {
+        writer.uint32(16).int64(message.rows);
+      }
+      return writer;
+    },
+
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): UserHasEnoughAllowanceAndCreditsRequest {
+      const reader =
+        input instanceof BinaryReader ? input : new BinaryReader(input);
+      let end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseUserHasEnoughAllowanceAndCreditsRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.channel = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 16) {
+              break;
+            }
+
+            message.rows = longToNumber(reader.int64());
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    },
+
+    fromJSON(object: any): UserHasEnoughAllowanceAndCreditsRequest {
+      return {
+        channel: isSet(object.channel) ? globalThis.String(object.channel) : "",
+        rows: isSet(object.rows) ? globalThis.Number(object.rows) : 0,
+      };
+    },
+
+    toJSON(message: UserHasEnoughAllowanceAndCreditsRequest): unknown {
+      const obj: any = {};
+      if (message.channel !== "") {
+        obj.channel = message.channel;
+      }
+      if (message.rows !== 0) {
+        obj.rows = Math.round(message.rows);
+      }
+      return obj;
+    },
+
+    create(
+      base?: DeepPartial<UserHasEnoughAllowanceAndCreditsRequest>,
+    ): UserHasEnoughAllowanceAndCreditsRequest {
+      return UserHasEnoughAllowanceAndCreditsRequest.fromPartial(base ?? {});
+    },
+    fromPartial(
+      object: DeepPartial<UserHasEnoughAllowanceAndCreditsRequest>,
+    ): UserHasEnoughAllowanceAndCreditsRequest {
+      const message = createBaseUserHasEnoughAllowanceAndCreditsRequest();
+      message.channel = object.channel ?? "";
+      message.rows = object.rows ?? 0;
+      return message;
+    },
+  };
+
+function createBaseUserHasEnoughAllowanceAndCreditsResponse(): UserHasEnoughAllowanceAndCreditsResponse {
+  return { hasEnough: false, chargeCents: 0, channel: "", rows: 0 };
+}
+
+export const UserHasEnoughAllowanceAndCreditsResponse: MessageFns<UserHasEnoughAllowanceAndCreditsResponse> =
+  {
+    encode(
+      message: UserHasEnoughAllowanceAndCreditsResponse,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      if (message.hasEnough !== false) {
+        writer.uint32(8).bool(message.hasEnough);
+      }
+      if (message.chargeCents !== 0) {
+        writer.uint32(21).float(message.chargeCents);
+      }
+      if (message.channel !== "") {
+        writer.uint32(26).string(message.channel);
+      }
+      if (message.rows !== 0) {
+        writer.uint32(32).int64(message.rows);
+      }
+      return writer;
+    },
+
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): UserHasEnoughAllowanceAndCreditsResponse {
+      const reader =
+        input instanceof BinaryReader ? input : new BinaryReader(input);
+      let end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseUserHasEnoughAllowanceAndCreditsResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 8) {
+              break;
+            }
+
+            message.hasEnough = reader.bool();
+            continue;
+          }
+          case 2: {
+            if (tag !== 21) {
+              break;
+            }
+
+            message.chargeCents = reader.float();
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.channel = reader.string();
+            continue;
+          }
+          case 4: {
+            if (tag !== 32) {
+              break;
+            }
+
+            message.rows = longToNumber(reader.int64());
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    },
+
+    fromJSON(object: any): UserHasEnoughAllowanceAndCreditsResponse {
+      return {
+        hasEnough: isSet(object.hasEnough)
+          ? globalThis.Boolean(object.hasEnough)
+          : false,
+        chargeCents: isSet(object.chargeCents)
+          ? globalThis.Number(object.chargeCents)
+          : 0,
+        channel: isSet(object.channel) ? globalThis.String(object.channel) : "",
+        rows: isSet(object.rows) ? globalThis.Number(object.rows) : 0,
+      };
+    },
+
+    toJSON(message: UserHasEnoughAllowanceAndCreditsResponse): unknown {
+      const obj: any = {};
+      if (message.hasEnough !== false) {
+        obj.hasEnough = message.hasEnough;
+      }
+      if (message.chargeCents !== 0) {
+        obj.chargeCents = message.chargeCents;
+      }
+      if (message.channel !== "") {
+        obj.channel = message.channel;
+      }
+      if (message.rows !== 0) {
+        obj.rows = Math.round(message.rows);
+      }
+      return obj;
+    },
+
+    create(
+      base?: DeepPartial<UserHasEnoughAllowanceAndCreditsResponse>,
+    ): UserHasEnoughAllowanceAndCreditsResponse {
+      return UserHasEnoughAllowanceAndCreditsResponse.fromPartial(base ?? {});
+    },
+    fromPartial(
+      object: DeepPartial<UserHasEnoughAllowanceAndCreditsResponse>,
+    ): UserHasEnoughAllowanceAndCreditsResponse {
+      const message = createBaseUserHasEnoughAllowanceAndCreditsResponse();
+      message.hasEnough = object.hasEnough ?? false;
+      message.chargeCents = object.chargeCents ?? 0;
+      message.channel = object.channel ?? "";
+      message.rows = object.rows ?? 0;
+      return message;
+    },
+  };
+
 export type BillingServiceService = typeof BillingServiceService;
 export const BillingServiceService = {
   /** Get the usage of the user's credits with subscription-aware billing */
@@ -613,11 +1097,53 @@ export const BillingServiceService = {
       Buffer.from(GetUsageResponse.encode(value).finish()),
     responseDeserialize: (value: Buffer) => GetUsageResponse.decode(value),
   },
+  /** ChargeUserForUsage charges a user for gravity data usage (testing endpoint) */
+  chargeUserForUsage: {
+    path: "/billing.v1.BillingService/ChargeUserForUsage",
+    requestStream: false,
+    responseStream: false,
+    requestSerialize: (value: ChargeUserForUsageRequest) =>
+      Buffer.from(ChargeUserForUsageRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer) =>
+      ChargeUserForUsageRequest.decode(value),
+    responseSerialize: (value: ChargeUserForUsageResponse) =>
+      Buffer.from(ChargeUserForUsageResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer) =>
+      ChargeUserForUsageResponse.decode(value),
+  },
+  /** Check if a user has enough allowance and credits to cover a charge (testing endpoint) */
+  userHasEnoughAllowanceAndCredits: {
+    path: "/billing.v1.BillingService/UserHasEnoughAllowanceAndCredits",
+    requestStream: false,
+    responseStream: false,
+    requestSerialize: (value: UserHasEnoughAllowanceAndCreditsRequest) =>
+      Buffer.from(
+        UserHasEnoughAllowanceAndCreditsRequest.encode(value).finish(),
+      ),
+    requestDeserialize: (value: Buffer) =>
+      UserHasEnoughAllowanceAndCreditsRequest.decode(value),
+    responseSerialize: (value: UserHasEnoughAllowanceAndCreditsResponse) =>
+      Buffer.from(
+        UserHasEnoughAllowanceAndCreditsResponse.encode(value).finish(),
+      ),
+    responseDeserialize: (value: Buffer) =>
+      UserHasEnoughAllowanceAndCreditsResponse.decode(value),
+  },
 } as const;
 
 export interface BillingServiceServer extends UntypedServiceImplementation {
   /** Get the usage of the user's credits with subscription-aware billing */
   getUsage: handleUnaryCall<GetUsageRequest, GetUsageResponse>;
+  /** ChargeUserForUsage charges a user for gravity data usage (testing endpoint) */
+  chargeUserForUsage: handleUnaryCall<
+    ChargeUserForUsageRequest,
+    ChargeUserForUsageResponse
+  >;
+  /** Check if a user has enough allowance and credits to cover a charge (testing endpoint) */
+  userHasEnoughAllowanceAndCredits: handleUnaryCall<
+    UserHasEnoughAllowanceAndCreditsRequest,
+    UserHasEnoughAllowanceAndCreditsResponse
+  >;
 }
 
 export interface BillingServiceClient extends Client {
@@ -636,6 +1162,56 @@ export interface BillingServiceClient extends Client {
     metadata: Metadata,
     options: Partial<CallOptions>,
     callback: (error: ServiceError | null, response: GetUsageResponse) => void,
+  ): ClientUnaryCall;
+  /** ChargeUserForUsage charges a user for gravity data usage (testing endpoint) */
+  chargeUserForUsage(
+    request: ChargeUserForUsageRequest,
+    callback: (
+      error: ServiceError | null,
+      response: ChargeUserForUsageResponse,
+    ) => void,
+  ): ClientUnaryCall;
+  chargeUserForUsage(
+    request: ChargeUserForUsageRequest,
+    metadata: Metadata,
+    callback: (
+      error: ServiceError | null,
+      response: ChargeUserForUsageResponse,
+    ) => void,
+  ): ClientUnaryCall;
+  chargeUserForUsage(
+    request: ChargeUserForUsageRequest,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (
+      error: ServiceError | null,
+      response: ChargeUserForUsageResponse,
+    ) => void,
+  ): ClientUnaryCall;
+  /** Check if a user has enough allowance and credits to cover a charge (testing endpoint) */
+  userHasEnoughAllowanceAndCredits(
+    request: UserHasEnoughAllowanceAndCreditsRequest,
+    callback: (
+      error: ServiceError | null,
+      response: UserHasEnoughAllowanceAndCreditsResponse,
+    ) => void,
+  ): ClientUnaryCall;
+  userHasEnoughAllowanceAndCredits(
+    request: UserHasEnoughAllowanceAndCreditsRequest,
+    metadata: Metadata,
+    callback: (
+      error: ServiceError | null,
+      response: UserHasEnoughAllowanceAndCreditsResponse,
+    ) => void,
+  ): ClientUnaryCall;
+  userHasEnoughAllowanceAndCredits(
+    request: UserHasEnoughAllowanceAndCreditsRequest,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (
+      error: ServiceError | null,
+      response: UserHasEnoughAllowanceAndCreditsResponse,
+    ) => void,
   ): ClientUnaryCall;
 }
 

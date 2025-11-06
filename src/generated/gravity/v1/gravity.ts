@@ -23,6 +23,47 @@ import { Timestamp } from "../../google/protobuf/timestamp";
 
 export const protobufPackage = "gravity.v1";
 
+/** GetHotkeysResponse is the response message for getting hotkeys */
+export interface GetHotkeysResponse {
+  /** hotkeys: the hotkeys */
+  hotkeys: string[];
+}
+
+/** BuyMarketplaceDatasetRequest is the request to purchase a dataset */
+export interface BuyMarketplaceDatasetRequest {
+  /** gravity_task_id: the marketplace dataset's gravity task id to purchase */
+  gravityTaskId: string;
+}
+
+/** BuyMarketplaceDatasetResponse is the response to a dataset purchase */
+export interface BuyMarketplaceDatasetResponse {
+  /** success: whether the purchase succeeded */
+  success: boolean;
+  /** message: optional detail */
+  message: string;
+  /** purchase_transaction_id: billing transaction id */
+  purchaseTransactionId: string;
+}
+
+/** UserMarketplaceDataset represents a single owned dataset record */
+export interface UserMarketplaceDataset {
+  gravityTaskId: string;
+  createdAt?: Date | undefined;
+  purchasePriceCents: number;
+  purchaseTransactionId: string;
+}
+
+/** GetUserMarketplaceDatasetsResponse lists owned datasets */
+export interface GetUserMarketplaceDatasetsResponse {
+  userDatasets: UserMarketplaceDataset[];
+}
+
+/** UpsertHotkeysRequest is the request message for upserting hotkeys */
+export interface UpsertHotkeysRequest {
+  /** hotkeys: the hotkeys to upsert */
+  hotkeys: string[];
+}
+
 /** UpsertMarketplaceTaskSuggestionsRequest is the request message for upserting marketplace task suggestions */
 export interface UpsertMarketplaceTaskSuggestionsRequest {
   /** gravity_task_id: the id of the gravity task */
@@ -398,6 +439,12 @@ export interface GetCrawlerRequest {
   crawlerId: string;
 }
 
+/** GetMarketplaceCrawlersResponse is the response message holding all marketplace crawlers */
+export interface GetMarketplaceCrawlersResponse {
+  /** crawler_id: the ID of the crawler */
+  crawlerId: string[];
+}
+
 /** CompleteCrawlerRequest is the request message for cancelling a crawler */
 export interface CompleteCrawlerRequest {
   /** crawler_id: the ID of the crawler */
@@ -464,6 +511,8 @@ export interface BuildDatasetRequest {
    * defaults to 500)
    */
   maxRows: number;
+  /** is_marketplace: determines whether the dataset to build is for marketplace */
+  isMarketplace?: boolean | undefined;
 }
 
 /**
@@ -487,6 +536,8 @@ export interface BuildAllDatasetsRequest {
   gravityTaskId: string;
   /** specifies how much of each crawler to build for workflow */
   buildCrawlersConfig: BuildDatasetRequest[];
+  /** is_marketplace: determines whether the datasets to build are for marketplace */
+  isMarketplace?: boolean | undefined;
 }
 
 export interface BuildAllDatasetsResponse {
@@ -787,6 +838,543 @@ export interface CrawlerDataForDD {
   postStartDatetime?: string | undefined;
   postEndDatetime?: string | undefined;
 }
+
+function createBaseGetHotkeysResponse(): GetHotkeysResponse {
+  return { hotkeys: [] };
+}
+
+export const GetHotkeysResponse: MessageFns<GetHotkeysResponse> = {
+  encode(
+    message: GetHotkeysResponse,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
+    for (const v of message.hotkeys) {
+      writer.uint32(10).string(v!);
+    }
+    return writer;
+  },
+
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): GetHotkeysResponse {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseGetHotkeysResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.hotkeys.push(reader.string());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): GetHotkeysResponse {
+    return {
+      hotkeys: globalThis.Array.isArray(object?.hotkeys)
+        ? object.hotkeys.map((e: any) => globalThis.String(e))
+        : [],
+    };
+  },
+
+  toJSON(message: GetHotkeysResponse): unknown {
+    const obj: any = {};
+    if (message.hotkeys?.length) {
+      obj.hotkeys = message.hotkeys;
+    }
+    return obj;
+  },
+
+  create(base?: DeepPartial<GetHotkeysResponse>): GetHotkeysResponse {
+    return GetHotkeysResponse.fromPartial(base ?? {});
+  },
+  fromPartial(object: DeepPartial<GetHotkeysResponse>): GetHotkeysResponse {
+    const message = createBaseGetHotkeysResponse();
+    message.hotkeys = object.hotkeys?.map(e => e) || [];
+    return message;
+  },
+};
+
+function createBaseBuyMarketplaceDatasetRequest(): BuyMarketplaceDatasetRequest {
+  return { gravityTaskId: "" };
+}
+
+export const BuyMarketplaceDatasetRequest: MessageFns<BuyMarketplaceDatasetRequest> =
+  {
+    encode(
+      message: BuyMarketplaceDatasetRequest,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      if (message.gravityTaskId !== "") {
+        writer.uint32(10).string(message.gravityTaskId);
+      }
+      return writer;
+    },
+
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): BuyMarketplaceDatasetRequest {
+      const reader =
+        input instanceof BinaryReader ? input : new BinaryReader(input);
+      let end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseBuyMarketplaceDatasetRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.gravityTaskId = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    },
+
+    fromJSON(object: any): BuyMarketplaceDatasetRequest {
+      return {
+        gravityTaskId: isSet(object.gravityTaskId)
+          ? globalThis.String(object.gravityTaskId)
+          : "",
+      };
+    },
+
+    toJSON(message: BuyMarketplaceDatasetRequest): unknown {
+      const obj: any = {};
+      if (message.gravityTaskId !== "") {
+        obj.gravityTaskId = message.gravityTaskId;
+      }
+      return obj;
+    },
+
+    create(
+      base?: DeepPartial<BuyMarketplaceDatasetRequest>,
+    ): BuyMarketplaceDatasetRequest {
+      return BuyMarketplaceDatasetRequest.fromPartial(base ?? {});
+    },
+    fromPartial(
+      object: DeepPartial<BuyMarketplaceDatasetRequest>,
+    ): BuyMarketplaceDatasetRequest {
+      const message = createBaseBuyMarketplaceDatasetRequest();
+      message.gravityTaskId = object.gravityTaskId ?? "";
+      return message;
+    },
+  };
+
+function createBaseBuyMarketplaceDatasetResponse(): BuyMarketplaceDatasetResponse {
+  return { success: false, message: "", purchaseTransactionId: "" };
+}
+
+export const BuyMarketplaceDatasetResponse: MessageFns<BuyMarketplaceDatasetResponse> =
+  {
+    encode(
+      message: BuyMarketplaceDatasetResponse,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      if (message.success !== false) {
+        writer.uint32(8).bool(message.success);
+      }
+      if (message.message !== "") {
+        writer.uint32(18).string(message.message);
+      }
+      if (message.purchaseTransactionId !== "") {
+        writer.uint32(26).string(message.purchaseTransactionId);
+      }
+      return writer;
+    },
+
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): BuyMarketplaceDatasetResponse {
+      const reader =
+        input instanceof BinaryReader ? input : new BinaryReader(input);
+      let end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseBuyMarketplaceDatasetResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 8) {
+              break;
+            }
+
+            message.success = reader.bool();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.message = reader.string();
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.purchaseTransactionId = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    },
+
+    fromJSON(object: any): BuyMarketplaceDatasetResponse {
+      return {
+        success: isSet(object.success)
+          ? globalThis.Boolean(object.success)
+          : false,
+        message: isSet(object.message) ? globalThis.String(object.message) : "",
+        purchaseTransactionId: isSet(object.purchaseTransactionId)
+          ? globalThis.String(object.purchaseTransactionId)
+          : "",
+      };
+    },
+
+    toJSON(message: BuyMarketplaceDatasetResponse): unknown {
+      const obj: any = {};
+      if (message.success !== false) {
+        obj.success = message.success;
+      }
+      if (message.message !== "") {
+        obj.message = message.message;
+      }
+      if (message.purchaseTransactionId !== "") {
+        obj.purchaseTransactionId = message.purchaseTransactionId;
+      }
+      return obj;
+    },
+
+    create(
+      base?: DeepPartial<BuyMarketplaceDatasetResponse>,
+    ): BuyMarketplaceDatasetResponse {
+      return BuyMarketplaceDatasetResponse.fromPartial(base ?? {});
+    },
+    fromPartial(
+      object: DeepPartial<BuyMarketplaceDatasetResponse>,
+    ): BuyMarketplaceDatasetResponse {
+      const message = createBaseBuyMarketplaceDatasetResponse();
+      message.success = object.success ?? false;
+      message.message = object.message ?? "";
+      message.purchaseTransactionId = object.purchaseTransactionId ?? "";
+      return message;
+    },
+  };
+
+function createBaseUserMarketplaceDataset(): UserMarketplaceDataset {
+  return {
+    gravityTaskId: "",
+    createdAt: undefined,
+    purchasePriceCents: 0,
+    purchaseTransactionId: "",
+  };
+}
+
+export const UserMarketplaceDataset: MessageFns<UserMarketplaceDataset> = {
+  encode(
+    message: UserMarketplaceDataset,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
+    if (message.gravityTaskId !== "") {
+      writer.uint32(10).string(message.gravityTaskId);
+    }
+    if (message.createdAt !== undefined) {
+      Timestamp.encode(
+        toTimestamp(message.createdAt),
+        writer.uint32(18).fork(),
+      ).join();
+    }
+    if (message.purchasePriceCents !== 0) {
+      writer.uint32(24).int64(message.purchasePriceCents);
+    }
+    if (message.purchaseTransactionId !== "") {
+      writer.uint32(34).string(message.purchaseTransactionId);
+    }
+    return writer;
+  },
+
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): UserMarketplaceDataset {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseUserMarketplaceDataset();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.gravityTaskId = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.createdAt = fromTimestamp(
+            Timestamp.decode(reader, reader.uint32()),
+          );
+          continue;
+        }
+        case 3: {
+          if (tag !== 24) {
+            break;
+          }
+
+          message.purchasePriceCents = longToNumber(reader.int64());
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.purchaseTransactionId = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): UserMarketplaceDataset {
+    return {
+      gravityTaskId: isSet(object.gravityTaskId)
+        ? globalThis.String(object.gravityTaskId)
+        : "",
+      createdAt: isSet(object.createdAt)
+        ? fromJsonTimestamp(object.createdAt)
+        : undefined,
+      purchasePriceCents: isSet(object.purchasePriceCents)
+        ? globalThis.Number(object.purchasePriceCents)
+        : 0,
+      purchaseTransactionId: isSet(object.purchaseTransactionId)
+        ? globalThis.String(object.purchaseTransactionId)
+        : "",
+    };
+  },
+
+  toJSON(message: UserMarketplaceDataset): unknown {
+    const obj: any = {};
+    if (message.gravityTaskId !== "") {
+      obj.gravityTaskId = message.gravityTaskId;
+    }
+    if (message.createdAt !== undefined) {
+      obj.createdAt = message.createdAt.toISOString();
+    }
+    if (message.purchasePriceCents !== 0) {
+      obj.purchasePriceCents = Math.round(message.purchasePriceCents);
+    }
+    if (message.purchaseTransactionId !== "") {
+      obj.purchaseTransactionId = message.purchaseTransactionId;
+    }
+    return obj;
+  },
+
+  create(base?: DeepPartial<UserMarketplaceDataset>): UserMarketplaceDataset {
+    return UserMarketplaceDataset.fromPartial(base ?? {});
+  },
+  fromPartial(
+    object: DeepPartial<UserMarketplaceDataset>,
+  ): UserMarketplaceDataset {
+    const message = createBaseUserMarketplaceDataset();
+    message.gravityTaskId = object.gravityTaskId ?? "";
+    message.createdAt = object.createdAt ?? undefined;
+    message.purchasePriceCents = object.purchasePriceCents ?? 0;
+    message.purchaseTransactionId = object.purchaseTransactionId ?? "";
+    return message;
+  },
+};
+
+function createBaseGetUserMarketplaceDatasetsResponse(): GetUserMarketplaceDatasetsResponse {
+  return { userDatasets: [] };
+}
+
+export const GetUserMarketplaceDatasetsResponse: MessageFns<GetUserMarketplaceDatasetsResponse> =
+  {
+    encode(
+      message: GetUserMarketplaceDatasetsResponse,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      for (const v of message.userDatasets) {
+        UserMarketplaceDataset.encode(v!, writer.uint32(10).fork()).join();
+      }
+      return writer;
+    },
+
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): GetUserMarketplaceDatasetsResponse {
+      const reader =
+        input instanceof BinaryReader ? input : new BinaryReader(input);
+      let end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseGetUserMarketplaceDatasetsResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.userDatasets.push(
+              UserMarketplaceDataset.decode(reader, reader.uint32()),
+            );
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    },
+
+    fromJSON(object: any): GetUserMarketplaceDatasetsResponse {
+      return {
+        userDatasets: globalThis.Array.isArray(object?.userDatasets)
+          ? object.userDatasets.map((e: any) =>
+              UserMarketplaceDataset.fromJSON(e),
+            )
+          : [],
+      };
+    },
+
+    toJSON(message: GetUserMarketplaceDatasetsResponse): unknown {
+      const obj: any = {};
+      if (message.userDatasets?.length) {
+        obj.userDatasets = message.userDatasets.map(e =>
+          UserMarketplaceDataset.toJSON(e),
+        );
+      }
+      return obj;
+    },
+
+    create(
+      base?: DeepPartial<GetUserMarketplaceDatasetsResponse>,
+    ): GetUserMarketplaceDatasetsResponse {
+      return GetUserMarketplaceDatasetsResponse.fromPartial(base ?? {});
+    },
+    fromPartial(
+      object: DeepPartial<GetUserMarketplaceDatasetsResponse>,
+    ): GetUserMarketplaceDatasetsResponse {
+      const message = createBaseGetUserMarketplaceDatasetsResponse();
+      message.userDatasets =
+        object.userDatasets?.map(e => UserMarketplaceDataset.fromPartial(e)) ||
+        [];
+      return message;
+    },
+  };
+
+function createBaseUpsertHotkeysRequest(): UpsertHotkeysRequest {
+  return { hotkeys: [] };
+}
+
+export const UpsertHotkeysRequest: MessageFns<UpsertHotkeysRequest> = {
+  encode(
+    message: UpsertHotkeysRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
+    for (const v of message.hotkeys) {
+      writer.uint32(10).string(v!);
+    }
+    return writer;
+  },
+
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): UpsertHotkeysRequest {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseUpsertHotkeysRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.hotkeys.push(reader.string());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): UpsertHotkeysRequest {
+    return {
+      hotkeys: globalThis.Array.isArray(object?.hotkeys)
+        ? object.hotkeys.map((e: any) => globalThis.String(e))
+        : [],
+    };
+  },
+
+  toJSON(message: UpsertHotkeysRequest): unknown {
+    const obj: any = {};
+    if (message.hotkeys?.length) {
+      obj.hotkeys = message.hotkeys;
+    }
+    return obj;
+  },
+
+  create(base?: DeepPartial<UpsertHotkeysRequest>): UpsertHotkeysRequest {
+    return UpsertHotkeysRequest.fromPartial(base ?? {});
+  },
+  fromPartial(object: DeepPartial<UpsertHotkeysRequest>): UpsertHotkeysRequest {
+    const message = createBaseUpsertHotkeysRequest();
+    message.hotkeys = object.hotkeys?.map(e => e) || [];
+    return message;
+  },
+};
 
 function createBaseUpsertMarketplaceTaskSuggestionsRequest(): UpsertMarketplaceTaskSuggestionsRequest {
   return { gravityTaskId: "", suggestedGravityTaskIds: [] };
@@ -4343,6 +4931,80 @@ export const GetCrawlerRequest: MessageFns<GetCrawlerRequest> = {
   },
 };
 
+function createBaseGetMarketplaceCrawlersResponse(): GetMarketplaceCrawlersResponse {
+  return { crawlerId: [] };
+}
+
+export const GetMarketplaceCrawlersResponse: MessageFns<GetMarketplaceCrawlersResponse> =
+  {
+    encode(
+      message: GetMarketplaceCrawlersResponse,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      for (const v of message.crawlerId) {
+        writer.uint32(10).string(v!);
+      }
+      return writer;
+    },
+
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): GetMarketplaceCrawlersResponse {
+      const reader =
+        input instanceof BinaryReader ? input : new BinaryReader(input);
+      let end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseGetMarketplaceCrawlersResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.crawlerId.push(reader.string());
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    },
+
+    fromJSON(object: any): GetMarketplaceCrawlersResponse {
+      return {
+        crawlerId: globalThis.Array.isArray(object?.crawlerId)
+          ? object.crawlerId.map((e: any) => globalThis.String(e))
+          : [],
+      };
+    },
+
+    toJSON(message: GetMarketplaceCrawlersResponse): unknown {
+      const obj: any = {};
+      if (message.crawlerId?.length) {
+        obj.crawlerId = message.crawlerId;
+      }
+      return obj;
+    },
+
+    create(
+      base?: DeepPartial<GetMarketplaceCrawlersResponse>,
+    ): GetMarketplaceCrawlersResponse {
+      return GetMarketplaceCrawlersResponse.fromPartial(base ?? {});
+    },
+    fromPartial(
+      object: DeepPartial<GetMarketplaceCrawlersResponse>,
+    ): GetMarketplaceCrawlersResponse {
+      const message = createBaseGetMarketplaceCrawlersResponse();
+      message.crawlerId = object.crawlerId?.map(e => e) || [];
+      return message;
+    },
+  };
+
 function createBaseCompleteCrawlerRequest(): CompleteCrawlerRequest {
   return { crawlerId: "", status: "" };
 }
@@ -4721,7 +5383,12 @@ export const CreateGravityTaskResponse: MessageFns<CreateGravityTaskResponse> =
   };
 
 function createBaseBuildDatasetRequest(): BuildDatasetRequest {
-  return { crawlerId: "", notificationRequests: [], maxRows: 0 };
+  return {
+    crawlerId: "",
+    notificationRequests: [],
+    maxRows: 0,
+    isMarketplace: undefined,
+  };
 }
 
 export const BuildDatasetRequest: MessageFns<BuildDatasetRequest> = {
@@ -4737,6 +5404,9 @@ export const BuildDatasetRequest: MessageFns<BuildDatasetRequest> = {
     }
     if (message.maxRows !== 0) {
       writer.uint32(24).int64(message.maxRows);
+    }
+    if (message.isMarketplace !== undefined) {
+      writer.uint32(32).bool(message.isMarketplace);
     }
     return writer;
   },
@@ -4778,6 +5448,14 @@ export const BuildDatasetRequest: MessageFns<BuildDatasetRequest> = {
           message.maxRows = longToNumber(reader.int64());
           continue;
         }
+        case 4: {
+          if (tag !== 32) {
+            break;
+          }
+
+          message.isMarketplace = reader.bool();
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -4800,6 +5478,9 @@ export const BuildDatasetRequest: MessageFns<BuildDatasetRequest> = {
           )
         : [],
       maxRows: isSet(object.maxRows) ? globalThis.Number(object.maxRows) : 0,
+      isMarketplace: isSet(object.isMarketplace)
+        ? globalThis.Boolean(object.isMarketplace)
+        : undefined,
     };
   },
 
@@ -4816,6 +5497,9 @@ export const BuildDatasetRequest: MessageFns<BuildDatasetRequest> = {
     if (message.maxRows !== 0) {
       obj.maxRows = Math.round(message.maxRows);
     }
+    if (message.isMarketplace !== undefined) {
+      obj.isMarketplace = message.isMarketplace;
+    }
     return obj;
   },
 
@@ -4830,6 +5514,7 @@ export const BuildDatasetRequest: MessageFns<BuildDatasetRequest> = {
         NotificationRequest.fromPartial(e),
       ) || [];
     message.maxRows = object.maxRows ?? 0;
+    message.isMarketplace = object.isMarketplace ?? undefined;
     return message;
   },
 };
@@ -4925,7 +5610,11 @@ export const BuildDatasetResponse: MessageFns<BuildDatasetResponse> = {
 };
 
 function createBaseBuildAllDatasetsRequest(): BuildAllDatasetsRequest {
-  return { gravityTaskId: "", buildCrawlersConfig: [] };
+  return {
+    gravityTaskId: "",
+    buildCrawlersConfig: [],
+    isMarketplace: undefined,
+  };
 }
 
 export const BuildAllDatasetsRequest: MessageFns<BuildAllDatasetsRequest> = {
@@ -4938,6 +5627,9 @@ export const BuildAllDatasetsRequest: MessageFns<BuildAllDatasetsRequest> = {
     }
     for (const v of message.buildCrawlersConfig) {
       BuildDatasetRequest.encode(v!, writer.uint32(18).fork()).join();
+    }
+    if (message.isMarketplace !== undefined) {
+      writer.uint32(24).bool(message.isMarketplace);
     }
     return writer;
   },
@@ -4971,6 +5663,14 @@ export const BuildAllDatasetsRequest: MessageFns<BuildAllDatasetsRequest> = {
           );
           continue;
         }
+        case 3: {
+          if (tag !== 24) {
+            break;
+          }
+
+          message.isMarketplace = reader.bool();
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -4990,6 +5690,9 @@ export const BuildAllDatasetsRequest: MessageFns<BuildAllDatasetsRequest> = {
             BuildDatasetRequest.fromJSON(e),
           )
         : [],
+      isMarketplace: isSet(object.isMarketplace)
+        ? globalThis.Boolean(object.isMarketplace)
+        : undefined,
     };
   },
 
@@ -5002,6 +5705,9 @@ export const BuildAllDatasetsRequest: MessageFns<BuildAllDatasetsRequest> = {
       obj.buildCrawlersConfig = message.buildCrawlersConfig.map(e =>
         BuildDatasetRequest.toJSON(e),
       );
+    }
+    if (message.isMarketplace !== undefined) {
+      obj.isMarketplace = message.isMarketplace;
     }
     return obj;
   },
@@ -5018,6 +5724,7 @@ export const BuildAllDatasetsRequest: MessageFns<BuildAllDatasetsRequest> = {
       object.buildCrawlersConfig?.map(e =>
         BuildDatasetRequest.fromPartial(e),
       ) || [];
+    message.isMarketplace = object.isMarketplace ?? undefined;
     return message;
   },
 };
@@ -8122,6 +8829,19 @@ export const GravityServiceService = {
     responseDeserialize: (value: Buffer) =>
       GetGravityTasksResponse.decode(value),
   },
+  /** Get all marketplace crawlers */
+  getMarketplaceCrawlers: {
+    path: "/gravity.v1.GravityService/GetMarketplaceCrawlers",
+    requestStream: false,
+    responseStream: false,
+    requestSerialize: (value: Empty) =>
+      Buffer.from(Empty.encode(value).finish()),
+    requestDeserialize: (value: Buffer) => Empty.decode(value),
+    responseSerialize: (value: GetMarketplaceCrawlersResponse) =>
+      Buffer.from(GetMarketplaceCrawlersResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer) =>
+      GetMarketplaceCrawlersResponse.decode(value),
+  },
   /** Gets raw miner files for a specific crawler */
   getCrawlerRawMinerFiles: {
     path: "/gravity.v1.GravityService/GetCrawlerRawMinerFiles",
@@ -8373,8 +9093,8 @@ export const GravityServiceService = {
       GetGravityTaskDatasetFilesResponse.decode(value),
   },
   /** Gets all dataset files for a given persistent gravity task (no user_id check, validates against persistent tasks table) */
-  getGravityPersistentTaskDatasetFiles: {
-    path: "/gravity.v1.GravityService/GetGravityPersistentTaskDatasetFiles",
+  getGravityMarketplaceTaskDatasetFiles: {
+    path: "/gravity.v1.GravityService/GetGravityMarketplaceTaskDatasetFiles",
     requestStream: false,
     responseStream: false,
     requestSerialize: (value: GetGravityTaskDatasetFilesRequest) =>
@@ -8553,6 +9273,57 @@ export const GravityServiceService = {
       Buffer.from(UpsertResponse.encode(value).finish()),
     responseDeserialize: (value: Buffer) => UpsertResponse.decode(value),
   },
+  /** Upserts raw miner files (parquet paths) for a crawler */
+  upsertHotkeys: {
+    path: "/gravity.v1.GravityService/UpsertHotkeys",
+    requestStream: false,
+    responseStream: false,
+    requestSerialize: (value: UpsertHotkeysRequest) =>
+      Buffer.from(UpsertHotkeysRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer) => UpsertHotkeysRequest.decode(value),
+    responseSerialize: (value: UpsertResponse) =>
+      Buffer.from(UpsertResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer) => UpsertResponse.decode(value),
+  },
+  /** Gets all hotkeys from the Gravity state DB */
+  getHotkeys: {
+    path: "/gravity.v1.GravityService/GetHotkeys",
+    requestStream: false,
+    responseStream: false,
+    requestSerialize: (value: Empty) =>
+      Buffer.from(Empty.encode(value).finish()),
+    requestDeserialize: (value: Buffer) => Empty.decode(value),
+    responseSerialize: (value: GetHotkeysResponse) =>
+      Buffer.from(GetHotkeysResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer) => GetHotkeysResponse.decode(value),
+  },
+  /** Purchase a marketplace dataset */
+  buyMarketplaceDataset: {
+    path: "/gravity.v1.GravityService/BuyMarketplaceDataset",
+    requestStream: false,
+    responseStream: false,
+    requestSerialize: (value: BuyMarketplaceDatasetRequest) =>
+      Buffer.from(BuyMarketplaceDatasetRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer) =>
+      BuyMarketplaceDatasetRequest.decode(value),
+    responseSerialize: (value: BuyMarketplaceDatasetResponse) =>
+      Buffer.from(BuyMarketplaceDatasetResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer) =>
+      BuyMarketplaceDatasetResponse.decode(value),
+  },
+  /** Get all marketplace datasets owned by the authenticated user */
+  getUserMarketplaceDatasets: {
+    path: "/gravity.v1.GravityService/GetUserMarketplaceDatasets",
+    requestStream: false,
+    responseStream: false,
+    requestSerialize: (value: Empty) =>
+      Buffer.from(Empty.encode(value).finish()),
+    requestDeserialize: (value: Buffer) => Empty.decode(value),
+    responseSerialize: (value: GetUserMarketplaceDatasetsResponse) =>
+      Buffer.from(GetUserMarketplaceDatasetsResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer) =>
+      GetUserMarketplaceDatasetsResponse.decode(value),
+  },
 } as const;
 
 export interface GravityServiceServer extends UntypedServiceImplementation {
@@ -8562,6 +9333,11 @@ export interface GravityServiceServer extends UntypedServiceImplementation {
   getGravityTasks: handleUnaryCall<
     GetGravityTasksRequest,
     GetGravityTasksResponse
+  >;
+  /** Get all marketplace crawlers */
+  getMarketplaceCrawlers: handleUnaryCall<
+    Empty,
+    GetMarketplaceCrawlersResponse
   >;
   /** Gets raw miner files for a specific crawler */
   getCrawlerRawMinerFiles: handleUnaryCall<
@@ -8644,7 +9420,7 @@ export interface GravityServiceServer extends UntypedServiceImplementation {
     GetGravityTaskDatasetFilesResponse
   >;
   /** Gets all dataset files for a given persistent gravity task (no user_id check, validates against persistent tasks table) */
-  getGravityPersistentTaskDatasetFiles: handleUnaryCall<
+  getGravityMarketplaceTaskDatasetFiles: handleUnaryCall<
     GetGravityTaskDatasetFilesRequest,
     GetGravityTaskDatasetFilesResponse
   >;
@@ -8689,6 +9465,20 @@ export interface GravityServiceServer extends UntypedServiceImplementation {
   completeCrawler: handleUnaryCall<CompleteCrawlerRequest, UpsertResponse>;
   /** Upserts raw miner files (parquet paths) for a crawler */
   upsertRawMinerFiles: handleUnaryCall<Crawler, UpsertResponse>;
+  /** Upserts raw miner files (parquet paths) for a crawler */
+  upsertHotkeys: handleUnaryCall<UpsertHotkeysRequest, UpsertResponse>;
+  /** Gets all hotkeys from the Gravity state DB */
+  getHotkeys: handleUnaryCall<Empty, GetHotkeysResponse>;
+  /** Purchase a marketplace dataset */
+  buyMarketplaceDataset: handleUnaryCall<
+    BuyMarketplaceDatasetRequest,
+    BuyMarketplaceDatasetResponse
+  >;
+  /** Get all marketplace datasets owned by the authenticated user */
+  getUserMarketplaceDatasets: handleUnaryCall<
+    Empty,
+    GetUserMarketplaceDatasetsResponse
+  >;
 }
 
 export interface GravityServiceClient extends Client {
@@ -8740,6 +9530,31 @@ export interface GravityServiceClient extends Client {
     callback: (
       error: ServiceError | null,
       response: GetGravityTasksResponse,
+    ) => void,
+  ): ClientUnaryCall;
+  /** Get all marketplace crawlers */
+  getMarketplaceCrawlers(
+    request: Empty,
+    callback: (
+      error: ServiceError | null,
+      response: GetMarketplaceCrawlersResponse,
+    ) => void,
+  ): ClientUnaryCall;
+  getMarketplaceCrawlers(
+    request: Empty,
+    metadata: Metadata,
+    callback: (
+      error: ServiceError | null,
+      response: GetMarketplaceCrawlersResponse,
+    ) => void,
+  ): ClientUnaryCall;
+  getMarketplaceCrawlers(
+    request: Empty,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (
+      error: ServiceError | null,
+      response: GetMarketplaceCrawlersResponse,
     ) => void,
   ): ClientUnaryCall;
   /** Gets raw miner files for a specific crawler */
@@ -9173,14 +9988,14 @@ export interface GravityServiceClient extends Client {
     ) => void,
   ): ClientUnaryCall;
   /** Gets all dataset files for a given persistent gravity task (no user_id check, validates against persistent tasks table) */
-  getGravityPersistentTaskDatasetFiles(
+  getGravityMarketplaceTaskDatasetFiles(
     request: GetGravityTaskDatasetFilesRequest,
     callback: (
       error: ServiceError | null,
       response: GetGravityTaskDatasetFilesResponse,
     ) => void,
   ): ClientUnaryCall;
-  getGravityPersistentTaskDatasetFiles(
+  getGravityMarketplaceTaskDatasetFiles(
     request: GetGravityTaskDatasetFilesRequest,
     metadata: Metadata,
     callback: (
@@ -9188,7 +10003,7 @@ export interface GravityServiceClient extends Client {
       response: GetGravityTaskDatasetFilesResponse,
     ) => void,
   ): ClientUnaryCall;
-  getGravityPersistentTaskDatasetFiles(
+  getGravityMarketplaceTaskDatasetFiles(
     request: GetGravityTaskDatasetFilesRequest,
     metadata: Metadata,
     options: Partial<CallOptions>,
@@ -9449,6 +10264,97 @@ export interface GravityServiceClient extends Client {
     metadata: Metadata,
     options: Partial<CallOptions>,
     callback: (error: ServiceError | null, response: UpsertResponse) => void,
+  ): ClientUnaryCall;
+  /** Upserts raw miner files (parquet paths) for a crawler */
+  upsertHotkeys(
+    request: UpsertHotkeysRequest,
+    callback: (error: ServiceError | null, response: UpsertResponse) => void,
+  ): ClientUnaryCall;
+  upsertHotkeys(
+    request: UpsertHotkeysRequest,
+    metadata: Metadata,
+    callback: (error: ServiceError | null, response: UpsertResponse) => void,
+  ): ClientUnaryCall;
+  upsertHotkeys(
+    request: UpsertHotkeysRequest,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (error: ServiceError | null, response: UpsertResponse) => void,
+  ): ClientUnaryCall;
+  /** Gets all hotkeys from the Gravity state DB */
+  getHotkeys(
+    request: Empty,
+    callback: (
+      error: ServiceError | null,
+      response: GetHotkeysResponse,
+    ) => void,
+  ): ClientUnaryCall;
+  getHotkeys(
+    request: Empty,
+    metadata: Metadata,
+    callback: (
+      error: ServiceError | null,
+      response: GetHotkeysResponse,
+    ) => void,
+  ): ClientUnaryCall;
+  getHotkeys(
+    request: Empty,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (
+      error: ServiceError | null,
+      response: GetHotkeysResponse,
+    ) => void,
+  ): ClientUnaryCall;
+  /** Purchase a marketplace dataset */
+  buyMarketplaceDataset(
+    request: BuyMarketplaceDatasetRequest,
+    callback: (
+      error: ServiceError | null,
+      response: BuyMarketplaceDatasetResponse,
+    ) => void,
+  ): ClientUnaryCall;
+  buyMarketplaceDataset(
+    request: BuyMarketplaceDatasetRequest,
+    metadata: Metadata,
+    callback: (
+      error: ServiceError | null,
+      response: BuyMarketplaceDatasetResponse,
+    ) => void,
+  ): ClientUnaryCall;
+  buyMarketplaceDataset(
+    request: BuyMarketplaceDatasetRequest,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (
+      error: ServiceError | null,
+      response: BuyMarketplaceDatasetResponse,
+    ) => void,
+  ): ClientUnaryCall;
+  /** Get all marketplace datasets owned by the authenticated user */
+  getUserMarketplaceDatasets(
+    request: Empty,
+    callback: (
+      error: ServiceError | null,
+      response: GetUserMarketplaceDatasetsResponse,
+    ) => void,
+  ): ClientUnaryCall;
+  getUserMarketplaceDatasets(
+    request: Empty,
+    metadata: Metadata,
+    callback: (
+      error: ServiceError | null,
+      response: GetUserMarketplaceDatasetsResponse,
+    ) => void,
+  ): ClientUnaryCall;
+  getUserMarketplaceDatasets(
+    request: Empty,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (
+      error: ServiceError | null,
+      response: GetUserMarketplaceDatasetsResponse,
+    ) => void,
   ): ClientUnaryCall;
 }
 
