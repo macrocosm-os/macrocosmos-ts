@@ -14,6 +14,9 @@ service GravityService {
   // Lists all data collection tasks for a user
   rpc GetGravityTasks(GetGravityTasksRequest) returns (GetGravityTasksResponse);
 
+  // Get all marketplace crawlers
+  rpc GetMarketplaceCrawlers(google.protobuf.Empty) returns (GetMarketplaceCrawlersResponse);
+
   // Gets raw miner files for a specific crawler
   rpc GetCrawlerRawMinerFiles(GetCrawlerRequest) returns (CrawlerRawMinerFilesResponse);
 
@@ -81,7 +84,7 @@ service GravityService {
       returns (GetGravityTaskDatasetFilesResponse);
 
   // Gets all dataset files for a given persistent gravity task (no user_id check, validates against persistent tasks table)
-  rpc GetGravityPersistentTaskDatasetFiles(GetGravityTaskDatasetFilesRequest)
+  rpc GetGravityMarketplaceTaskDatasetFiles(GetGravityTaskDatasetFilesRequest)
       returns (GetGravityTaskDatasetFilesResponse);
 
   // Publishes a dataset into the Marketplace
@@ -127,6 +130,61 @@ service GravityService {
 
   // Upserts raw miner files (parquet paths) for a crawler
   rpc UpsertRawMinerFiles(Crawler) returns (UpsertResponse);
+
+  // Upserts raw miner files (parquet paths) for a crawler
+  rpc UpsertHotkeys(UpsertHotkeysRequest) returns (UpsertResponse);
+
+  // Gets all hotkeys from the Gravity state DB
+  rpc GetHotkeys(google.protobuf.Empty) returns (GetHotkeysResponse);  
+
+  // Purchase a marketplace dataset
+  rpc BuyMarketplaceDataset(BuyMarketplaceDatasetRequest)
+      returns (BuyMarketplaceDatasetResponse);
+
+  // Get all marketplace datasets owned by the authenticated user
+  rpc GetUserMarketplaceDatasets(google.protobuf.Empty)
+      returns (GetUserMarketplaceDatasetsResponse);
+}
+
+// GetHotkeysResponse is the response message for getting hotkeys
+message GetHotkeysResponse {
+  // hotkeys: the hotkeys
+  repeated string hotkeys = 1;
+}
+
+// BuyMarketplaceDatasetRequest is the request to purchase a dataset
+message BuyMarketplaceDatasetRequest {
+  // gravity_task_id: the marketplace dataset's gravity task id to purchase
+  string gravity_task_id = 1;
+}
+
+// BuyMarketplaceDatasetResponse is the response to a dataset purchase
+message BuyMarketplaceDatasetResponse {
+  // success: whether the purchase succeeded
+  bool success = 1;
+  // message: optional detail
+  string message = 2;
+  // purchase_transaction_id: billing transaction id
+  string purchase_transaction_id = 3;
+}
+
+// UserMarketplaceDataset represents a single owned dataset record
+message UserMarketplaceDataset {
+  string gravity_task_id = 1;
+  google.protobuf.Timestamp created_at = 2;
+  int64 purchase_price_cents = 3;
+  string purchase_transaction_id = 4;
+}
+
+// GetUserMarketplaceDatasetsResponse lists owned datasets
+message GetUserMarketplaceDatasetsResponse {
+  repeated UserMarketplaceDataset user_datasets = 1;
+}
+
+// UpsertHotkeysRequest is the request message for upserting hotkeys
+message UpsertHotkeysRequest {
+  // hotkeys: the hotkeys to upsert
+  repeated string hotkeys = 1;
 }
 
 // UpsertMarketplaceTaskSuggestionsRequest is the request message for upserting marketplace task suggestions
@@ -466,6 +524,11 @@ message GetCrawlerRequest {
   string crawler_id = 1;
 }
 
+// GetMarketplaceCrawlersResponse is the response message holding all marketplace crawlers
+message GetMarketplaceCrawlersResponse {
+  // crawler_id: the ID of the crawler
+  repeated string crawler_id = 1;
+}
 // CompleteCrawlerRequest is the request message for cancelling a crawler
 message CompleteCrawlerRequest {
   // crawler_id: the ID of the crawler
@@ -519,6 +582,8 @@ message BuildDatasetRequest {
   // max_rows: the maximum number of rows to include in the dataset (optional,
   // defaults to 500)
   int64 max_rows = 3;
+  // is_marketplace: determines whether the dataset to build is for marketplace 
+  optional bool is_marketplace = 4;
 }
 
 // BuildDatasetResponse is the response message for manually requesting the
@@ -538,6 +603,8 @@ message BuildAllDatasetsRequest {
   string gravity_task_id = 1;
   // specifies how much of each crawler to build for workflow
   repeated BuildDatasetRequest build_crawlers_config = 2;
+  // is_marketplace: determines whether the datasets to build are for marketplace 
+  optional bool is_marketplace = 3;
 }
 
 message BuildAllDatasetsResponse {
