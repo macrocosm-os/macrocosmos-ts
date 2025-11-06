@@ -1,14 +1,18 @@
 {
   "name": "macrocosmos",
-  "version": "1.4.2",
+  "version": "2.0.0",
   "description": "TypeScript SDK package for Macrocosmos",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "files": ["dist/", "README.md", "LICENSE"],
+  "files": [
+    "dist/",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "clean": "rimraf dist",
     "gen:version": "node scripts/generate-version.js",
-    "build": "npm run clean && npm run gen:version && npm run gen:proto && tsc && cp README.md dist/ && cp LICENSE dist/",
+    "build": "npm run clean && npm run gen:version && npm run proto:gen && tsc && cp README.md dist/ && cp LICENSE dist/",
     "pack": "npm pack && tar -tf macrocosmos-$(node -p \"require('./package.json').version\").tgz && open macrocosmos-$(node -p \"require('./package.json').version\").tgz",
     "pack:rm": "rm macrocosmos-$(node -p \"require('./package.json').version\").tgz && rm -rf package",
     "ts-check": "tsc --noEmit",
@@ -18,7 +22,8 @@
     "lint:fix": "eslint . --ext .ts --fix",
     "format:check": "prettier --check \"src/**/*.{ts,js,json,md}\"",
     "format:write": "prettier --write \"src/**/*.{ts,js,json,md}\"",
-    "gen:proto": "npx protoc --plugin=protoc-gen-ts_proto=./node_modules/.bin/protoc-gen-ts_proto --ts_proto_out=./src/generated --ts_proto_opt=outputServices=grpc-js,useOptionals=messages,useExactTypes=false,esModuleInterop=true,forceLong=number -I ./protos $(find ./protos -name \"*.proto\") && prettier --write \"src/generated/**/*.{ts,js,json,md}\" ",
+    "proto:pull": "git subtree pull --prefix=protos git@github.com:macrocosm-os/macrocosmos-protos.git main --squash",
+    "proto:gen": "npx protoc --plugin=protoc-gen-ts_proto=./node_modules/.bin/protoc-gen-ts_proto --ts_proto_out=./src/generated --ts_proto_opt=outputServices=grpc-js,useOptionals=messages,useExactTypes=false,esModuleInterop=true,forceLong=number -I ./protos $(find ./protos -name \"*.proto\") && prettier --write \"src/generated/**/*.{ts,js,json,md}\" ",
     "example:sn13:list-topics": "ts-node src/__examples__/sn13/list-topics.ts",
     "prepare": "husky"
   },

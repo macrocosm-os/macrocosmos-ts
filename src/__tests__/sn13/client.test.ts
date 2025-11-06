@@ -4,6 +4,14 @@ import {
   OnDemandDataRequest,
 } from "macrocosmos";
 
+const endDate = new Date();
+const startDate = new Date();
+startDate.setDate(startDate.getDate() - 7);
+
+// format as "YYYY-MM-DD"
+const formattedStartDate = startDate.toISOString().split("T")[0];
+const formattedEndDate = endDate.toISOString().split("T")[0];
+
 describe("Sn13Client", () => {
   const API_KEY = process.env.MACROCOSMOS_API_KEY;
 
@@ -50,8 +58,8 @@ describe("Sn13Client", () => {
       source: "x",
       usernames: ["nasa", "spacex"],
       keywords: ["photo", "space", "mars"],
-      startDate: "2024-04-01",
-      endDate: "2025-04-25",
+      startDate: formattedStartDate,
+      endDate: formattedEndDate,
       limit: 3,
     };
 
@@ -81,8 +89,8 @@ describe("Sn13Client", () => {
       source: "x",
       usernames: ["nasa", "spacex"],
       keywords: ["photo", "space", "mars"],
-      startDate: "2024-04-01",
-      endDate: "2025-04-25",
+      startDate: formattedStartDate,
+      endDate: formattedEndDate,
       limit: 3,
       keywordMode: "any",
     };
