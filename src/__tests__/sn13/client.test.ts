@@ -108,4 +108,32 @@ describe("Sn13Client", () => {
     // Log response for debugging
     console.log("On-Demand Data Response:", response);
   }, 60000); // Increase timeout to 60 seconds
+
+  it("should fetch on-demand data with URL mode", async () => {
+    // Create Sn13Client
+    const client = new Sn13Client({
+      apiKey: API_KEY,
+      appName: "sn13-client.test.ts",
+    });
+
+    // Create request
+    const request: OnDemandDataRequest = {
+      source: "x",
+      usernames: [],
+      keywords: [],
+      url: "https://x.com/MacrocosmosAI/status/1928491993338167573",
+    };
+
+    // Fetch on-demand data
+    const response = await client.onDemandData(request);
+
+    // Verify response structure
+    expect(response).toBeDefined();
+    expect(typeof response.status).toBe("string");
+    expect(Array.isArray(response.data)).toBe(true);
+    expect(response.meta).toBeDefined();
+
+    // Log response for debugging
+    console.log("On-Demand Data Response:", response);
+  }, 60000); // Increase timeout to 60 seconds
 });
