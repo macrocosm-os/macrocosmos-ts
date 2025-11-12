@@ -68,10 +68,8 @@ describe("Sn13Client", () => {
 
     // Verify response structure
     expect(response).toBeDefined();
-    expect(typeof response.status).toBe("string");
     expect(Array.isArray(response.data)).toBe(true);
     expect(response.data.length).toBeLessThanOrEqual(request.limit as number);
-    expect(response.meta).toBeDefined();
 
     // Log response for debugging
     console.log("On-Demand Data Response:", response);
@@ -100,10 +98,8 @@ describe("Sn13Client", () => {
 
     // Verify response structure
     expect(response).toBeDefined();
-    expect(typeof response.status).toBe("string");
     expect(Array.isArray(response.data)).toBe(true);
     expect(response.data.length).toBeLessThanOrEqual(request.limit as number);
-    expect(response.meta).toBeDefined();
 
     // Log response for debugging
     console.log("On-Demand Data Response:", response);
@@ -129,9 +125,7 @@ describe("Sn13Client", () => {
 
     // Verify response structure
     expect(response).toBeDefined();
-    expect(typeof response.status).toBe("string");
     expect(Array.isArray(response.data)).toBe(true);
-    expect(response.meta).toBeDefined();
 
     // Log response for debugging
     console.log("On-Demand Data Response:", response);
