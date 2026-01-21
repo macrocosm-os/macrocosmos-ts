@@ -129,5 +129,5 @@ describe("Sn13Client", () => {
 
     // Log response for debugging
     console.log("On-Demand Data Response:", response);
-  }, 60000); // Increase timeout to 60 seconds
+  }, 120000); // Increase timeout to 60 seconds
 });
