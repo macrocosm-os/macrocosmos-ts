@@ -1,6 +1,6 @@
 {
   "name": "macrocosmos",
-  "version": "2.1.3",
+  "version": "2.1.4",
   "description": "TypeScript SDK package for Macrocosmos",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -9,6 +9,10 @@
     "README.md",
     "LICENSE"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/macrocosm-os/macrocosmos-ts.git"
+  },
   "scripts": {
     "clean": "rimraf dist",
     "gen:version": "node scripts/generate-version.js",
