@@ -11,6 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      id-token: write   # <-- required for OIDC trusted publishing
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -23,10 +24,13 @@ jobs:
           node-version: 20
           registry-url: "https://registry.npmjs.org/"
 
+      # Ensure npm CLI supports trusted publishing (requires npm >= 11.5.1)
+      - name: Upgrade npm CLI
+        run: npm i -g npm@^11
+
       - name: Get previous commit on main
         id: prev
-        run: |
-          echo "PREV_COMMIT=$(git rev-parse HEAD^1)" >> $GITHUB_OUTPUT
+        run: echo "PREV_COMMIT=$(git rev-parse HEAD^1)" >> $GITHUB_OUTPUT
 
       - name: Get previous version
         id: old_version
@@ -60,11 +64,10 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Publish to npm
+      - name: Publish to npm (OIDC)
         if: steps.version_check.outputs.VERSION_CHANGED == 'true'
         run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        # NOTE: no NODE_AUTH_TOKEN here; OIDC trusted publishing is used
 
       - name: Create Tag and Release
         if: steps.version_check.outputs.VERSION_CHANGED == 'true'
