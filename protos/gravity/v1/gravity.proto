@@ -271,6 +271,8 @@ message Crawler {
   repeated string dataset_workflows = 7;
   // parquet_paths: the paths to the raw miner files collected
   repeated string parquet_paths = 8;
+  // pre_built_row_count: the number of rows in the pre-built user dataset (if present)
+  optional int64 pre_built_row_count = 9;
 }
 
 // UpsertCrawlerRequest for upserting a crawler and its criteria
