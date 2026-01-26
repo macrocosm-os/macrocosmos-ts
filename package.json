@@ -9,6 +9,10 @@
     "README.md",
     "LICENSE"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/macrocosm-os/macrocosmos-ts.git"
+  },
   "scripts": {
     "clean": "rimraf dist",
     "gen:version": "node scripts/generate-version.js",
