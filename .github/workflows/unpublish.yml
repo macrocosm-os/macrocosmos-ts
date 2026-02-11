@@ -6,8 +6,6 @@ on:
 jobs:
   unpublish:
     runs-on: ubuntu-latest
-    permissions:
-      id-token: write # required for OIDC trusted publishing
     steps:
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -15,8 +13,7 @@ jobs:
           node-version: 20
           registry-url: "https://registry.npmjs.org/"
 
-      - name: Upgrade npm CLI
-        run: npm i -g npm@^11
-
       - name: Unpublish macrocosmos@2.2.0
         run: npm unpublish macrocosmos@2.2.0
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
