@@ -29,7 +29,21 @@ import {
   GetGravityTaskDatasetFilesRequest,
   BuildAllDatasetsResponse,
   BuildAllDatasetsRequest,
+  GetMarketplaceDatasetsRequest,
+  GetMarketplaceDatasetsResponse,
+  GetCrawlerHistoryRequest,
+  GetCrawlerHistoryResponse,
+  GetUserMarketplaceDatasetsResponse,
+  GetMarketplaceTaskSuggestionsRequest,
+  GetPopularTagsResponse,
+  BuyMarketplaceDatasetRequest,
+  BuyMarketplaceDatasetResponse,
+  UserMarketplaceDataset,
+  PopularTag,
+  CrawlerHistoryEntry,
+  CrawlerCriteriaAndHistory,
 } from "../../generated/gravity/v1/gravity";
+import { Empty } from "../../generated/google/protobuf/empty";
 import { BaseClient, BaseClientOptions } from "../BaseClient";
 import { MarkFieldsOptional } from "../util.types";
 
@@ -72,6 +86,20 @@ export type {
   DatasetFile,
   DatasetStep,
   Nebula,
+  GetMarketplaceDatasetsRequest,
+  GetMarketplaceDatasetsResponse,
+  GetCrawlerHistoryRequest,
+  GetCrawlerHistoryResponse,
+  GetUserMarketplaceDatasetsResponse,
+  GetMarketplaceTaskSuggestionsRequest,
+  GetPopularTagsResponse,
+  BuyMarketplaceDatasetRequest,
+  BuyMarketplaceDatasetResponse,
+  UserMarketplaceDataset,
+  PopularTag,
+  CrawlerHistoryEntry,
+  CrawlerCriteriaAndHistory,
+  Empty,
 };
 
 /**
@@ -367,6 +395,38 @@ export class GravityClient extends BaseClient {
     );
   };
 
+  /**
+   * Gets the available datasets for use in Dataset Marketplace
+   */
+  getMarketplaceDatasets = (
+    params: GetMarketplaceDatasetsRequest,
+  ): Promise<GetMarketplaceDatasetsResponse> => {
+    const client = this.createGrpcClient();
+
+    if (this.isSecure()) {
+      return new Promise<GetMarketplaceDatasetsResponse>((resolve, reject) => {
+        client.getMarketplaceDatasets(params, (error, response) => {
+          if (error) {
+            reject(error);
+            return;
+          }
+          resolve(response);
+        });
+      });
+    }
+
+    const metadata = this.createAuthMetadata();
+    return new Promise<GetMarketplaceDatasetsResponse>((resolve, reject) => {
+      client.getMarketplaceDatasets(params, metadata, (error, response) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+        resolve(response);
+      });
+    });
+  };
+
   buildAllDatasets = (
     params: BuildAllDatasetsRequest,
   ): Promise<BuildAllDatasetsResponse> => {
@@ -387,6 +447,221 @@ export class GravityClient extends BaseClient {
     const metadata = this.createAuthMetadata();
     return new Promise<BuildAllDatasetsResponse>((resolve, reject) => {
       client.buildAllDatasets(params, metadata, (error, response) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+        resolve(response);
+      });
+    });
+  };
+
+  /**
+   * Gets all dataset files for a given marketplace gravity task
+   * (no user_id check, validates against marketplace tasks table)
+   */
+  getGravityMarketplaceTaskDatasetFiles = (
+    params: GetGravityTaskDatasetFilesRequest,
+  ): Promise<GetGravityTaskDatasetFilesResponse> => {
+    const client = this.createGrpcClient();
+
+    if (this.isSecure()) {
+      return new Promise<GetGravityTaskDatasetFilesResponse>(
+        (resolve, reject) => {
+          client.getGravityMarketplaceTaskDatasetFiles(
+            params,
+            (error, response) => {
+              if (error) {
+                reject(error);
+                return;
+              }
+              resolve(response);
+            },
+          );
+        },
+      );
+    }
+
+    const metadata = this.createAuthMetadata();
+    return new Promise<GetGravityTaskDatasetFilesResponse>(
+      (resolve, reject) => {
+        client.getGravityMarketplaceTaskDatasetFiles(
+          params,
+          metadata,
+          (error, response) => {
+            if (error) {
+              reject(error);
+              return;
+            }
+            resolve(response);
+          },
+        );
+      },
+    );
+  };
+
+  /**
+   * Gets crawler history for a given gravity task
+   */
+  getCrawlerHistory = (
+    params: GetCrawlerHistoryRequest,
+  ): Promise<GetCrawlerHistoryResponse> => {
+    const client = this.createGrpcClient();
+
+    if (this.isSecure()) {
+      return new Promise<GetCrawlerHistoryResponse>((resolve, reject) => {
+        client.getCrawlerHistory(params, (error, response) => {
+          if (error) {
+            reject(error);
+            return;
+          }
+          resolve(response);
+        });
+      });
+    }
+
+    const metadata = this.createAuthMetadata();
+    return new Promise<GetCrawlerHistoryResponse>((resolve, reject) => {
+      client.getCrawlerHistory(params, metadata, (error, response) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+        resolve(response);
+      });
+    });
+  };
+
+  /**
+   * Get all marketplace datasets owned by the authenticated user
+   */
+  getUserMarketplaceDatasets =
+    (): Promise<GetUserMarketplaceDatasetsResponse> => {
+      const client = this.createGrpcClient();
+      const params: Empty = {};
+
+      if (this.isSecure()) {
+        return new Promise<GetUserMarketplaceDatasetsResponse>(
+          (resolve, reject) => {
+            client.getUserMarketplaceDatasets(params, (error, response) => {
+              if (error) {
+                reject(error);
+                return;
+              }
+              resolve(response);
+            });
+          },
+        );
+      }
+
+      const metadata = this.createAuthMetadata();
+      return new Promise<GetUserMarketplaceDatasetsResponse>(
+        (resolve, reject) => {
+          client.getUserMarketplaceDatasets(
+            params,
+            metadata,
+            (error, response) => {
+              if (error) {
+                reject(error);
+                return;
+              }
+              resolve(response);
+            },
+          );
+        },
+      );
+    };
+
+  /**
+   * Get marketplace task suggestions for a given gravity task
+   */
+  getMarketplaceTaskSuggestions = (
+    params: GetMarketplaceTaskSuggestionsRequest,
+  ): Promise<GetMarketplaceDatasetsResponse> => {
+    const client = this.createGrpcClient();
+
+    if (this.isSecure()) {
+      return new Promise<GetMarketplaceDatasetsResponse>((resolve, reject) => {
+        client.getMarketplaceTaskSuggestions(params, (error, response) => {
+          if (error) {
+            reject(error);
+            return;
+          }
+          resolve(response);
+        });
+      });
+    }
+
+    const metadata = this.createAuthMetadata();
+    return new Promise<GetMarketplaceDatasetsResponse>((resolve, reject) => {
+      client.getMarketplaceTaskSuggestions(
+        params,
+        metadata,
+        (error, response) => {
+          if (error) {
+            reject(error);
+            return;
+          }
+          resolve(response);
+        },
+      );
+    });
+  };
+
+  /**
+   * Gets popular tags across all gravity tasks
+   */
+  getPopularTags = (): Promise<GetPopularTagsResponse> => {
+    const client = this.createGrpcClient();
+    const params: Empty = {};
+
+    if (this.isSecure()) {
+      return new Promise<GetPopularTagsResponse>((resolve, reject) => {
+        client.getPopularTags(params, (error, response) => {
+          if (error) {
+            reject(error);
+            return;
+          }
+          resolve(response);
+        });
+      });
+    }
+
+    const metadata = this.createAuthMetadata();
+    return new Promise<GetPopularTagsResponse>((resolve, reject) => {
+      client.getPopularTags(params, metadata, (error, response) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+        resolve(response);
+      });
+    });
+  };
+
+  /**
+   * Purchase a marketplace dataset
+   */
+  buyMarketplaceDataset = (
+    params: BuyMarketplaceDatasetRequest,
+  ): Promise<BuyMarketplaceDatasetResponse> => {
+    const client = this.createGrpcClient();
+
+    if (this.isSecure()) {
+      return new Promise<BuyMarketplaceDatasetResponse>((resolve, reject) => {
+        client.buyMarketplaceDataset(params, (error, response) => {
+          if (error) {
+            reject(error);
+            return;
+          }
+          resolve(response);
+        });
+      });
+    }
+
+    const metadata = this.createAuthMetadata();
+    return new Promise<BuyMarketplaceDatasetResponse>((resolve, reject) => {
+      client.buyMarketplaceDataset(params, metadata, (error, response) => {
         if (error) {
           reject(error);
           return;
