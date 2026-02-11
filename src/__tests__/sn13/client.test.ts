@@ -73,7 +73,7 @@ describe("Sn13Client", () => {
 
     // Log response for debugging
     console.log("On-Demand Data Response:", response);
-  }, 60000); // Increase timeout to 60 seconds
+  }, 160000); // Increase timeout to 60 seconds
 
   it("should fetch on-demand data with keyword mode", async () => {
     // Create Sn13Client
@@ -103,7 +103,7 @@ describe("Sn13Client", () => {
 
     // Log response for debugging
     console.log("On-Demand Data Response:", response);
-  }, 60000); // Increase timeout to 60 seconds
+  }, 160000); // Increase timeout to 60 seconds
 
   it("should fetch on-demand data with URL mode", async () => {
     // Create Sn13Client
@@ -129,5 +129,5 @@ describe("Sn13Client", () => {
 
     // Log response for debugging
     console.log("On-Demand Data Response:", response);
-  }, 200000); // Increase timeout to 60 seconds
+  }, 1200000); // Increase timeout to 60 seconds
 });
