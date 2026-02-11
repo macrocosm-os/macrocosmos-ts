@@ -26,7 +26,6 @@ describe("Sn13Client", () => {
       appName: "sn13-client.test.ts",
     });
 
-
     // Create request
     const request: ValidateRedditTopicRequest = {
       topic: "programming", // Example topic

@@ -535,41 +535,42 @@ export class GravityClient extends BaseClient {
   /**
    * Get all marketplace datasets owned by the authenticated user
    */
-  getUserMarketplaceDatasets = (): Promise<GetUserMarketplaceDatasetsResponse> => {
-    const client = this.createGrpcClient();
-    const params: Empty = {};
+  getUserMarketplaceDatasets =
+    (): Promise<GetUserMarketplaceDatasetsResponse> => {
+      const client = this.createGrpcClient();
+      const params: Empty = {};
 
-    if (this.isSecure()) {
-      return new Promise<GetUserMarketplaceDatasetsResponse>(
-        (resolve, reject) => {
-          client.getUserMarketplaceDatasets(params, (error, response) => {
-            if (error) {
-              reject(error);
-              return;
-            }
-            resolve(response);
-          });
-        },
-      );
-    }
-
-    const metadata = this.createAuthMetadata();
-    return new Promise<GetUserMarketplaceDatasetsResponse>(
-      (resolve, reject) => {
-        client.getUserMarketplaceDatasets(
-          params,
-          metadata,
-          (error, response) => {
-            if (error) {
-              reject(error);
-              return;
-            }
-            resolve(response);
+      if (this.isSecure()) {
+        return new Promise<GetUserMarketplaceDatasetsResponse>(
+          (resolve, reject) => {
+            client.getUserMarketplaceDatasets(params, (error, response) => {
+              if (error) {
+                reject(error);
+                return;
+              }
+              resolve(response);
+            });
           },
         );
-      },
-    );
-  };
+      }
+
+      const metadata = this.createAuthMetadata();
+      return new Promise<GetUserMarketplaceDatasetsResponse>(
+        (resolve, reject) => {
+          client.getUserMarketplaceDatasets(
+            params,
+            metadata,
+            (error, response) => {
+              if (error) {
+                reject(error);
+                return;
+              }
+              resolve(response);
+            },
+          );
+        },
+      );
+    };
 
   /**
    * Get marketplace task suggestions for a given gravity task
