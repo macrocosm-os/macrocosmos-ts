@@ -457,50 +457,6 @@ export class GravityClient extends BaseClient {
   };
 
   /**
-   * Gets all dataset files for a given marketplace gravity task
-   * (no user_id check, validates against marketplace tasks table)
-   */
-  getGravityMarketplaceTaskDatasetFiles = (
-    params: GetGravityTaskDatasetFilesRequest,
-  ): Promise<GetGravityTaskDatasetFilesResponse> => {
-    const client = this.createGrpcClient();
-
-    if (this.isSecure()) {
-      return new Promise<GetGravityTaskDatasetFilesResponse>(
-        (resolve, reject) => {
-          client.getGravityMarketplaceTaskDatasetFiles(
-            params,
-            (error, response) => {
-              if (error) {
-                reject(error);
-                return;
-              }
-              resolve(response);
-            },
-          );
-        },
-      );
-    }
-
-    const metadata = this.createAuthMetadata();
-    return new Promise<GetGravityTaskDatasetFilesResponse>(
-      (resolve, reject) => {
-        client.getGravityMarketplaceTaskDatasetFiles(
-          params,
-          metadata,
-          (error, response) => {
-            if (error) {
-              reject(error);
-              return;
-            }
-            resolve(response);
-          },
-        );
-      },
-    );
-  };
-
-  /**
    * Gets crawler history for a given gravity task
    */
   getCrawlerHistory = (
