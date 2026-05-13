@@ -28,4 +28,9 @@ logs
 .env.local
 .env.development.local
 .env.test.local
-.env.production.local 
+.env.production.local
+
+# Ad-hoc local scripts that may contain hardcoded credentials. Keep these out
+# of git entirely — never reference real keys in tracked files.
+/test-gravity.ts
+/scratch.*

@@ -4,7 +4,16 @@ const prettierPlugin = require("eslint-plugin-prettier");
 
 module.exports = [
   {
-    ignores: ["node_modules", "dist", "build", "vitest.config.ts"],
+    ignores: [
+      "node_modules",
+      "dist",
+      "build",
+      "vitest.config.ts",
+      // Ad-hoc local scripts kept out of `src/` and out of the eslint
+      // tsconfig include path. Gitignored too — never tracked.
+      "test-gravity.ts",
+      "scratch.*",
+    ],
   },
   {
     files: ["**/*.{ts,tsx}"],

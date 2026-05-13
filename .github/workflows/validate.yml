@@ -3,16 +3,33 @@ name: Run TSC, ESLint, Prettier & Tests
 on:
   pull_request:
 
-env:
-  MACROCOSMOS_API_KEY: ${{ secrets.MACROCOSMOS_API_KEY }}
+# Least-privilege token. Prevents PR workflow runs from writing to the
+# Actions cache, releases, packages, etc. This blocks the class of attacks
+# that uses an untrusted PR run to poison a shared resource consumed by a
+# later trusted workflow (e.g. publish).
+permissions:
+  contents: read
+
+# Cancel superseded runs on the same PR so a fast-follow push doesn't keep an
+# attacker's earlier run alive.
+concurrency:
+  group: validate-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   validate:
     runs-on: ubuntu-latest
 
+    # IMPORTANT: no secrets are exposed to this job. PR code is untrusted and
+    # runs `npm ci` (postinstall scripts execute) plus arbitrary test code.
+    # Live-API tests skip themselves when MACROCOSMOS_API_KEY is unset; they
+    # run instead in the trusted integration workflow (push to main).
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -34,5 +51,5 @@ jobs:
       - name: Run build
         run: npm run build
 
-      - name: Run tests
+      - name: Run tests (live-API suites auto-skip without MACROCOSMOS_API_KEY)
         run: npm test
