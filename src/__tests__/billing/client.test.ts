@@ -1,12 +1,12 @@
+import { describe, it, expect } from "vitest";
 import { BillingClient, GetUsageRequest } from "macrocosmos";
 
-describe("BillingClient", () => {
-  const API_KEY = process.env.MACROCOSMOS_API_KEY;
+// Live integration suite. Skipped when MACROCOSMOS_API_KEY is unset so
+// untrusted CI (PRs) never needs the secret. Runs in the trusted integration
+// workflow and locally when developers export the key.
+const API_KEY = process.env.MACROCOSMOS_API_KEY;
 
-  if (!API_KEY) {
-    throw new Error("MACROCOSMOS_API_KEY environment variable is required");
-  }
-
+describe.skipIf(!API_KEY)("BillingClient (live)", () => {
   it("should get usage information", async () => {
     // Create BillingClient
     const client = new BillingClient({

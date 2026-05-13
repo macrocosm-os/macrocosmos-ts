@@ -1,0 +1,45 @@
+name: Live API integration tests
+
+# Runs the live-API integration suites (sn13, billing). These are the only
+# tests that need MACROCOSMOS_API_KEY. The secret is NEVER exposed to PR-
+# triggered workflows — only to runs that originate from trusted, reviewed
+# code on `main` or a manual maintainer dispatch.
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: integration-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+    # Defence in depth: scope the secret to only the test step rather than the
+    # whole job so unrelated steps (install, build) don't see it in env.
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run build
+        run: npm run build
+
+      - name: Run live integration tests
+        run: npm test
+        env:
+          MACROCOSMOS_API_KEY: ${{ secrets.MACROCOSMOS_API_KEY }}

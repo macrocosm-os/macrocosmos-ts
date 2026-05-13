@@ -1,3 +1,4 @@
+import { describe, it, expect } from "vitest";
 import {
   Sn13Client,
   ValidateRedditTopicRequest,
@@ -12,13 +13,13 @@ startDate.setDate(startDate.getDate() - 7);
 const formattedStartDate = startDate.toISOString().split("T")[0];
 const formattedEndDate = endDate.toISOString().split("T")[0];
 
-describe("Sn13Client", () => {
-  const API_KEY = process.env.MACROCOSMOS_API_KEY;
+// Live integration suite. Skipped automatically when MACROCOSMOS_API_KEY is
+// not set so untrusted CI contexts (e.g. PRs) can run the rest of the test
+// suite without exposing credentials. Real runs happen in the trusted
+// integration workflow and locally for developers who export the key.
+const API_KEY = process.env.MACROCOSMOS_API_KEY;
 
-  if (!API_KEY) {
-    throw new Error("MACROCOSMOS_API_KEY environment variable is required");
-  }
-
+describe.skipIf(!API_KEY)("Sn13Client (live)", () => {
   it("should validate a Reddit topic", async () => {
     // Create Sn13Client
     const client = new Sn13Client({
