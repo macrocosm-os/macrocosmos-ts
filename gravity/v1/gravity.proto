@@ -68,10 +68,6 @@ service GravityService {
   rpc GetGravityTaskDatasetFiles(GetGravityTaskDatasetFilesRequest)
       returns (GetGravityTaskDatasetFilesResponse);
 
-  // Get crawler data for DD submission
-  rpc GetActiveUserTasks(google.protobuf.Empty)
-      returns (GetActiveUserTasksResponse);
-
   // Get crawler data for DD submission for the marketplace user
   rpc GetMarketplaceCrawlerDataForDDSubmission(GetMarketplaceCrawlerDataForDDSubmissionRequest)
       returns (GetMarketplaceCrawlerDataForDDSubmissionResponse);      
@@ -824,28 +820,6 @@ message MarketplaceCrawlerDataForDDSubmission {
   string notification_to = 13;
   string notification_link = 14;
   string user_id = 15;
-}
-
-// GetActiveUserTasksResponse is the response message for active user tasks
-message GetActiveUserTasksResponse {
-  // active_user_tasks: list of active user tasks
-  repeated ActiveUserTask active_user_tasks = 1;
-}
-
-// ActiveUserCrawler contains active user crawler information
-message ActiveUserCrawler {
-  // crawler_id: the id of the crawler
-  string crawler_id = 1;
-  // row_count: the number of rows collected by the crawler
-  uint64 row_count = 2;
-}
-
-// ActiveUserTask contains active user task information
-message ActiveUserTask {
-  // gravity_task_id: the id of the gravity_task
-  string gravity_task_id = 1;
-  // crawlers: list of active user crawlers
-  repeated ActiveUserCrawler crawlers = 2;
 }
 
 // UpsertPreBuiltUserDatasetsRequest is the request message for upserting pre-built user datasets
