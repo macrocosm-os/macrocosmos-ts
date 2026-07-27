@@ -787,28 +787,6 @@ export interface MarketplaceCrawlerDataForDDSubmission {
   userId: string;
 }
 
-/** GetActiveUserTasksResponse is the response message for active user tasks */
-export interface GetActiveUserTasksResponse {
-  /** active_user_tasks: list of active user tasks */
-  activeUserTasks: ActiveUserTask[];
-}
-
-/** ActiveUserCrawler contains active user crawler information */
-export interface ActiveUserCrawler {
-  /** crawler_id: the id of the crawler */
-  crawlerId: string;
-  /** row_count: the number of rows collected by the crawler */
-  rowCount: number;
-}
-
-/** ActiveUserTask contains active user task information */
-export interface ActiveUserTask {
-  /** gravity_task_id: the id of the gravity_task */
-  gravityTaskId: string;
-  /** crawlers: list of active user crawlers */
-  crawlers: ActiveUserCrawler[];
-}
-
 /** UpsertPreBuiltUserDatasetsRequest is the request message for upserting pre-built user datasets */
 export interface UpsertPreBuiltUserDatasetsRequest {
   /** gravity_task_id: the ID of the gravity task */
@@ -8280,254 +8258,6 @@ export const MarketplaceCrawlerDataForDDSubmission: MessageFns<MarketplaceCrawle
     },
   };
 
-function createBaseGetActiveUserTasksResponse(): GetActiveUserTasksResponse {
-  return { activeUserTasks: [] };
-}
-
-export const GetActiveUserTasksResponse: MessageFns<GetActiveUserTasksResponse> =
-  {
-    encode(
-      message: GetActiveUserTasksResponse,
-      writer: BinaryWriter = new BinaryWriter(),
-    ): BinaryWriter {
-      for (const v of message.activeUserTasks) {
-        ActiveUserTask.encode(v!, writer.uint32(10).fork()).join();
-      }
-      return writer;
-    },
-
-    decode(
-      input: BinaryReader | Uint8Array,
-      length?: number,
-    ): GetActiveUserTasksResponse {
-      const reader =
-        input instanceof BinaryReader ? input : new BinaryReader(input);
-      let end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseGetActiveUserTasksResponse();
-      while (reader.pos < end) {
-        const tag = reader.uint32();
-        switch (tag >>> 3) {
-          case 1: {
-            if (tag !== 10) {
-              break;
-            }
-
-            message.activeUserTasks.push(
-              ActiveUserTask.decode(reader, reader.uint32()),
-            );
-            continue;
-          }
-        }
-        if ((tag & 7) === 4 || tag === 0) {
-          break;
-        }
-        reader.skip(tag & 7);
-      }
-      return message;
-    },
-
-    fromJSON(object: any): GetActiveUserTasksResponse {
-      return {
-        activeUserTasks: globalThis.Array.isArray(object?.activeUserTasks)
-          ? object.activeUserTasks.map((e: any) => ActiveUserTask.fromJSON(e))
-          : [],
-      };
-    },
-
-    toJSON(message: GetActiveUserTasksResponse): unknown {
-      const obj: any = {};
-      if (message.activeUserTasks?.length) {
-        obj.activeUserTasks = message.activeUserTasks.map(e =>
-          ActiveUserTask.toJSON(e),
-        );
-      }
-      return obj;
-    },
-
-    create(
-      base?: DeepPartial<GetActiveUserTasksResponse>,
-    ): GetActiveUserTasksResponse {
-      return GetActiveUserTasksResponse.fromPartial(base ?? {});
-    },
-    fromPartial(
-      object: DeepPartial<GetActiveUserTasksResponse>,
-    ): GetActiveUserTasksResponse {
-      const message = createBaseGetActiveUserTasksResponse();
-      message.activeUserTasks =
-        object.activeUserTasks?.map(e => ActiveUserTask.fromPartial(e)) || [];
-      return message;
-    },
-  };
-
-function createBaseActiveUserCrawler(): ActiveUserCrawler {
-  return { crawlerId: "", rowCount: 0 };
-}
-
-export const ActiveUserCrawler: MessageFns<ActiveUserCrawler> = {
-  encode(
-    message: ActiveUserCrawler,
-    writer: BinaryWriter = new BinaryWriter(),
-  ): BinaryWriter {
-    if (message.crawlerId !== "") {
-      writer.uint32(10).string(message.crawlerId);
-    }
-    if (message.rowCount !== 0) {
-      writer.uint32(16).uint64(message.rowCount);
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): ActiveUserCrawler {
-    const reader =
-      input instanceof BinaryReader ? input : new BinaryReader(input);
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseActiveUserCrawler();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.crawlerId = reader.string();
-          continue;
-        }
-        case 2: {
-          if (tag !== 16) {
-            break;
-          }
-
-          message.rowCount = longToNumber(reader.uint64());
-          continue;
-        }
-      }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-
-  fromJSON(object: any): ActiveUserCrawler {
-    return {
-      crawlerId: isSet(object.crawlerId)
-        ? globalThis.String(object.crawlerId)
-        : "",
-      rowCount: isSet(object.rowCount) ? globalThis.Number(object.rowCount) : 0,
-    };
-  },
-
-  toJSON(message: ActiveUserCrawler): unknown {
-    const obj: any = {};
-    if (message.crawlerId !== "") {
-      obj.crawlerId = message.crawlerId;
-    }
-    if (message.rowCount !== 0) {
-      obj.rowCount = Math.round(message.rowCount);
-    }
-    return obj;
-  },
-
-  create(base?: DeepPartial<ActiveUserCrawler>): ActiveUserCrawler {
-    return ActiveUserCrawler.fromPartial(base ?? {});
-  },
-  fromPartial(object: DeepPartial<ActiveUserCrawler>): ActiveUserCrawler {
-    const message = createBaseActiveUserCrawler();
-    message.crawlerId = object.crawlerId ?? "";
-    message.rowCount = object.rowCount ?? 0;
-    return message;
-  },
-};
-
-function createBaseActiveUserTask(): ActiveUserTask {
-  return { gravityTaskId: "", crawlers: [] };
-}
-
-export const ActiveUserTask: MessageFns<ActiveUserTask> = {
-  encode(
-    message: ActiveUserTask,
-    writer: BinaryWriter = new BinaryWriter(),
-  ): BinaryWriter {
-    if (message.gravityTaskId !== "") {
-      writer.uint32(10).string(message.gravityTaskId);
-    }
-    for (const v of message.crawlers) {
-      ActiveUserCrawler.encode(v!, writer.uint32(18).fork()).join();
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): ActiveUserTask {
-    const reader =
-      input instanceof BinaryReader ? input : new BinaryReader(input);
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseActiveUserTask();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.gravityTaskId = reader.string();
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.crawlers.push(
-            ActiveUserCrawler.decode(reader, reader.uint32()),
-          );
-          continue;
-        }
-      }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-
-  fromJSON(object: any): ActiveUserTask {
-    return {
-      gravityTaskId: isSet(object.gravityTaskId)
-        ? globalThis.String(object.gravityTaskId)
-        : "",
-      crawlers: globalThis.Array.isArray(object?.crawlers)
-        ? object.crawlers.map((e: any) => ActiveUserCrawler.fromJSON(e))
-        : [],
-    };
-  },
-
-  toJSON(message: ActiveUserTask): unknown {
-    const obj: any = {};
-    if (message.gravityTaskId !== "") {
-      obj.gravityTaskId = message.gravityTaskId;
-    }
-    if (message.crawlers?.length) {
-      obj.crawlers = message.crawlers.map(e => ActiveUserCrawler.toJSON(e));
-    }
-    return obj;
-  },
-
-  create(base?: DeepPartial<ActiveUserTask>): ActiveUserTask {
-    return ActiveUserTask.fromPartial(base ?? {});
-  },
-  fromPartial(object: DeepPartial<ActiveUserTask>): ActiveUserTask {
-    const message = createBaseActiveUserTask();
-    message.gravityTaskId = object.gravityTaskId ?? "";
-    message.crawlers =
-      object.crawlers?.map(e => ActiveUserCrawler.fromPartial(e)) || [];
-    return message;
-  },
-};
-
 function createBaseUpsertPreBuiltUserDatasetsRequest(): UpsertPreBuiltUserDatasetsRequest {
   return { gravityTaskId: "", crawlerId: "", rowCount: 0 };
 }
@@ -9133,19 +8863,6 @@ export const GravityServiceService = {
     responseDeserialize: (value: Buffer) =>
       GetGravityTaskDatasetFilesResponse.decode(value),
   },
-  /** Get crawler data for DD submission */
-  getActiveUserTasks: {
-    path: "/gravity.v1.GravityService/GetActiveUserTasks",
-    requestStream: false,
-    responseStream: false,
-    requestSerialize: (value: Empty) =>
-      Buffer.from(Empty.encode(value).finish()),
-    requestDeserialize: (value: Buffer) => Empty.decode(value),
-    responseSerialize: (value: GetActiveUserTasksResponse) =>
-      Buffer.from(GetActiveUserTasksResponse.encode(value).finish()),
-    responseDeserialize: (value: Buffer) =>
-      GetActiveUserTasksResponse.decode(value),
-  },
   /** Get crawler data for DD submission for the marketplace user */
   getMarketplaceCrawlerDataForDdSubmission: {
     path: "/gravity.v1.GravityService/GetMarketplaceCrawlerDataForDDSubmission",
@@ -9468,8 +9185,6 @@ export interface GravityServiceServer extends UntypedServiceImplementation {
     GetGravityTaskDatasetFilesRequest,
     GetGravityTaskDatasetFilesResponse
   >;
-  /** Get crawler data for DD submission */
-  getActiveUserTasks: handleUnaryCall<Empty, GetActiveUserTasksResponse>;
   /** Get crawler data for DD submission for the marketplace user */
   getMarketplaceCrawlerDataForDdSubmission: handleUnaryCall<
     GetMarketplaceCrawlerDataForDDSubmissionRequest,
@@ -9975,31 +9690,6 @@ export interface GravityServiceClient extends Client {
     callback: (
       error: ServiceError | null,
       response: GetGravityTaskDatasetFilesResponse,
-    ) => void,
-  ): ClientUnaryCall;
-  /** Get crawler data for DD submission */
-  getActiveUserTasks(
-    request: Empty,
-    callback: (
-      error: ServiceError | null,
-      response: GetActiveUserTasksResponse,
-    ) => void,
-  ): ClientUnaryCall;
-  getActiveUserTasks(
-    request: Empty,
-    metadata: Metadata,
-    callback: (
-      error: ServiceError | null,
-      response: GetActiveUserTasksResponse,
-    ) => void,
-  ): ClientUnaryCall;
-  getActiveUserTasks(
-    request: Empty,
-    metadata: Metadata,
-    options: Partial<CallOptions>,
-    callback: (
-      error: ServiceError | null,
-      response: GetActiveUserTasksResponse,
     ) => void,
   ): ClientUnaryCall;
   /** Get crawler data for DD submission for the marketplace user */
