@@ -108,12 +108,6 @@ export interface GetPopularTagsResponse {
   popularTags: PopularTag[];
 }
 
-/** PublishDatasetRequest is the request message for publishing a dataset */
-export interface PublishDatasetRequest {
-  /** dataset_id: the ID of the dataset */
-  datasetId: string;
-}
-
 /** UpsertMarketplaceTaskMetadataRequest */
 export interface UpsertMarketplaceTaskMetadataRequest {
   /** gravity_task_id: the id of the gravity task */
@@ -515,15 +509,6 @@ export interface ChargeForDatasetRowsRequest {
   rowCount: number;
 }
 
-export interface Nebula {
-  /** error: nebula build error message */
-  error: string;
-  /** file_size_bytes: the size of the file in bytes */
-  fileSizeBytes: number;
-  /** url: the URL of the file */
-  url: string;
-}
-
 /** Dataset contains the progress and results of a dataset build */
 export interface Dataset {
   /** crawler_workflow_id: the ID of the parent crawler for this dataset */
@@ -542,8 +527,6 @@ export interface Dataset {
   steps: DatasetStep[];
   /** total_steps: the total number of steps in the dataset build */
   totalSteps: number;
-  /** nebula: the details about the nebula that was built */
-  nebula?: Nebula | undefined;
 }
 
 /**
@@ -555,16 +538,6 @@ export interface UpsertDatasetRequest {
   datasetId: string;
   /** dataset: the details of the dataset */
   dataset?: Dataset | undefined;
-}
-
-/** UpsertNebulaRequest contains the dataset id and nebula details to upsert */
-export interface UpsertNebulaRequest {
-  /** dataset_id: a unique id for the dataset */
-  datasetId: string;
-  /** nebula_id: a unique id for the nebula */
-  nebulaId: string;
-  /** nebula: the details of the nebula */
-  nebula?: Nebula | undefined;
 }
 
 /**
@@ -695,8 +668,8 @@ export interface CrawlerDatasetFiles {
   datasetFiles: DatasetFileWithId[];
 }
 
-/** CrawlerRawMinerFiles contains raw miner files for a specific crawler */
-export interface CrawlerRawMinerFilesResponse {
+/** ListCrawlerRawFilesResponse contains raw miner files for a specific crawler */
+export interface ListCrawlerRawFilesResponse {
   /** crawler_id: the ID of the crawler */
   crawlerId: string;
   /** s3_paths: the S3 paths associated with this crawler */
@@ -721,8 +694,6 @@ export interface DatasetFileWithId {
   s3Key: string;
   /** url: the URL of the file (public use) */
   url: string;
-  /** nebula_url: the url of a nebula */
-  nebulaUrl: string;
 }
 
 /**
@@ -814,28 +785,6 @@ export interface MarketplaceCrawlerDataForDDSubmission {
   notificationTo: string;
   notificationLink: string;
   userId: string;
-}
-
-/** GetActiveUserTasksResponse is the response message for active user tasks */
-export interface GetActiveUserTasksResponse {
-  /** active_user_tasks: list of active user tasks */
-  activeUserTasks: ActiveUserTask[];
-}
-
-/** ActiveUserCrawler contains active user crawler information */
-export interface ActiveUserCrawler {
-  /** crawler_id: the id of the crawler */
-  crawlerId: string;
-  /** row_count: the number of rows collected by the crawler */
-  rowCount: number;
-}
-
-/** ActiveUserTask contains active user task information */
-export interface ActiveUserTask {
-  /** gravity_task_id: the id of the gravity_task */
-  gravityTaskId: string;
-  /** crawlers: list of active user crawlers */
-  crawlers: ActiveUserCrawler[];
 }
 
 /** UpsertPreBuiltUserDatasetsRequest is the request message for upserting pre-built user datasets */
@@ -1923,77 +1872,6 @@ export const GetPopularTagsResponse: MessageFns<GetPopularTagsResponse> = {
     const message = createBaseGetPopularTagsResponse();
     message.popularTags =
       object.popularTags?.map(e => PopularTag.fromPartial(e)) || [];
-    return message;
-  },
-};
-
-function createBasePublishDatasetRequest(): PublishDatasetRequest {
-  return { datasetId: "" };
-}
-
-export const PublishDatasetRequest: MessageFns<PublishDatasetRequest> = {
-  encode(
-    message: PublishDatasetRequest,
-    writer: BinaryWriter = new BinaryWriter(),
-  ): BinaryWriter {
-    if (message.datasetId !== "") {
-      writer.uint32(10).string(message.datasetId);
-    }
-    return writer;
-  },
-
-  decode(
-    input: BinaryReader | Uint8Array,
-    length?: number,
-  ): PublishDatasetRequest {
-    const reader =
-      input instanceof BinaryReader ? input : new BinaryReader(input);
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBasePublishDatasetRequest();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.datasetId = reader.string();
-          continue;
-        }
-      }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-
-  fromJSON(object: any): PublishDatasetRequest {
-    return {
-      datasetId: isSet(object.datasetId)
-        ? globalThis.String(object.datasetId)
-        : "",
-    };
-  },
-
-  toJSON(message: PublishDatasetRequest): unknown {
-    const obj: any = {};
-    if (message.datasetId !== "") {
-      obj.datasetId = message.datasetId;
-    }
-    return obj;
-  },
-
-  create(base?: DeepPartial<PublishDatasetRequest>): PublishDatasetRequest {
-    return PublishDatasetRequest.fromPartial(base ?? {});
-  },
-  fromPartial(
-    object: DeepPartial<PublishDatasetRequest>,
-  ): PublishDatasetRequest {
-    const message = createBasePublishDatasetRequest();
-    message.datasetId = object.datasetId ?? "";
     return message;
   },
 };
@@ -5474,104 +5352,6 @@ export const ChargeForDatasetRowsRequest: MessageFns<ChargeForDatasetRowsRequest
     },
   };
 
-function createBaseNebula(): Nebula {
-  return { error: "", fileSizeBytes: 0, url: "" };
-}
-
-export const Nebula: MessageFns<Nebula> = {
-  encode(
-    message: Nebula,
-    writer: BinaryWriter = new BinaryWriter(),
-  ): BinaryWriter {
-    if (message.error !== "") {
-      writer.uint32(10).string(message.error);
-    }
-    if (message.fileSizeBytes !== 0) {
-      writer.uint32(16).int64(message.fileSizeBytes);
-    }
-    if (message.url !== "") {
-      writer.uint32(26).string(message.url);
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): Nebula {
-    const reader =
-      input instanceof BinaryReader ? input : new BinaryReader(input);
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseNebula();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.error = reader.string();
-          continue;
-        }
-        case 2: {
-          if (tag !== 16) {
-            break;
-          }
-
-          message.fileSizeBytes = longToNumber(reader.int64());
-          continue;
-        }
-        case 3: {
-          if (tag !== 26) {
-            break;
-          }
-
-          message.url = reader.string();
-          continue;
-        }
-      }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-
-  fromJSON(object: any): Nebula {
-    return {
-      error: isSet(object.error) ? globalThis.String(object.error) : "",
-      fileSizeBytes: isSet(object.fileSizeBytes)
-        ? globalThis.Number(object.fileSizeBytes)
-        : 0,
-      url: isSet(object.url) ? globalThis.String(object.url) : "",
-    };
-  },
-
-  toJSON(message: Nebula): unknown {
-    const obj: any = {};
-    if (message.error !== "") {
-      obj.error = message.error;
-    }
-    if (message.fileSizeBytes !== 0) {
-      obj.fileSizeBytes = Math.round(message.fileSizeBytes);
-    }
-    if (message.url !== "") {
-      obj.url = message.url;
-    }
-    return obj;
-  },
-
-  create(base?: DeepPartial<Nebula>): Nebula {
-    return Nebula.fromPartial(base ?? {});
-  },
-  fromPartial(object: DeepPartial<Nebula>): Nebula {
-    const message = createBaseNebula();
-    message.error = object.error ?? "";
-    message.fileSizeBytes = object.fileSizeBytes ?? 0;
-    message.url = object.url ?? "";
-    return message;
-  },
-};
-
 function createBaseDataset(): Dataset {
   return {
     crawlerWorkflowId: "",
@@ -5582,7 +5362,6 @@ function createBaseDataset(): Dataset {
     statusMessage: "",
     steps: [],
     totalSteps: 0,
-    nebula: undefined,
   };
 }
 
@@ -5620,9 +5399,6 @@ export const Dataset: MessageFns<Dataset> = {
     }
     if (message.totalSteps !== 0) {
       writer.uint32(64).int64(message.totalSteps);
-    }
-    if (message.nebula !== undefined) {
-      Nebula.encode(message.nebula, writer.uint32(74).fork()).join();
     }
     return writer;
   },
@@ -5703,14 +5479,6 @@ export const Dataset: MessageFns<Dataset> = {
           message.totalSteps = longToNumber(reader.int64());
           continue;
         }
-        case 9: {
-          if (tag !== 74) {
-            break;
-          }
-
-          message.nebula = Nebula.decode(reader, reader.uint32());
-          continue;
-        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -5744,7 +5512,6 @@ export const Dataset: MessageFns<Dataset> = {
       totalSteps: isSet(object.totalSteps)
         ? globalThis.Number(object.totalSteps)
         : 0,
-      nebula: isSet(object.nebula) ? Nebula.fromJSON(object.nebula) : undefined,
     };
   },
 
@@ -5774,9 +5541,6 @@ export const Dataset: MessageFns<Dataset> = {
     if (message.totalSteps !== 0) {
       obj.totalSteps = Math.round(message.totalSteps);
     }
-    if (message.nebula !== undefined) {
-      obj.nebula = Nebula.toJSON(message.nebula);
-    }
     return obj;
   },
 
@@ -5793,10 +5557,6 @@ export const Dataset: MessageFns<Dataset> = {
     message.statusMessage = object.statusMessage ?? "";
     message.steps = object.steps?.map(e => DatasetStep.fromPartial(e)) || [];
     message.totalSteps = object.totalSteps ?? 0;
-    message.nebula =
-      object.nebula !== undefined && object.nebula !== null
-        ? Nebula.fromPartial(object.nebula)
-        : undefined;
     return message;
   },
 };
@@ -5886,112 +5646,6 @@ export const UpsertDatasetRequest: MessageFns<UpsertDatasetRequest> = {
     message.dataset =
       object.dataset !== undefined && object.dataset !== null
         ? Dataset.fromPartial(object.dataset)
-        : undefined;
-    return message;
-  },
-};
-
-function createBaseUpsertNebulaRequest(): UpsertNebulaRequest {
-  return { datasetId: "", nebulaId: "", nebula: undefined };
-}
-
-export const UpsertNebulaRequest: MessageFns<UpsertNebulaRequest> = {
-  encode(
-    message: UpsertNebulaRequest,
-    writer: BinaryWriter = new BinaryWriter(),
-  ): BinaryWriter {
-    if (message.datasetId !== "") {
-      writer.uint32(10).string(message.datasetId);
-    }
-    if (message.nebulaId !== "") {
-      writer.uint32(18).string(message.nebulaId);
-    }
-    if (message.nebula !== undefined) {
-      Nebula.encode(message.nebula, writer.uint32(26).fork()).join();
-    }
-    return writer;
-  },
-
-  decode(
-    input: BinaryReader | Uint8Array,
-    length?: number,
-  ): UpsertNebulaRequest {
-    const reader =
-      input instanceof BinaryReader ? input : new BinaryReader(input);
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseUpsertNebulaRequest();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.datasetId = reader.string();
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.nebulaId = reader.string();
-          continue;
-        }
-        case 3: {
-          if (tag !== 26) {
-            break;
-          }
-
-          message.nebula = Nebula.decode(reader, reader.uint32());
-          continue;
-        }
-      }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-
-  fromJSON(object: any): UpsertNebulaRequest {
-    return {
-      datasetId: isSet(object.datasetId)
-        ? globalThis.String(object.datasetId)
-        : "",
-      nebulaId: isSet(object.nebulaId)
-        ? globalThis.String(object.nebulaId)
-        : "",
-      nebula: isSet(object.nebula) ? Nebula.fromJSON(object.nebula) : undefined,
-    };
-  },
-
-  toJSON(message: UpsertNebulaRequest): unknown {
-    const obj: any = {};
-    if (message.datasetId !== "") {
-      obj.datasetId = message.datasetId;
-    }
-    if (message.nebulaId !== "") {
-      obj.nebulaId = message.nebulaId;
-    }
-    if (message.nebula !== undefined) {
-      obj.nebula = Nebula.toJSON(message.nebula);
-    }
-    return obj;
-  },
-
-  create(base?: DeepPartial<UpsertNebulaRequest>): UpsertNebulaRequest {
-    return UpsertNebulaRequest.fromPartial(base ?? {});
-  },
-  fromPartial(object: DeepPartial<UpsertNebulaRequest>): UpsertNebulaRequest {
-    const message = createBaseUpsertNebulaRequest();
-    message.datasetId = object.datasetId ?? "";
-    message.nebulaId = object.nebulaId ?? "";
-    message.nebula =
-      object.nebula !== undefined && object.nebula !== null
-        ? Nebula.fromPartial(object.nebula)
         : undefined;
     return message;
   },
@@ -7183,14 +6837,14 @@ export const CrawlerDatasetFiles: MessageFns<CrawlerDatasetFiles> = {
   },
 };
 
-function createBaseCrawlerRawMinerFilesResponse(): CrawlerRawMinerFilesResponse {
+function createBaseListCrawlerRawFilesResponse(): ListCrawlerRawFilesResponse {
   return { crawlerId: "", s3Paths: [], fileSizeBytes: [] };
 }
 
-export const CrawlerRawMinerFilesResponse: MessageFns<CrawlerRawMinerFilesResponse> =
+export const ListCrawlerRawFilesResponse: MessageFns<ListCrawlerRawFilesResponse> =
   {
     encode(
-      message: CrawlerRawMinerFilesResponse,
+      message: ListCrawlerRawFilesResponse,
       writer: BinaryWriter = new BinaryWriter(),
     ): BinaryWriter {
       if (message.crawlerId !== "") {
@@ -7210,11 +6864,11 @@ export const CrawlerRawMinerFilesResponse: MessageFns<CrawlerRawMinerFilesRespon
     decode(
       input: BinaryReader | Uint8Array,
       length?: number,
-    ): CrawlerRawMinerFilesResponse {
+    ): ListCrawlerRawFilesResponse {
       const reader =
         input instanceof BinaryReader ? input : new BinaryReader(input);
       let end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseCrawlerRawMinerFilesResponse();
+      const message = createBaseListCrawlerRawFilesResponse();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -7261,7 +6915,7 @@ export const CrawlerRawMinerFilesResponse: MessageFns<CrawlerRawMinerFilesRespon
       return message;
     },
 
-    fromJSON(object: any): CrawlerRawMinerFilesResponse {
+    fromJSON(object: any): ListCrawlerRawFilesResponse {
       return {
         crawlerId: isSet(object.crawlerId)
           ? globalThis.String(object.crawlerId)
@@ -7275,7 +6929,7 @@ export const CrawlerRawMinerFilesResponse: MessageFns<CrawlerRawMinerFilesRespon
       };
     },
 
-    toJSON(message: CrawlerRawMinerFilesResponse): unknown {
+    toJSON(message: ListCrawlerRawFilesResponse): unknown {
       const obj: any = {};
       if (message.crawlerId !== "") {
         obj.crawlerId = message.crawlerId;
@@ -7290,14 +6944,14 @@ export const CrawlerRawMinerFilesResponse: MessageFns<CrawlerRawMinerFilesRespon
     },
 
     create(
-      base?: DeepPartial<CrawlerRawMinerFilesResponse>,
-    ): CrawlerRawMinerFilesResponse {
-      return CrawlerRawMinerFilesResponse.fromPartial(base ?? {});
+      base?: DeepPartial<ListCrawlerRawFilesResponse>,
+    ): ListCrawlerRawFilesResponse {
+      return ListCrawlerRawFilesResponse.fromPartial(base ?? {});
     },
     fromPartial(
-      object: DeepPartial<CrawlerRawMinerFilesResponse>,
-    ): CrawlerRawMinerFilesResponse {
-      const message = createBaseCrawlerRawMinerFilesResponse();
+      object: DeepPartial<ListCrawlerRawFilesResponse>,
+    ): ListCrawlerRawFilesResponse {
+      const message = createBaseListCrawlerRawFilesResponse();
       message.crawlerId = object.crawlerId ?? "";
       message.s3Paths = object.s3Paths?.map(e => e) || [];
       message.fileSizeBytes = object.fileSizeBytes?.map(e => e) || [];
@@ -7314,7 +6968,6 @@ function createBaseDatasetFileWithId(): DatasetFileWithId {
     numRows: 0,
     s3Key: "",
     url: "",
-    nebulaUrl: "",
   };
 }
 
@@ -7346,9 +6999,6 @@ export const DatasetFileWithId: MessageFns<DatasetFileWithId> = {
     }
     if (message.url !== "") {
       writer.uint32(58).string(message.url);
-    }
-    if (message.nebulaUrl !== "") {
-      writer.uint32(66).string(message.nebulaUrl);
     }
     return writer;
   },
@@ -7419,14 +7069,6 @@ export const DatasetFileWithId: MessageFns<DatasetFileWithId> = {
           message.url = reader.string();
           continue;
         }
-        case 8: {
-          if (tag !== 66) {
-            break;
-          }
-
-          message.nebulaUrl = reader.string();
-          continue;
-        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -7453,9 +7095,6 @@ export const DatasetFileWithId: MessageFns<DatasetFileWithId> = {
       numRows: isSet(object.numRows) ? globalThis.Number(object.numRows) : 0,
       s3Key: isSet(object.s3Key) ? globalThis.String(object.s3Key) : "",
       url: isSet(object.url) ? globalThis.String(object.url) : "",
-      nebulaUrl: isSet(object.nebulaUrl)
-        ? globalThis.String(object.nebulaUrl)
-        : "",
     };
   },
 
@@ -7482,9 +7121,6 @@ export const DatasetFileWithId: MessageFns<DatasetFileWithId> = {
     if (message.url !== "") {
       obj.url = message.url;
     }
-    if (message.nebulaUrl !== "") {
-      obj.nebulaUrl = message.nebulaUrl;
-    }
     return obj;
   },
 
@@ -7500,7 +7136,6 @@ export const DatasetFileWithId: MessageFns<DatasetFileWithId> = {
     message.numRows = object.numRows ?? 0;
     message.s3Key = object.s3Key ?? "";
     message.url = object.url ?? "";
-    message.nebulaUrl = object.nebulaUrl ?? "";
     return message;
   },
 };
@@ -8623,254 +8258,6 @@ export const MarketplaceCrawlerDataForDDSubmission: MessageFns<MarketplaceCrawle
     },
   };
 
-function createBaseGetActiveUserTasksResponse(): GetActiveUserTasksResponse {
-  return { activeUserTasks: [] };
-}
-
-export const GetActiveUserTasksResponse: MessageFns<GetActiveUserTasksResponse> =
-  {
-    encode(
-      message: GetActiveUserTasksResponse,
-      writer: BinaryWriter = new BinaryWriter(),
-    ): BinaryWriter {
-      for (const v of message.activeUserTasks) {
-        ActiveUserTask.encode(v!, writer.uint32(10).fork()).join();
-      }
-      return writer;
-    },
-
-    decode(
-      input: BinaryReader | Uint8Array,
-      length?: number,
-    ): GetActiveUserTasksResponse {
-      const reader =
-        input instanceof BinaryReader ? input : new BinaryReader(input);
-      let end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseGetActiveUserTasksResponse();
-      while (reader.pos < end) {
-        const tag = reader.uint32();
-        switch (tag >>> 3) {
-          case 1: {
-            if (tag !== 10) {
-              break;
-            }
-
-            message.activeUserTasks.push(
-              ActiveUserTask.decode(reader, reader.uint32()),
-            );
-            continue;
-          }
-        }
-        if ((tag & 7) === 4 || tag === 0) {
-          break;
-        }
-        reader.skip(tag & 7);
-      }
-      return message;
-    },
-
-    fromJSON(object: any): GetActiveUserTasksResponse {
-      return {
-        activeUserTasks: globalThis.Array.isArray(object?.activeUserTasks)
-          ? object.activeUserTasks.map((e: any) => ActiveUserTask.fromJSON(e))
-          : [],
-      };
-    },
-
-    toJSON(message: GetActiveUserTasksResponse): unknown {
-      const obj: any = {};
-      if (message.activeUserTasks?.length) {
-        obj.activeUserTasks = message.activeUserTasks.map(e =>
-          ActiveUserTask.toJSON(e),
-        );
-      }
-      return obj;
-    },
-
-    create(
-      base?: DeepPartial<GetActiveUserTasksResponse>,
-    ): GetActiveUserTasksResponse {
-      return GetActiveUserTasksResponse.fromPartial(base ?? {});
-    },
-    fromPartial(
-      object: DeepPartial<GetActiveUserTasksResponse>,
-    ): GetActiveUserTasksResponse {
-      const message = createBaseGetActiveUserTasksResponse();
-      message.activeUserTasks =
-        object.activeUserTasks?.map(e => ActiveUserTask.fromPartial(e)) || [];
-      return message;
-    },
-  };
-
-function createBaseActiveUserCrawler(): ActiveUserCrawler {
-  return { crawlerId: "", rowCount: 0 };
-}
-
-export const ActiveUserCrawler: MessageFns<ActiveUserCrawler> = {
-  encode(
-    message: ActiveUserCrawler,
-    writer: BinaryWriter = new BinaryWriter(),
-  ): BinaryWriter {
-    if (message.crawlerId !== "") {
-      writer.uint32(10).string(message.crawlerId);
-    }
-    if (message.rowCount !== 0) {
-      writer.uint32(16).uint64(message.rowCount);
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): ActiveUserCrawler {
-    const reader =
-      input instanceof BinaryReader ? input : new BinaryReader(input);
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseActiveUserCrawler();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.crawlerId = reader.string();
-          continue;
-        }
-        case 2: {
-          if (tag !== 16) {
-            break;
-          }
-
-          message.rowCount = longToNumber(reader.uint64());
-          continue;
-        }
-      }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-
-  fromJSON(object: any): ActiveUserCrawler {
-    return {
-      crawlerId: isSet(object.crawlerId)
-        ? globalThis.String(object.crawlerId)
-        : "",
-      rowCount: isSet(object.rowCount) ? globalThis.Number(object.rowCount) : 0,
-    };
-  },
-
-  toJSON(message: ActiveUserCrawler): unknown {
-    const obj: any = {};
-    if (message.crawlerId !== "") {
-      obj.crawlerId = message.crawlerId;
-    }
-    if (message.rowCount !== 0) {
-      obj.rowCount = Math.round(message.rowCount);
-    }
-    return obj;
-  },
-
-  create(base?: DeepPartial<ActiveUserCrawler>): ActiveUserCrawler {
-    return ActiveUserCrawler.fromPartial(base ?? {});
-  },
-  fromPartial(object: DeepPartial<ActiveUserCrawler>): ActiveUserCrawler {
-    const message = createBaseActiveUserCrawler();
-    message.crawlerId = object.crawlerId ?? "";
-    message.rowCount = object.rowCount ?? 0;
-    return message;
-  },
-};
-
-function createBaseActiveUserTask(): ActiveUserTask {
-  return { gravityTaskId: "", crawlers: [] };
-}
-
-export const ActiveUserTask: MessageFns<ActiveUserTask> = {
-  encode(
-    message: ActiveUserTask,
-    writer: BinaryWriter = new BinaryWriter(),
-  ): BinaryWriter {
-    if (message.gravityTaskId !== "") {
-      writer.uint32(10).string(message.gravityTaskId);
-    }
-    for (const v of message.crawlers) {
-      ActiveUserCrawler.encode(v!, writer.uint32(18).fork()).join();
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): ActiveUserTask {
-    const reader =
-      input instanceof BinaryReader ? input : new BinaryReader(input);
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseActiveUserTask();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.gravityTaskId = reader.string();
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.crawlers.push(
-            ActiveUserCrawler.decode(reader, reader.uint32()),
-          );
-          continue;
-        }
-      }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-
-  fromJSON(object: any): ActiveUserTask {
-    return {
-      gravityTaskId: isSet(object.gravityTaskId)
-        ? globalThis.String(object.gravityTaskId)
-        : "",
-      crawlers: globalThis.Array.isArray(object?.crawlers)
-        ? object.crawlers.map((e: any) => ActiveUserCrawler.fromJSON(e))
-        : [],
-    };
-  },
-
-  toJSON(message: ActiveUserTask): unknown {
-    const obj: any = {};
-    if (message.gravityTaskId !== "") {
-      obj.gravityTaskId = message.gravityTaskId;
-    }
-    if (message.crawlers?.length) {
-      obj.crawlers = message.crawlers.map(e => ActiveUserCrawler.toJSON(e));
-    }
-    return obj;
-  },
-
-  create(base?: DeepPartial<ActiveUserTask>): ActiveUserTask {
-    return ActiveUserTask.fromPartial(base ?? {});
-  },
-  fromPartial(object: DeepPartial<ActiveUserTask>): ActiveUserTask {
-    const message = createBaseActiveUserTask();
-    message.gravityTaskId = object.gravityTaskId ?? "";
-    message.crawlers =
-      object.crawlers?.map(e => ActiveUserCrawler.fromPartial(e)) || [];
-    return message;
-  },
-};
-
 function createBaseUpsertPreBuiltUserDatasetsRequest(): UpsertPreBuiltUserDatasetsRequest {
   return { gravityTaskId: "", crawlerId: "", rowCount: 0 };
 }
@@ -9276,18 +8663,18 @@ export const GravityServiceService = {
     responseDeserialize: (value: Buffer) =>
       GetMarketplaceCrawlersResponse.decode(value),
   },
-  /** Gets raw miner files for a specific crawler */
-  getCrawlerRawMinerFiles: {
-    path: "/gravity.v1.GravityService/GetCrawlerRawMinerFiles",
+  /** Lists raw miner files for a specific crawler */
+  listCrawlerRawFiles: {
+    path: "/gravity.v1.GravityService/ListCrawlerRawFiles",
     requestStream: false,
     responseStream: false,
     requestSerialize: (value: GetCrawlerRequest) =>
       Buffer.from(GetCrawlerRequest.encode(value).finish()),
     requestDeserialize: (value: Buffer) => GetCrawlerRequest.decode(value),
-    responseSerialize: (value: CrawlerRawMinerFilesResponse) =>
-      Buffer.from(CrawlerRawMinerFilesResponse.encode(value).finish()),
+    responseSerialize: (value: ListCrawlerRawFilesResponse) =>
+      Buffer.from(ListCrawlerRawFilesResponse.encode(value).finish()),
     responseDeserialize: (value: Buffer) =>
-      CrawlerRawMinerFilesResponse.decode(value),
+      ListCrawlerRawFilesResponse.decode(value),
   },
   /** Get the parent workflow id (the id of the ui workflow) for this crawler */
   getCrawlerParentTaskId: {
@@ -9476,31 +8863,6 @@ export const GravityServiceService = {
     responseDeserialize: (value: Buffer) =>
       GetGravityTaskDatasetFilesResponse.decode(value),
   },
-  /** Publishes a dataset into the Marketplace */
-  publishDataset: {
-    path: "/gravity.v1.GravityService/PublishDataset",
-    requestStream: false,
-    responseStream: false,
-    requestSerialize: (value: PublishDatasetRequest) =>
-      Buffer.from(PublishDatasetRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer) => PublishDatasetRequest.decode(value),
-    responseSerialize: (value: UpsertResponse) =>
-      Buffer.from(UpsertResponse.encode(value).finish()),
-    responseDeserialize: (value: Buffer) => UpsertResponse.decode(value),
-  },
-  /** Get crawler data for DD submission */
-  getActiveUserTasks: {
-    path: "/gravity.v1.GravityService/GetActiveUserTasks",
-    requestStream: false,
-    responseStream: false,
-    requestSerialize: (value: Empty) =>
-      Buffer.from(Empty.encode(value).finish()),
-    requestDeserialize: (value: Buffer) => Empty.decode(value),
-    responseSerialize: (value: GetActiveUserTasksResponse) =>
-      Buffer.from(GetActiveUserTasksResponse.encode(value).finish()),
-    responseDeserialize: (value: Buffer) =>
-      GetActiveUserTasksResponse.decode(value),
-  },
   /** Get crawler data for DD submission for the marketplace user */
   getMarketplaceCrawlerDataForDdSubmission: {
     path: "/gravity.v1.GravityService/GetMarketplaceCrawlerDataForDDSubmission",
@@ -9583,18 +8945,6 @@ export const GravityServiceService = {
       Buffer.from(InsertDatasetFileRequest.encode(value).finish()),
     requestDeserialize: (value: Buffer) =>
       InsertDatasetFileRequest.decode(value),
-    responseSerialize: (value: UpsertResponse) =>
-      Buffer.from(UpsertResponse.encode(value).finish()),
-    responseDeserialize: (value: Buffer) => UpsertResponse.decode(value),
-  },
-  /** Upserts a nebula into the Gravity nebula DB */
-  upsertNebula: {
-    path: "/gravity.v1.GravityService/UpsertNebula",
-    requestStream: false,
-    responseStream: false,
-    requestSerialize: (value: UpsertNebulaRequest) =>
-      Buffer.from(UpsertNebulaRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer) => UpsertNebulaRequest.decode(value),
     responseSerialize: (value: UpsertResponse) =>
       Buffer.from(UpsertResponse.encode(value).finish()),
     responseDeserialize: (value: Buffer) => UpsertResponse.decode(value),
@@ -9772,10 +9122,10 @@ export interface GravityServiceServer extends UntypedServiceImplementation {
     Empty,
     GetMarketplaceCrawlersResponse
   >;
-  /** Gets raw miner files for a specific crawler */
-  getCrawlerRawMinerFiles: handleUnaryCall<
+  /** Lists raw miner files for a specific crawler */
+  listCrawlerRawFiles: handleUnaryCall<
     GetCrawlerRequest,
-    CrawlerRawMinerFilesResponse
+    ListCrawlerRawFilesResponse
   >;
   /** Get the parent workflow id (the id of the ui workflow) for this crawler */
   getCrawlerParentTaskId: handleUnaryCall<
@@ -9835,10 +9185,6 @@ export interface GravityServiceServer extends UntypedServiceImplementation {
     GetGravityTaskDatasetFilesRequest,
     GetGravityTaskDatasetFilesResponse
   >;
-  /** Publishes a dataset into the Marketplace */
-  publishDataset: handleUnaryCall<PublishDatasetRequest, UpsertResponse>;
-  /** Get crawler data for DD submission */
-  getActiveUserTasks: handleUnaryCall<Empty, GetActiveUserTasksResponse>;
   /** Get crawler data for DD submission for the marketplace user */
   getMarketplaceCrawlerDataForDdSubmission: handleUnaryCall<
     GetMarketplaceCrawlerDataForDDSubmissionRequest,
@@ -9860,8 +9206,6 @@ export interface GravityServiceServer extends UntypedServiceImplementation {
   upsertDataset: handleUnaryCall<UpsertDatasetRequest, UpsertResponse>;
   /** Inserts a dataset file row into the Gravity state DB */
   insertDatasetFile: handleUnaryCall<InsertDatasetFileRequest, UpsertResponse>;
-  /** Upserts a nebula into the Gravity nebula DB */
-  upsertNebula: handleUnaryCall<UpsertNebulaRequest, UpsertResponse>;
   /** Builds all datasets for a task (additionally cancels crawlers with no data) */
   buildAllDatasets: handleUnaryCall<
     BuildAllDatasetsRequest,
@@ -9991,29 +9335,29 @@ export interface GravityServiceClient extends Client {
       response: GetMarketplaceCrawlersResponse,
     ) => void,
   ): ClientUnaryCall;
-  /** Gets raw miner files for a specific crawler */
-  getCrawlerRawMinerFiles(
+  /** Lists raw miner files for a specific crawler */
+  listCrawlerRawFiles(
     request: GetCrawlerRequest,
     callback: (
       error: ServiceError | null,
-      response: CrawlerRawMinerFilesResponse,
+      response: ListCrawlerRawFilesResponse,
     ) => void,
   ): ClientUnaryCall;
-  getCrawlerRawMinerFiles(
+  listCrawlerRawFiles(
     request: GetCrawlerRequest,
     metadata: Metadata,
     callback: (
       error: ServiceError | null,
-      response: CrawlerRawMinerFilesResponse,
+      response: ListCrawlerRawFilesResponse,
     ) => void,
   ): ClientUnaryCall;
-  getCrawlerRawMinerFiles(
+  listCrawlerRawFiles(
     request: GetCrawlerRequest,
     metadata: Metadata,
     options: Partial<CallOptions>,
     callback: (
       error: ServiceError | null,
-      response: CrawlerRawMinerFilesResponse,
+      response: ListCrawlerRawFilesResponse,
     ) => void,
   ): ClientUnaryCall;
   /** Get the parent workflow id (the id of the ui workflow) for this crawler */
@@ -10348,47 +9692,6 @@ export interface GravityServiceClient extends Client {
       response: GetGravityTaskDatasetFilesResponse,
     ) => void,
   ): ClientUnaryCall;
-  /** Publishes a dataset into the Marketplace */
-  publishDataset(
-    request: PublishDatasetRequest,
-    callback: (error: ServiceError | null, response: UpsertResponse) => void,
-  ): ClientUnaryCall;
-  publishDataset(
-    request: PublishDatasetRequest,
-    metadata: Metadata,
-    callback: (error: ServiceError | null, response: UpsertResponse) => void,
-  ): ClientUnaryCall;
-  publishDataset(
-    request: PublishDatasetRequest,
-    metadata: Metadata,
-    options: Partial<CallOptions>,
-    callback: (error: ServiceError | null, response: UpsertResponse) => void,
-  ): ClientUnaryCall;
-  /** Get crawler data for DD submission */
-  getActiveUserTasks(
-    request: Empty,
-    callback: (
-      error: ServiceError | null,
-      response: GetActiveUserTasksResponse,
-    ) => void,
-  ): ClientUnaryCall;
-  getActiveUserTasks(
-    request: Empty,
-    metadata: Metadata,
-    callback: (
-      error: ServiceError | null,
-      response: GetActiveUserTasksResponse,
-    ) => void,
-  ): ClientUnaryCall;
-  getActiveUserTasks(
-    request: Empty,
-    metadata: Metadata,
-    options: Partial<CallOptions>,
-    callback: (
-      error: ServiceError | null,
-      response: GetActiveUserTasksResponse,
-    ) => void,
-  ): ClientUnaryCall;
   /** Get crawler data for DD submission for the marketplace user */
   getMarketplaceCrawlerDataForDdSubmission(
     request: GetMarketplaceCrawlerDataForDDSubmissionRequest,
@@ -10499,22 +9802,6 @@ export interface GravityServiceClient extends Client {
   ): ClientUnaryCall;
   insertDatasetFile(
     request: InsertDatasetFileRequest,
-    metadata: Metadata,
-    options: Partial<CallOptions>,
-    callback: (error: ServiceError | null, response: UpsertResponse) => void,
-  ): ClientUnaryCall;
-  /** Upserts a nebula into the Gravity nebula DB */
-  upsertNebula(
-    request: UpsertNebulaRequest,
-    callback: (error: ServiceError | null, response: UpsertResponse) => void,
-  ): ClientUnaryCall;
-  upsertNebula(
-    request: UpsertNebulaRequest,
-    metadata: Metadata,
-    callback: (error: ServiceError | null, response: UpsertResponse) => void,
-  ): ClientUnaryCall;
-  upsertNebula(
-    request: UpsertNebulaRequest,
     metadata: Metadata,
     options: Partial<CallOptions>,
     callback: (error: ServiceError | null, response: UpsertResponse) => void,
