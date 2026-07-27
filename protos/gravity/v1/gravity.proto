@@ -17,8 +17,8 @@ service GravityService {
   // Get all marketplace crawlers
   rpc GetMarketplaceCrawlers(google.protobuf.Empty) returns (GetMarketplaceCrawlersResponse);
 
-  // Gets raw miner files for a specific crawler
-  rpc GetCrawlerRawMinerFiles(GetCrawlerRequest) returns (CrawlerRawMinerFilesResponse);
+  // Lists raw miner files for a specific crawler
+  rpc ListCrawlerRawFiles(GetCrawlerRequest) returns (ListCrawlerRawFilesResponse);
 
   // Get the parent workflow id (the id of the ui workflow) for this crawler
   rpc GetCrawlerParentTaskId(GetCrawlerRequest) returns (CreateGravityTaskResponse);
@@ -68,9 +68,6 @@ service GravityService {
   rpc GetGravityTaskDatasetFiles(GetGravityTaskDatasetFilesRequest)
       returns (GetGravityTaskDatasetFilesResponse);
 
-  // Publishes a dataset into the Marketplace
-  rpc PublishDataset(PublishDatasetRequest) returns (UpsertResponse);
-
   // Get crawler data for DD submission
   rpc GetActiveUserTasks(google.protobuf.Empty)
       returns (GetActiveUserTasksResponse);
@@ -94,9 +91,6 @@ service GravityService {
 
   // Inserts a dataset file row into the Gravity state DB
   rpc InsertDatasetFile(InsertDatasetFileRequest) returns (UpsertResponse);
-
-  // Upserts a nebula into the Gravity nebula DB
-  rpc UpsertNebula(UpsertNebulaRequest) returns (UpsertResponse);
 
   // Builds all datasets for a task (additionally cancels crawlers with no data)
   rpc BuildAllDatasets(BuildAllDatasetsRequest)
@@ -224,12 +218,6 @@ message PopularTag {
 message GetPopularTagsResponse {
   // popular_tags: the popular tags
   repeated PopularTag popular_tags = 1;
-}
-
-// PublishDatasetRequest is the request message for publishing a dataset
-message PublishDatasetRequest {
-  // dataset_id: the ID of the dataset
-  string dataset_id = 1;
 }
 
 // UpsertMarketplaceTaskMetadataRequest
@@ -580,15 +568,6 @@ message ChargeForDatasetRowsRequest {
   int64 row_count = 2;
 }
 
-message Nebula {
-  // error: nebula build error message
-  string error = 1;
-  // file_size_bytes: the size of the file in bytes
-  int64 file_size_bytes = 2;
-  // url: the URL of the file
-  string url = 3;
-}
-
 // Dataset contains the progress and results of a dataset build
 message Dataset {
   // crawler_workflow_id: the ID of the parent crawler for this dataset
@@ -607,8 +586,8 @@ message Dataset {
   repeated DatasetStep steps = 7;
   // total_steps: the total number of steps in the dataset build
   int64 total_steps = 8;
-  // nebula: the details about the nebula that was built
-  Nebula nebula = 9;
+  reserved 9;
+  reserved "nebula";
 }
 
 // UpsertDatasetRequest contains the dataset id to insert and the dataset
@@ -618,16 +597,6 @@ message UpsertDatasetRequest {
   string dataset_id = 1;
   // dataset: the details of the dataset
   Dataset dataset = 2;
-}
-
-// UpsertNebulaRequest contains the dataset id and nebula details to upsert
-message UpsertNebulaRequest {
-  // dataset_id: a unique id for the dataset
-  string dataset_id = 1;
-  // nebula_id: a unique id for the nebula
-  string nebula_id = 2;
-  // nebula: the details of the nebula
-  Nebula nebula = 3;
 }
 
 // InsertDatasetFileRequest contains the dataset id to insert into and the
@@ -742,8 +711,8 @@ message CrawlerDatasetFiles {
   repeated DatasetFileWithId dataset_files = 2;
 }
 
-// CrawlerRawMinerFiles contains raw miner files for a specific crawler
-message CrawlerRawMinerFilesResponse {
+// ListCrawlerRawFilesResponse contains raw miner files for a specific crawler
+message ListCrawlerRawFilesResponse {
   // crawler_id: the ID of the crawler
   string crawler_id = 1;
   // s3_paths: the S3 paths associated with this crawler
@@ -768,8 +737,8 @@ message DatasetFileWithId {
   string s3_key = 6;
   // url: the URL of the file (public use)
   string url = 7;
-  // nebula_url: the url of a nebula
-  string nebula_url = 8;
+  reserved 8;
+  reserved "nebula_url";
 }
 
 // GetGravityTaskDatasetFilesResponse is the response message for getting
